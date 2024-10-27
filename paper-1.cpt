@@ -1,0 +1,3 @@
+Lean proof state after quantifier introduction, with implicit arguments displayed.
+    Note that the equality sign in figure \ref{leanlistpretty} is a syntactic sugar of
+    the polymorphic function {\color{hypcolor} \verb|Eq|} seen here^^E^^L 
