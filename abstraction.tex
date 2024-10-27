@@ -1,0 +1,179 @@
+\section{$\lambda_\to$ abstraction}
+
+\subsection{$\lambda C$, $\lambda_\to^*$ and $\lambda_\to$}
+
+In this section, we define three type systems: $\lambda C, \lambda_\to^*$ and $\lambda_\to$. $\lambda C$
+is calculus of constructions with a countable family of non-cumulative universe levels, similar
+to the type theory of Lean; $\lambda_\to^*$ is simply typed lambda calculus with a countable
+family of universe levels, without $\mathsf{U}_0$ and without the typing relation
+$\mathsf{U}_\ell : \mathsf{U}_{\ell + 1}$, intended to model the output of Lean-auto's
+monomorphization; $\lambda_\to$ is simply typed lambda calculus. All three systems will be
+specified as pure-type systems $(\mathcal{S}, \mathcal{A}, \mathcal{R})$, where $\mathcal{S}$
+is the set of sorts, $\mathcal{A} \subseteq \mathcal{S}^2$ is the set of axioms, and
+$\mathcal{R} \subseteq \mathcal{S}^3$ corresponds to the formation rules.
+
+\begin{definition} $\lambda C$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
+  $$\mathcal{S} := \{\mathsf{U}_\ell | \ell \in \mathbb{N}\} \ \ \ \mathcal{A} := \{(\mathsf{U}_\ell, \mathsf{U}_{\ell + 1}) | \ell \in \mathbb{N}\}$$
+  $$\mathcal{R} := \{(\mathsf{U}_\ell, \mathsf{U}_m, \mathsf{U}_{\mathsf{imax}(\ell, m)}) | \ell \in \mathbb{N}, m \in \mathbb{N}\}$$
+  $$\mathsf{imax}(m, n) := \left\{\begin{aligned}
+    \mathsf{max}(m, n), & & n > 0 \\
+    0, & & n = 0
+  \end{aligned}\right.$$  
+\end{definition}
+
+\begin{definition} $\lambda_\to^*$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
+  $$\mathcal{S} := \{\mathsf{U}_\ell | \ell \in \mathbb{N}^*\} \cup \{\mathsf{U}_\ell' | \ell \in \mathbb{N}^*\} \ \ \
+    \mathcal{A} := \{(\mathsf{U}_\ell, \mathsf{U}_\ell') | \ell \in \mathbb{N}^*\}$$
+  $$\mathcal{R} := \{(\mathsf{U}_\ell, \mathsf{U}_m, \mathsf{U}_{\mathsf{max} \{l, m\}}) | \ell \in \mathbb{N}^*, m \in \mathbb{N}^*\}$$
+\end{definition}
+
+\begin{definition} $\lambda_\to$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
+  $$\mathcal{S} := \{\mathsf{U}_1, \mathsf{U}_1'\} \ \ \ \mathcal{A} := \{(\mathsf{U}_1, \mathsf{U}_1')\} \ \ \ 
+    \mathcal{R} := \{\mathsf{U}_1, \mathsf{U}_1, \mathsf{U}_1\}$$
+  This is equivalent to simply typed lambda calculus, where $\mathsf{U}_1$ and $\mathsf{U}_1'$ are
+  usually denoted as $*$ and $\square$, respectively.
+\end{definition}
+
+\begin{theorem} A $\lambda_\to^*$ problem is provable iff it is $\lambda_\to$ provable after forgetting
+  universe levels, assuming the existence of lifting functions in $\lambda C$.
+\end{theorem}
+\begin{proof} \textbf{TODO}
+  (Put this after the definition of provability)
+  (Maybe a direct induction would be more elegant?)
+  If a $\lambda_\to^*$ problem is provable, obviously it is $\lambda_\to$ provable
+  after forgetting the universe levels. If a $\lambda_\to^*$ problem is $\lambda_\to$ provable
+  after forgetting the universe levels, note that the lifting of a $\lambda_\to^*$ problem is sort of
+  an instance of the problem after forgetting universe levels, hence provable. Moreover,
+  a $\lambda_\to^*$ problem is provable iff its lifting is provable.  
+\end{proof}
+
+\subsection{Essentially higher-order problem}
+
+\begin{definition} Let $\sigma : V \to \mathcal{T}$ be a mapping.
+  Define its extension $\overline{\sigma} : \mathcal{T} \to \mathcal{T}$ as
+  $$\overline{\sigma}(\mathsf{U}_\ell) := \mathsf{U}_\ell$$
+  $$\overline{\sigma}(x) := \sigma(x), \text{ for }x \in V$$
+  $$\overline{\sigma}(M \ N) := \overline{\sigma}(M) \ \overline{\sigma}(M)$$
+  $$\overline{\sigma}(\lambda x : s. M) := \lambda x : \overline{\sigma}(s). \overline{\sigma[x \mapsto x]}(M)$$
+  $$\overline{\sigma}(\forall x : s. M) := \forall x : \overline{\sigma}(s). \overline{\sigma[x \mapsto x]}(M)$$
+  where
+  $$\sigma[u \to t](x) := \left\{\begin{aligned}
+    & t & & x = u \\
+    & \sigma(x) & & x \in V \backslash \{u\}
+  \end{aligned}\right.$$
+\end{definition}
+
+\begin{definition} A substitution is a triple $(\Gamma, \Gamma', \sigma)$ where $\Gamma, \Gamma'$ are contexts
+  and $\sigma : V \to \mathcal{T}$, such that for all $(u : \tau) \in \Gamma$,
+  $$\Gamma' \vdash \sigma(u) : \overline{\sigma}(\tau)$$
+  $\Gamma$ is called the domain of the substitution, and $\Gamma'$ is called the codomain of the substitution.
+\end{definition}
+
+\begin{theorem}
+  Let $(\Gamma, \Gamma', \sigma)$ be a substitution. If $\Gamma \vdash t : s$, then $\Gamma' \vdash \overline{\sigma}(t) : \overline{\sigma}(s)$
+\end{theorem}
+\begin{proof} Induction on the derivation of $\Gamma \vdash t : s$, note that $\Gamma'$ and $\sigma$
+  should be universally quantified in the induction hypothesis.
+\end{proof}
+
+\begin{definition} Many-sorted higher-order logic (HOL) is defined as $\lambda_\to^*$ augmented
+  with the following symbols:
+  \begin{enumerate}
+    \item $\mathsf{Bool}$
+    \item $\bot'$ and $\to'$
+    \item $\forall'_t$, for each $t \in \mathcal{T}$
+  \end{enumerate}
+  
+  \noindent and the following derivation rules:
+  $$\frac{}{\vdash \mathsf{Bool} : \mathsf{U}_1} \ \ \ \ \frac{}{\Gamma \vdash \bot' : \mathsf{Bool}}$$
+  $$\frac{}{\Gamma \vdash \to' : \mathsf{Bool} \to \mathsf{Bool} \to \mathsf{Bool}} \ \ \ \
+  \frac{\Gamma \vdash s : \mathsf{U}_\ell}{\Gamma \vdash \forall'_s : (s \to \mathsf{Bool}) \to \mathsf{Bool}}$$
+  
+  \noindent For simplicity, we use $\forall' (x : \alpha), t$ as a shorthand for $\forall'_\alpha \ (\lambda x : \alpha. t)$
+
+  \noindent The canonical embedding $\pi : \mathcal{T}_{\text{HOL}} \to \mathcal{T}$ of HOL into $\lambda C$ is defined as follows:
+  $$\pi(\mathsf{Bool}) := \mathsf{U}_0 \ \ \ \pi(\mathsf{U}_\ell) := \mathsf{U}_\ell \ \ \
+    \pi(\mathsf{U}_\ell') := \mathsf{U}_{\ell + 1}$$
+  $$\pi(\bot') := \forall (\alpha : \mathsf{U}_0). \alpha \ \ \
+  \pi(\to') := \lambda (p \ q : \mathsf{U}_0). \forall (x : p). q$$
+  $$\pi(\forall_t') := \lambda (p : \pi(t) \to \mathsf{U}_0). \forall (x : \pi(t)). p \ x$$
+  $$\pi(x) := x, \text{ for } x \in V$$
+  $$\pi(M \ N) := \pi(M) \ \pi(N) \ \ \ \pi(\lambda x : s. M) := \lambda x : \pi(s). \pi(M)$$
+
+  \noindent $\pi$ is extended to contexts via the following definition:
+  $$\pi(\emptyset) := \emptyset \ \ \ \pi(\Gamma, x : \sigma) := \pi(\Gamma), x : \pi(\sigma)$$
+
+  \noindent \textbf{TODO: Is this really equivalent to higher-order logic?}
+
+\end{definition}
+
+\begin{theorem}\label{ceptj} Canonical embedding preserves judgement, i.e. if $\Gamma \vdash t : s$ in HOL, then
+  $\pi(\Gamma) \vdash \pi(t) : \pi(s)$ in $\lambda C$ \end{theorem}
+\begin{proof} Induction on the derivation rules of HOL. \end{proof}
+
+\begin{definition} A (HOL/$\lambda C$) problem is a tuple $(\Gamma, p)$, denoted
+  as $\Gamma \vdash? p$, where $\Gamma$ is a (HOL/$\lambda C$)
+  context, called the hypotheses of the problem, and $p$ is a
+  (HOL/$\lambda C$) term, called the goal of the problem. A $\lambda C$ problem
+  $\Gamma \vdash? p$ is provable iff there exists a $\lambda C$ term $t$ such that
+  $\Gamma \vdash t : p$. A HOL problem $\Gamma \vdash? p$ is provable iff there exists
+  a $\lambda C$ term $t$ such that $\pi(\Gamma) \vdash t : \pi(p)$.
+\end{definition}
+
+\begin{definition} A $\lambda C$ problem $\Gamma \vdash? p$ is essentially higher-order provable (EHOP)
+  iff there exists a provable HOL problem $\Gamma' \vdash? p'$ and a substitution
+  $(\pi(\Gamma'), \Gamma, \sigma)$ such that $p = \overline{\sigma}(\pi(p'))$.
+\end{definition}
+
+\begin{theorem}
+  If a $\lambda C$ problem $\Gamma \vdash? p$ is EHOP, then it is provable.
+\end{theorem}
+\begin{proof} By the definition of EHOP, there exists a provable HOL problem
+  $\Gamma' \vdash? p'$ and substitution $(\pi(\Gamma'), \Gamma, \sigma)$ such that
+  $p = \overline{\sigma}(\pi(p'))$. By the definition of HOL provability, there exists
+  a term $t'$ such that $\pi(\Gamma') \vdash t' : \pi(p')$. By theorem \ref{ceptj},
+  $\Gamma \vdash \overline{\sigma}(t') : \overline{\sigma}(\pi(p'))$, thus $\Gamma \vdash? p$
+  is provable.
+\end{proof}
+
+\noindent We define logical symbols in $\lambda C$ as follows:
+$$\bot := \forall p : \mathsf{U}_0. p \ \ \ (\neg) := \lambda p : \mathsf{U}_0. p \to \bot$$
+$$(\land) := \lambda p \ q : \mathsf{U}_0. \forall r : \mathsf{U}_0. (p \to q \to r) \to r$$
+$$(\lor) := \lambda p \ q : \mathsf{U}_0. \forall r : \mathsf{U}_0. (p \to r) \to (q \to r) \to r$$
+$$(\leftrightarrow) := \lambda p \ q. (p \to q) \land (q \to p)$$
+$$(=_\ell) := \lambda \alpha : \mathsf{U}_\ell. \lambda x \ y : \alpha. \forall p : \alpha \to \mathsf{U}_0. (p \ x \leftrightarrow p \ y)$$
+$$(\exists_\ell) := \lambda \alpha : \mathsf{U}_\ell. \lambda p : \alpha \to \mathsf{U}_0. \forall q : \mathsf{U}_0. ((\forall x : \alpha. p \ x \to q) \to q)$$
+
+\noindent The symbols $\neg', \land', \lor', \leftrightarrow'$ are defined in HOL in the
+same way, except that the $\mathsf{U}_0$s are replaced with $\mathsf{Bool}$ and the $\to$s are
+replaced with $\to'$. Equality and existential quantifier in HOL are defined as follows:
+$$(=_s') := \lambda x \ y : s. \forall' p : \alpha \to \mathsf{Bool}. (p \ x \leftrightarrow' p \ y)$$
+$$(\exists_s') := \lambda p : \alpha \to \mathsf{Bool}. \forall' q : \mathsf{Bool}. ((\forall' x : \alpha. p \ x \to' q) \to' q)$$
+
+\noindent We also assume that excluded middle, i.e. $\mathsf{em} : \forall p : \mathsf{U}_0, p \lor \neg p$
+is implicitly contained in the hypotheses of all $\lambda C$ problems. Similarly, $\mathsf{em}' : \forall p : \mathsf{Bool}, p \lor \neg p$
+is assumed to be implicitly contained in the hypotheses of all HOL problems.
+
+\begin{example} Consider the $\lambda C$ problem $\Gamma \vdash? p$ where
+\begin{align*}
+  \Gamma := \ & \mathbb{N} : \mathsf{U}_1, \mathsf{Fin} : \mathbb{N} \to \mathsf{U}_1,
+  \mathsf{add} : \forall n : \mathbb{N}, (\mathsf{Fin} \ n \to \mathsf{Fin} \ n \to \mathsf{Fin} \ n), n : \mathbb{N} \\
+  p := \ & (\forall (u \ v : \mathsf{Fin} \ n). \mathsf{add} \ n \ u \ v = \mathsf{add} \ n \ v \ u) \to \\
+  & \ \ \ \forall (u \ v \ w : \mathsf{Fin} \ n). \mathsf{add} \ n \ (\mathsf{add} \ n \ x \ y) \ z = \mathsf{add} \ n \ z \ (\mathsf{add} \ n \ y \ x)
+\end{align*}
+Given
+\begin{align*}
+  \Gamma' := \ & \alpha : \mathsf{U}_1, f : \alpha \to \alpha \to \alpha \\
+  p' := \ & (\forall' (u \ v : \alpha). f \ u \ v =_\alpha' f \ v \ u) \to' \\
+  & \ \ \ \forall' (u \ v \ w : \alpha), f \ (f \ u \ v) \ w =_\alpha' f \ w \ (f \ v \ u)
+\end{align*}
+The higher-order problem $\Gamma' \vdash? p'$ is provable. Moreover, given
+$$\sigma(\alpha) := \mathsf{Fin} \ n, \sigma(f) := \mathsf{add} \ n$$
+The triple $(\pi(\Gamma'), \Gamma, \sigma)$ forms a substitution, and $p = \overline{\sigma}(\pi(p'))$.
+Therefore, $\Gamma \vdash? p$ is an EHOP problem.
+\end{example}
+
+\noindent Note that
+
+\noindent \textbf{TODO:} There exists a provable $\lambda C$ problem that
+is not essentially higher-order.

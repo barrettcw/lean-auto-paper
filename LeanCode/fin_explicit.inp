@@ -1,0 +1,6 @@
+|!add!|: {n : Nat} → Fin n → Fin n → Fin n
+|!add_comm!| : ∀ {n : Nat} (x y : Fin n), @Eq (Fin n) (@add n x y)
+  (@add n y x)
+|!m!| : Nat
+|!u v w!| : Fin m
+⊢ @Eq (Fin m) (@add m u (@add m v w)) (@add m (@add m w v) u)

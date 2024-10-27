@@ -1,0 +1,169 @@
+\section{Motivating Examples}
+
+\begin{lrbox}{\vEq} {\color{hypcolor} \verb|Eq|} \end{lrbox}
+\begin{lrbox}{\vmap} {\color{hypcolor} \verb|map|} \end{lrbox}
+\begin{lrbox}{\vrev} {\color{hypcolor} \verb|reverse|} \end{lrbox}
+\begin{lrbox}{\vmaprev} {\color{hypcolor} \verb|map_reverse|} \end{lrbox}
+\begin{lrbox}{\vrevrev} {\color{hypcolor} \verb|reverse_reverse|} \end{lrbox}
+
+In section \ref{exabst} and \ref{exinst}, we will demonstrate the execution of our monomorphization procedure on a
+concrete example involving the polymorphic \textbf{List} type in Lean. Note that both
+the examples and the monomorphization procedure here are simplified. Section \ref{exqdet} contains
+discussions and more examples to illustrate details of our monomorphization procedure.
+
+\subsection{$\lambda_\to$ Abstraction} \label{exabst}
+
+\begin{figure}
+  \begin{CenteredBox}
+    \lstinputlisting[style=leanHH]{LeanCode/reverse_map_pretty.inp}
+  \end{CenteredBox}
+  \caption{Lean proof state of a problem involving \textbf{List}} \label{leanlistpretty}
+\end{figure}
+
+\noindent The Lean proof state of the problem we will consider is shown in Figure \ref{leanlistpretty}.
+The premises are displayed before $\vdash$, while the goal comes after $\vdash$. The premise
+\usebox{\vmaprev} states that \usebox{\vmap} commutes with \usebox{\vrev}, and the premise
+\usebox{\vrevrev} states that \usebox{\vrev} is the inverse function of itself.
+
+\noindent As a standard preprocessing step, we introduce all the $\forall$ quantifiers
+of the goal into the context, and apply proof by contradiction. The resulting proof state
+is shown in Figure \ref{leanlistexplicit}.
+For clarity, we have displayed the implicit arguments of all the functions.
+
+\begin{figure}
+  \begin{CenteredBox}
+    \lstinputlisting[style=leanHH]{LeanCode/reverse_map_explicit.inp}
+  \end{CenteredBox}
+  \caption{Lean proof state after quantifier introduction and proof by contradiction, with implicit arguments displayed.
+    Note that the equality sign in figure \ref{leanlistpretty} is a syntactic sugar of
+    the polymorphic function {\usebox{\vEq}} seen here}
+  \label{leanlistexplicit}
+\end{figure}
+
+\noindent First, we focus on translating \texttt{neg\_goal} into $\lambda_\to$. Three polymorphic functions,
+namely \usebox{\vEq}, \usebox{\vmap} and \usebox{\vrev}, occur in the goal.
+Although these functions are polymorphic, instances of these functions
+with type arguments instantiated could be monomorphic. The goal contains four of
+such monomorphic instances: \texttt{@Eq (List B)}, \texttt{@reverse B}, \texttt{@map A B}
+and \texttt{@reverse A}. Note that all the polymorphic functions occur
+within their monomorphic instances. Therefore, we can abstract these monomorphic
+instances to uninterpreted functions:
+
+\
+
+\begin{CenteredBox}
+    \lstinputlisting[style=leanHH, linerange={1-2}]{LeanCode/reverse_map_abstract.inp}
+\end{CenteredBox}
+\
+
+\noindent $\lambda_\to$ also forbids types dependent on types.
+Therefore, \texttt{List A} and \texttt{List B}, which occur in the type of our
+uninterpreted functions, should be abstracted to uninterpreted type variables:
+
+\
+
+\begin{CenteredBox}
+  \lstinputlisting[style=leanHH, linerange={3-3}]{LeanCode/reverse_map_abstract.inp}
+\end{CenteredBox}
+\
+
+\noindent After these abstractions, the goal becomes a formula in $\lambda_\to$:
+
+\
+
+\begin{CenteredBox}
+    \lstinputlisting[style=leanHH, linerange={4-4}]{LeanCode/reverse_map_abstract.inp}
+\end{CenteredBox}
+\
+
+\noindent However, this abstraction technique is not directly applicable to \usebox{\vmaprev} and
+\usebox{\vrevrev}, because type arguments of polymorphic functions in them are quantified. For
+example, the type arguments of the first occurrence of \usebox{\vmap} in \usebox{\vmaprev}
+are $\alpha$ and $\beta$, both bound by universal quantifiers. Naturally, we would like
+to instantiate these quantifiers to make the abstraction technique applicable
+
+\subsection{Quantifier Instantiation} \label{exinst}
+
+If we were to prove the goal manually, there are at least two ways we can proceed. We can
+either first use \texttt{@map\_reverse A B} to swap the outer \texttt{reverse} with \texttt{map}, then
+use \texttt{@reverse\_reverse A} to eliminate \texttt{reverse}; or, first use
+\texttt{@map\_reverse A B} to swap the inner \texttt{reverse} with \texttt{map}, then
+use \texttt{@reverse\_reverse B} to eliminate \texttt{reverse}. Notice how quantifiers
+in the premises are instantiated so that the type arguments of polymorphic functions
+in the instantiated premises match the type arguments of their monomorphic instances in the goal.
+
+\noindent Quantifier instantiation in Lean-auto's monomorphization procedure is based
+on a matching procedure that reflects the above observation. Given a set of formulas $S$,
+the matching procedure first computes the set $M$ of monomorphic instances of polymorphic functions occurring
+in $S$, then matches type-quantified formulas in $S$ with elements of $M$. For example,
+given $S=$\texttt{\{@map\_reverse, @reverse\_reverse, neg\_goal\}}, the set $M$ will be
+\texttt{\{@reverse A, @reverse B, @map A B, @Eq (List B)\}}, all of which collected from \texttt{neg\_goal}.
+The matching procedure will preform the following matchings:
+
+\begin{enumerate}
+  \item \texttt{@Eq (List $\beta$)} in \usebox{\vmaprev} with \texttt{@Eq (List B)},
+    which produces \texttt{fun $\alpha$ => @map\_reverse $\alpha$ B}
+  \item \texttt{@map $\alpha$ $\beta$} in \usebox{\vmaprev} with \texttt{@map A B},
+    which produces \texttt{map\_reverse A B}
+  \item \texttt{@reverse $\alpha$} in \usebox{\vmaprev} with \texttt{@reverse A} and \texttt{@reverse B},
+    which produces \texttt{@map\_reverse A} and \texttt{@map\_reverse B}
+  \item \texttt{@reverse $\beta$} in \usebox{\vmaprev} with \texttt{@reverse A} and \texttt{@reverse B},
+    which produces \texttt{fun $\alpha$ => @map\_reverse $\alpha$ A} and \texttt{fun $\alpha$ => @map\_reverse $\alpha$ B}
+  \item \texttt{@Eq (List $\alpha$)} in \usebox{\vrevrev} with \texttt{@Eq (List B)},
+    which produces \texttt{@reverse\_reverse B}
+  \item \texttt{@reverse $\alpha$} in \usebox{\vrevrev} with \texttt{@reverse A} and \texttt{@reverse B},
+    which produces \texttt{@reverse\_reverse A} and \texttt{@reverse\_reverse B}
+\end{enumerate}
+
+\noindent Since \texttt{@reverse\_reverse A}, \texttt{@reverse\_reverse B} and \texttt{@map\_reverse A B}
+are present, the instances produced are already sufficient for proving the goal.
+But generally speaking, the newly generated premise instances and polymorphic function instances
+in them can still be matched with each other (and existing instances) to produce new useful results.
+(\textbf{TODO:} Give a concrete example taken from my graduation thesis?)
+Hence, the monomorphization procedure in Lean-auto uses a saturation loop which
+repeats the matching procedure until either no new instances can be produced or a predefined
+threshold is reached.
+
+\subsection{The requirement of $\lambda_\to$ abstraction on quantifier instantiation} \label{exqdet}
+
+In the previous \texttt{List} example, after the type arguments of polymorphic functions
+are instantiated, the $\lambda_\to$ abstraction technique becomes applicable. However, this is
+generally not true in dependent type theory. Consider the following example about \texttt{Fin} shown
+in figure \ref{leanfinexplicit}. Note that \texttt{add} has no type arguments. However, in
+\texttt{add\_comm}, we cannot apply the abstraction technique because the first argument of
+\texttt{add} contains quantified variable \texttt{n}, and the type of the second and third argument
+of \texttt{add} depends on the first argument. In fact, in the most general case, $\lambda_\to$
+abstraction is applicable if dependent arguments of functions do not contain bound variables,
+where an argument is called dependent if the return type or the type of a later argument depend on it.
+
+\begin{figure}
+  \begin{CenteredBox}
+    \lstinputlisting[style=leanHH]{LeanCode/fin_explicit.inp}
+  \end{CenteredBox}
+  \caption{Lean proof state of an example about \texttt{Fin}}
+  \label{leanfinexplicit}
+\end{figure}
+
+\noindent It must be noted that whether an argument is dependent depends on how previous arguments
+are instantiated. Consider the example shown in figure \ref{dfun}. Note that the return
+type \texttt{$\beta$ a} depends on the last argument \texttt{a : $\alpha$} in the signature of
+\texttt{DFunLike.coe}. However, when $\beta$ is instantiated with \texttt{fun x => B$_0$}, as in the
+expression at the bottom of figure \ref{dfun}, the return type \texttt{$\beta$ a} reduces to \texttt{B$_0$},
+which no longer depends on the last argument. Lean-auto takes preceding arguments into
+consideration when determining whether an argument is dependent, and is able to detect
+that the last argument is non-dependent in this case.
+
+\begin{figure}
+  \begin{CenteredBox}
+    \begin{lstlisting}[style=leanHH]
+|!@DFunLike.coe!| : {F : Type (max u_1 u_5)}
+  → {α : outParam (Type u_1)} → {β : outParam (α → Type u_5)}
+  → [self : DFunLike F α β] → F → (a : α) → β a
+
+@DFunLike.coe (A₀ →+ B₀) A₀ (fun x => B₀) AddMonoidHom.instFunLike f₀ a 
+    \end{lstlisting}
+  \end{CenteredBox}
+  \caption{The function \texttt{DFunLike.coe} from MathLib4 and an expression
+  containing it}
+  \label{dfun}
+\end{figure}
