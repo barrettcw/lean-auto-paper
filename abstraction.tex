@@ -1,8 +1,8 @@
-\section{$\lambda_\to$ abstraction}
+\section{$\lambda_\to^*$ abstraction}
 
 \subsection{$\lambda C$, $\lambda_\to^*$ and $\lambda_\to$}
 
-In this section, we define three type systems: $\lambda C, \lambda_\to^*$ and $\lambda_\to$. $\lambda C$
+In this subsection, we define three type systems: $\lambda C, \lambda_\to^*$ and $\lambda_\to$. $\lambda C$
 is calculus of constructions with a countable family of non-cumulative universe levels, similar
 to the type theory of Lean; $\lambda_\to^*$ is simply typed lambda calculus with a countable
 family of universe levels, without $\mathsf{U}_0$ and without the typing relation
@@ -18,7 +18,7 @@ $\mathcal{R} \subseteq \mathcal{S}^3$ corresponds to the formation rules.
   $$\mathsf{imax}(m, n) := \left\{\begin{aligned}
     \mathsf{max}(m, n), & & n > 0 \\
     0, & & n = 0
-  \end{aligned}\right.$$  
+  \end{aligned}\right.$$
 \end{definition}
 
 \begin{definition} $\lambda_\to^*$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
@@ -29,7 +29,7 @@ $\mathcal{R} \subseteq \mathcal{S}^3$ corresponds to the formation rules.
 
 \begin{definition} $\lambda_\to$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
   $$\mathcal{S} := \{\mathsf{U}_1, \mathsf{U}_1'\} \ \ \ \mathcal{A} := \{(\mathsf{U}_1, \mathsf{U}_1')\} \ \ \ 
-    \mathcal{R} := \{\mathsf{U}_1, \mathsf{U}_1, \mathsf{U}_1\}$$
+    \mathcal{R} := \{(\mathsf{U}_1, \mathsf{U}_1, \mathsf{U}_1)\}$$
   This is equivalent to simply typed lambda calculus, where $\mathsf{U}_1$ and $\mathsf{U}_1'$ are
   usually denoted as $*$ and $\square$, respectively.
 \end{definition}
@@ -151,13 +151,13 @@ $$(=_s') := \lambda x \ y : s. \forall' p : \alpha \to \mathsf{Bool}. (p \ x \le
 $$(\exists_s') := \lambda p : \alpha \to \mathsf{Bool}. \forall' q : \mathsf{Bool}. ((\forall' x : \alpha. p \ x \to' q) \to' q)$$
 
 \noindent We also assume that excluded middle, i.e. $\mathsf{em} : \forall p : \mathsf{U}_0, p \lor \neg p$,
-is implicitly contained in the hypotheses of all $\lambda C$ problems. Similarly, $\mathsf{em}' : \forall p : \mathsf{Bool}, p \lor \neg p$
+is implicitly contained in the hypotheses of all $\lambda C$ problems. Similarly, $\mathsf{em}' : \forall p : \mathsf{Bool}. p \lor \neg p$
 is assumed to be implicitly contained in the hypotheses of all HOL problems.
 
 \begin{example} Consider the $\lambda C$ problem $\Gamma \vdash? p$ where
 \begin{align*}
   \Gamma := \ & \mathbb{N} : \mathsf{U}_1, \mathsf{Fin} : \mathbb{N} \to \mathsf{U}_1,
-  \mathsf{add} : \forall n : \mathbb{N}, (\mathsf{Fin} \ n \to \mathsf{Fin} \ n \to \mathsf{Fin} \ n), n : \mathbb{N} \\
+  \mathsf{add} : \forall n : \mathbb{N}. (\mathsf{Fin} \ n \to \mathsf{Fin} \ n \to \mathsf{Fin} \ n), n : \mathbb{N} \\
   p := \ & (\forall (u \ v : \mathsf{Fin} \ n). \mathsf{add} \ n \ u \ v = \mathsf{add} \ n \ v \ u) \to \\
   & \ \ \ \forall (u \ v \ w : \mathsf{Fin} \ n). \mathsf{add} \ n \ (\mathsf{add} \ n \ x \ y) \ z = \mathsf{add} \ n \ z \ (\mathsf{add} \ n \ y \ x)
 \end{align*}
@@ -165,7 +165,7 @@ Given
 \begin{align*}
   \Gamma' := \ & \alpha : \mathsf{U}_1, f : \alpha \to \alpha \to \alpha \\
   p' := \ & (\forall' (u \ v : \alpha). f \ u \ v =_\alpha' f \ v \ u) \to' \\
-  & \ \ \ \forall' (u \ v \ w : \alpha), f \ (f \ u \ v) \ w =_\alpha' f \ w \ (f \ v \ u)
+  & \ \ \ \forall' (u \ v \ w : \alpha). f \ (f \ u \ v) \ w =_\alpha' f \ w \ (f \ v \ u)
 \end{align*}
 The higher-order problem $\Gamma' \vdash? p'$ is provable. Moreover, given
 $$\sigma(\alpha) := \mathsf{Fin} \ n, \sigma(f) := \mathsf{add} \ n$$
@@ -188,7 +188,93 @@ is EHOP. However, if we introduce $p \ x$ into the hypotheses, the problem is no
   Note that $h : p \ x$ under the hypotheses of \eqref{hypnehop}, thus \eqref{hypnehop} is provable.
   To show that \eqref{hypnehop} is not EHOP, we use proof by contradiction. Suppose there
   is an HOL problem $\Gamma' \vdash p'$ and a substitution $(\Gamma', \Gamma, \sigma)$ such
-  that $p = \overline{\sigma}(\pi(p'))$. Then, the $\beta$-nf of $p'$ must be of the form
+  that $p = \overline{\sigma}(\pi(p'))$. Then, the $\beta\eta$ normal form of $p'$ must be of the form
   $f \ t_1 \ \dots \ t_k$ where $f$ is a variable. Note that $\Gamma'$, as a context of $\lambda_\to^*$,
   consists solely of HOL (type or term) variable declarations. \textbf{TODO:} Use model theory
 \end{proof}
+
+\subsection{$\lambda_\to^*$ abstraction algorithm}
+
+In this section, we present the $\lambda_\to^*$ abstraction algorithm. When given a
+$\lambda C$ problem $\Gamma \vdash? p$, the algorithm attempts to find a $\lambda_\to^*$
+problem $\Gamma' \vdash? p'$ and a substitution $(\pi(\Gamma'), \Gamma, \sigma)$ such that
+$p = \overline{\sigma}(\pi(p'))$. If the algorithm succeeds, then by definition, $\Gamma \vdash? p$
+is EHOP, which intuitively means that $\Gamma' \vdash p'$ is provable in HOL, and that the
+proof of $\Gamma' \vdash? p'$ can be translated into a proof of $\Gamma \vdash? p$ via
+the mapping $\sigma$.
+
+\noindent We start by defining dependent arguments of terms.
+
+\begin{definition} Suppose that $\Gamma \vdash t : s$ in $\lambda C$, where $s$
+  is in $\beta$ normal form. Then $t$ is said to be $\Gamma$-leading argument dependent, or $\Gamma$-lad,
+  iff $s = (\forall (x : s_1). s_2)$ and $x$ occurs in $s_2$.
+\end{definition}
+
+\begin{definition} Suppose the term $a_0 \ a_1 \ \dots \ a_k$ is type correct under
+  context $\Gamma$ in $\lambda C$. Then for $1 \leq i \leq k$, $a_0$ is said to have dependent $i$-th argument
+  with respect to $\Gamma$ and argument list $(a_1, \dots, a_k)$, or $i$-dep w.r.t
+  $\Gamma$ and $(a_1, \dots, a_k)$, iff $a_0 \ a_1 \ \dots \ a_{i - 1}$ is $\Gamma$-lad.
+  For convenience, we use the predicate
+  $$\mathsf{Dep}(\Gamma; a_0, (a_1, \dots, a_k), i) \ \ \ (k \geq 0, 1 \leq i \leq k)$$
+  to denote that $a_0$ is $i$-dep w.r.t $\Gamma$ and $(a_1, \dots, a_k)$. Note that semicolon
+  is used to separate $\Gamma$ with the rest of the arguments, because $\Gamma$ might contain
+  commas. Furthermore, we define
+  $$\mathsf{LFun}(\Gamma; a_0, (a_1, \dots, a_k)) := \lambda (x_{i_1} : s_{i_1}) \dots (x_{i_m} : s_{i_m}). a_0 \ w_1 \ \dots \ w_m$$
+  $$\mathsf{LArgs}(\Gamma; a_0, (a_1, \dots, a_k)) := (a_{j_1}, a_{j_2}, \dots, a_{j_{k - m}})$$
+  where $i_1 < i_2 < \dots < i_m$ are all the arguments that are dependent, $j_1 < j_2 < \dots < j_{k - m}$
+  are all the arguments that are non-dependent, $\Gamma \vdash a_i : s_i$, and
+  $$w_i := \left\{\begin{aligned}
+    a_i, & & \mathsf{Dep}(\Gamma; a_0, (a_1, \dots, a_k), i) \\
+    x_i, & & \text{otherwise}
+  \end{aligned}\right.$$
+\end{definition}
+
+\begin{example} Let
+  \begin{align*}
+    \Gamma := & \ \mathsf{compose} : \forall (\beta \ \gamma: \mathsf{U}_1).
+      (\beta \to \gamma) \to \forall (\alpha : \mathsf{U}_1). (\alpha \to \beta) \to (\alpha \to \gamma), \\
+      & \ A : \mathsf{U}_1, B : \mathsf{U}_1, C : \mathsf{U}_1, f : B \to C, g : A \to B, x : A
+  \end{align*}
+  Then
+  $$\mathsf{compose}, \mathsf{compose} \ B, \mathsf{compose} \ B \ C \ f$$
+  are $\Gamma$-lad, while
+  $$\mathsf{compose} \ B \ C, \mathsf{compose} \ B \ C \ f \ A, \mathsf{compose} \ B \ C \ f \ A \ g$$
+  are not. Therefore, the dependent arguments of $\mathsf{compose}$ w.r.t $(A, B, C, f, g, x)$
+  are $1, 2$ and $4$, and we have
+  $$\mathsf{LFun}(\Gamma; \mathsf{compose}, (A, B, C, f, g, x)) = \lambda (f : B \to C). \mathsf{compose} \ A \ B \ f \ C$$
+  $$\mathsf{LArgs}(\Gamma; \mathsf{compose}, (A, B, C, f, g, x)) = (f, g, x)$$
+\end{example}
+
+\begin{example} Let
+  \begin{align*}
+    \Gamma := \mathsf{func} : \forall (\alpha : \mathsf{U}_1 \to \mathsf{U}_1) \ (\beta : \mathsf{U}_1). \alpha \ \beta,
+      A : \mathsf{U}_1, B : \mathsf{U}_1 
+  \end{align*}
+  Then $\mathsf{func}$ is $\Gamma$-lad, while
+  $$\mathsf{func} \ (\lambda \beta. A) : \forall (\beta : \mathsf{U}_1). A \ \ \ \ \ \
+  \mathsf{func} \ (\lambda \beta. A) \ B : A$$
+  are not. Therefore, the dependent argument of $\mathsf{func}$ w.r.t $(\lambda \beta. A, B)$ is $1$, and
+  we have
+  $$\mathsf{LFun}(\Gamma; \mathsf{func}, (\lambda \beta. A, B)) = \mathsf{func} \ (\lambda \beta . A) \ \ \ \ \ \
+  \mathsf{LArgs}(\Gamma; \mathsf{func}, (\lambda \beta. A, B)) = B$$
+\end{example}
+
+\noindent Now, we define the concept of quasi-monomorphic terms. Intuitively, quasi-monomorphic
+  terms are $\lambda C$ terms that are structurally similar to HOL terms.
+
+\begin{definition} We define the predicate $\mathsf{QMono}(\Gamma, V, t)$ inductively,
+  where $\Gamma$ is a $\lambda C$ context, $V$ is a set of variables, and $t$ is a $\lambda C$ term
+  \begin{enumerate}
+    \item $\mathsf{QMono}(\Gamma, V, \mathsf{U}_\ell) := \top$
+    \item $\mathsf{QMono}(\Gamma, V, x) := \top$ if $x$ is a variable
+    \item \textbf{TODO}
+  \end{enumerate}
+\end{definition}
+
+
+
+\noindent \textbf{TODO:} Use a better algorithm to deal with cases like identifying that
+the dependent arguments of $\mathsf{func}$ w.r.t $(B, \lambda \beta. A)$ is $2$ instead of $1,2$ under context
+$$\Gamma := \mathsf{func} : \forall (\alpha : \mathsf{U}_1) \ (\beta : \mathsf{U}_1 \to \mathsf{U}_1). \beta \ \alpha,
+  A : \mathsf{U}_1, B : \mathsf{U}_1$$
+Note that the algorithm will be relatively straightforward
