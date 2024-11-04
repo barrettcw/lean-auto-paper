@@ -1,0 +1,33 @@
+\section{Quantifier Instantiation}
+Given a context $\Gamma$ and a list of premises $h_1 : t_1, \dots, h_n : t_n$, the quantifier
+instantiation procedure of Lean-auto attempts to instantiate quantifiers in
+$t_1, \dots, t_n$ to obtain terms suitable for $\lambda_\to^*$ abstraction.
+As mentioned in section \ref{motex}, the quantifier instantiation procedure
+is based on a saturation loop which matches instances of polymorphic functions
+with premise instances.
+
+\noindent An instance of a polymorphic function is called \textit{monomorphic} iff all
+of its dependent arguments are instantiated with terms that do not contain bound
+variables. Formally, the set of monomorphic instances of polymorphic functions in a
+$\lambda C$ term is defined as follows:
+
+\begin{definition}
+  Let $\Gamma$ be a $\lambda C$ context and $V$ be a set of variables, then
+  \begin{enumerate}
+    \item For variable $x$ and terms $t_1, \dots, t_n$,
+      $$\mathsf{monoInst}(\Gamma; V, x \ t_1 \ \dots \ t_n) := \left\{
+        \begin{aligned}
+          S \cup \{l\}, & & FV(l) \cap V = \emptyset \\
+          S, & & \text{otherwise}
+        \end{aligned}
+      \right.$$
+      where
+      $$l := \mathsf{LFun}(\Gamma; x, (t_1 \ \dots \ t_n)) \ \ \ \ \ \ S := \bigcup_{t \in \mathsf{LArgs}(\Gamma; x, (t_1, \dots, t_n))} \mathsf{monoInst}(\Gamma; V, t)$$
+    \item For variable $x$ and terms $a, b$,
+      \begin{align*}
+        \mathsf{monoInst}(\Gamma; V, \forall (x : a). b) = \mathsf{monoInst}(\Gamma; V, \lambda (x : a). b) 
+        \\ := \mathsf{monoInst}(\Gamma; V, a) \cup \mathsf{monoInst}(\Gamma, x : a; V \cup \{x\}, b)
+      \end{align*}
+    \item Otherwise, $\mathsf{monoInst}(\Gamma; V, t) := \emptyset$
+  \end{enumerate}
+\end{definition}

@@ -221,8 +221,8 @@ the mapping $\sigma$.
   $$\mathsf{Dep}(\Gamma; a_0, (a_1, \dots, a_k), i) \ \ \ (k \geq 0, 1 \leq i \leq k)$$
   to denote that $a_0$ is $i$-dep w.r.t $\Gamma$ and $(a_1, \dots, a_k)$. Furthermore, we define
   $$\mathsf{LFun}(\Gamma; a_0, (a_1, \dots, a_k)) := \lambda (x_{i_1} : s_{i_1}) \dots (x_{i_m} : s_{i_m}). a_0 \ w_1 \ \dots \ w_m$$
-  $$\mathsf{DArgs}(\Gamma; a_0, (a_1, \dots, a_k)) := (b_{i_1}, b_{i_2}, \dots, b_{i_m})$$
-  $$\mathsf{LArgs}(\Gamma; a_0, (a_1, \dots, a_k)) := (a_{j_1}, a_{j_2}, \dots, a_{j_{k - m}})$$
+  $$\mathsf{DArgs}(\Gamma; a_0, (a_1, \dots, a_k)) := (b_{i_1}, \dots, b_{i_m})$$
+  $$\mathsf{LArgs}(\Gamma; a_0, (a_1, \dots, a_k)) := (a_{j_1}, \dots, a_{j_{k - m}})$$
   where $i_1 < i_2 < \dots < i_m$ are all the arguments that are dependent, $j_1 < j_2 < \dots < j_{k - m}$
   are all the arguments that are non-dependent, $\Gamma \vdash a_i : s_i$, and
   $$w_i := \left\{\begin{aligned}
@@ -268,13 +268,13 @@ the mapping $\sigma$.
 \begin{definition} We define the predicate $\mathsf{QMono}(\Gamma; V, t)$ inductively,
   where $\Gamma$ is a $\lambda C$ context, $V$ is a set of variables, and $t$ is a $\lambda C$ term
   \begin{enumerate}
-    \item For variable $x \in V$ and terms $t_1, t_2, \dots, t_n$,
+    \item For variable $x \in V$ and terms $t_1, \dots, t_n$,
       \begin{align*}
         \mathsf{QMono}(\Gamma; V, x \ t_1 \dots \ t_n) := \ &
         \mathsf{DArgs}(\Gamma; x, (t_1 \ \dots \ t_n)) = \emptyset \land \\
         & \forall i \in \{1, \dots, n\}. \mathsf{QMono}(\Gamma; V, t_i)
       \end{align*}
-    \item For variable $x \notin V$ and terms $t_1, t_2, \dots, t_n$,
+    \item For variable $x \notin V$ and terms $t_1, \dots, t_n$,
       \begin{align*}
         \mathsf{QMono}(\Gamma; V, x \ t_1 \dots \ t_n) := \ & (\forall t \in \mathsf{DArgs}(\Gamma; x, (t_1, \dots, t_n)). FV(t) \cap V = \emptyset) \land \\
         & (\forall t \in \mathsf{LArgs}(\Gamma; x, (t_1, \dots, t_n)). \mathsf{QMono}(\Gamma; V, t))
@@ -335,7 +335,7 @@ free variables associated with abstracted $\lambda C$ terms. A few auxiliary fun
 Note that $\mathsf{lamAbst}$ only returns the higher-order problem (as a $\lambda_\to^*$ term). The
 substitution from $\lambda_\to^*$ to $\lambda C$ needs to be obtained by computing the inverse of $H$ after
 the execution of the algorithm. Also, note that the implementation of this algorithm in Lean-auto checks
-whether $t$ is quasi-monomorphic and fails if it's not, but for simplicity, these checks have been omitted in $\mathsf{lamAbst}$.
+whether $t$ is quasi-monomorphic and fails if it's not. For simplicity, these checks have been omitted in $\mathsf{lamAbst}$.
 
 \begin{algorithm}\label{lamabst}
   \DontPrintSemicolon
@@ -363,7 +363,7 @@ whether $t$ is quasi-monomorphic and fails if it's not, but for simplicity, thes
         $f := \mathsf{getAppFn}(t)$ \;
         $args := \mathsf{getAppArgs}(t)$ \;
         \uIf{$f \in V$}{
-          \For{a : args}{$a := \mathsf{lamAbst}(a)$}
+          \For{a : args}{$a := \mathsf{lamAbst}(\Gamma; V, a)$}
           \Return $\mathsf{mkAppN}(f, args)$
         }
         $lf := \mathsf{LFun}(\Gamma; f, args)$ \;
