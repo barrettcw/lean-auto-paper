@@ -21,8 +21,8 @@ discussions and more examples to illustrate details of our monomorphization proc
 \end{figure}
 
 \noindent The Lean proof state of the problem we will consider is shown in Figure \ref{leanlistpretty}.
-The premises are displayed before $\vdash$, while the goal comes after $\vdash$. The premise
-\usebox{\vmaprev} states that \usebox{\vmap} commutes with \usebox{\vrev}, and the premise
+The hypotheses are displayed before $\vdash$, while the goal comes after $\vdash$. The hypothesis
+\usebox{\vmaprev} states that \usebox{\vmap} commutes with \usebox{\vrev}, and the hypothesis
 \usebox{\vrevrev} states that \usebox{\vrev} is the inverse function of itself.
 
 \noindent As a standard preprocessing step, we introduce all the $\forall$ quantifiers
@@ -89,8 +89,8 @@ either first use \texttt{@map\_reverse A B} to swap the outer \texttt{reverse} w
 use \texttt{@reverse\_reverse A} to eliminate \texttt{reverse}; or, first use
 \texttt{@map\_reverse A B} to swap the inner \texttt{reverse} with \texttt{map}, then
 use \texttt{@reverse\_reverse B} to eliminate \texttt{reverse}. Notice how quantifiers
-in the premises are instantiated so that the type arguments of polymorphic functions
-in the instantiated premises match the type arguments of their monomorphic instances in the goal.
+in the hypotheses are instantiated so that the type arguments of polymorphic functions
+in the instantiated hypotheses match the type arguments of their monomorphic instances in the goal.
 
 \noindent Quantifier instantiation in Lean-auto's monomorphization procedure is based
 on a matching procedure that reflects the above observation. Given a set of formulas $S$,
@@ -117,7 +117,7 @@ The matching procedure will preform the following matchings:
 
 \noindent Since \texttt{@reverse\_reverse A}, \texttt{@reverse\_reverse B} and \texttt{@map\_reverse A B}
 are present, the instances produced are already sufficient for proving the goal.
-But generally speaking, the newly generated premise instances and polymorphic function instances
+But generally speaking, the newly generated hypothesis instances and polymorphic function instances
 in them can still be matched with each other (and existing instances) to produce new useful results.
 (\textbf{TODO:} Give a concrete example taken from my graduation thesis?)
 Hence, the monomorphization procedure in Lean-auto uses a saturation loop which
