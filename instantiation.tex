@@ -3,6 +3,25 @@ Given a context $\Gamma$ and a list of hypotheses $h_1 : t_1, \dots, h_n : t_n$,
 instantiation procedure of Lean-auto attempts to instantiate quantifiers in
 $t_1, \dots, t_n$ to obtain terms suitable for $\lambda_\to^*$ abstraction.
 
+\noindent Before continuing our discussion, it is important to formally define the concept of \textit{instance}:
+
+\begin{definition}
+  Let $\Gamma$ be a $\lambda C$ context, and $t$ be a $\lambda C$ term which is type correct under $\Gamma$.
+  \begin{enumerate}
+    \item A constant instance of $t$ is a $\lambda C$ term of the
+      form $\lambda (y_1 : s_1) \dots (y_m : s_m). t \ t_1 \ \dots \ t_k$ that is
+      type correct under $\Gamma$, where $s_1, \dots, s_m, t_1, \dots t_k$ are $\lambda C$ terms.
+    \item For $t = \forall (x_1 : r_1) \dots (x_n : r_n). b$, a hypothesis instance of
+      $t$ is a $\lambda C$ term of the form $\forall (y_1 : s_1) \dots (y_m : s_m). b[t_1/x_1]\dots[t_n/x_n]$,
+      where $s_1, \dots, s_m, t_1, \dots, t_n$ are $\lambda C$ terms, and the notion $t_1[t_2/x]$ stands
+      for the term obtained from replacing all the $x$ in $t_1$ with $t_2$.
+  \end{enumerate}
+\end{definition}
+
+\noindent Unless otherwise stated, when discussing instances of functions, we will always be
+referring to \textit{constant instances}; when discussing instances of hypotheses, we will
+always be referring to \textit{hypothesis instances}.
+
 \noindent As mentioned in section \ref{motex}, the quantifier instantiation procedure
 is based on a saturation loop which matches monomorphic instances of polymorphic functions
 with subterms of hypothesis instances. An instance of a polymorphic function is called
@@ -14,39 +33,22 @@ functions in a $\lambda C$ term is defined as follows:
   Let $\Gamma$ be a $\lambda C$ context and $V$ be a set of variables, then
   \begin{enumerate}
     \item For variable $x$ and terms $t_1, \dots, t_n$,
-      $$\mathsf{monoInst}(\Gamma; V, x \ t_1 \ \dots \ t_n) := \left\{
+      $$\mathsf{monoInsts}(\Gamma; V, x \ t_1 \ \dots \ t_n) := \left\{
         \begin{aligned}
           S \cup \{l\}, & & FV(l) \cap V = \emptyset \\
           S, & & \text{otherwise}
         \end{aligned}
       \right.$$
       where
-      $$l := \mathsf{LFun}(\Gamma; x, (t_1 \ \dots \ t_n)) \ \ \ \ \ \ S := \bigcup_{t \in \mathsf{LArgs}(\Gamma; x, (t_1, \dots, t_n))} \mathsf{monoInst}(\Gamma; V, t)$$
+      $$l := \mathsf{LFun}(\Gamma; x, (t_1 \ \dots \ t_n)) \ \ \ \ \ \ S := \bigcup_{t \in \mathsf{LArgs}(\Gamma; x, (t_1, \dots, t_n))} \mathsf{monoInsts}(\Gamma; V, t)$$
     \item For variable $x$ and terms $a, b$,
       \begin{align*}
-        \mathsf{monoInst}(\Gamma; V, \forall (x : a). b) = \mathsf{monoInst}(\Gamma; V, \lambda (x : a). b) 
-        \\ := \mathsf{monoInst}(\Gamma; V, a) \cup \mathsf{monoInst}(\Gamma, x : a; V \cup \{x\}, b)
+        \mathsf{monoInsts}(\Gamma; V, \forall (x : a). b) = \mathsf{monoInsts}(\Gamma; V, \lambda (x : a). b) 
+        \\ := \mathsf{monoInsts}(\Gamma; V, a) \cup \mathsf{monoInsts}(\Gamma, x : a; V \cup \{x\}, b)
       \end{align*}
-    \item Otherwise, $\mathsf{monoInst}(\Gamma; V, t) := \emptyset$
+    \item Otherwise, $\mathsf{monoInsts}(\Gamma; V, t) := \emptyset$
   \end{enumerate}
 \end{definition}
-
-\noindent The matching procedure in the saturation loop is handled by $\mathsf{matchInst}$ and $\mathsf{match}$.
-\begin{enumerate}
-  \item Given context $\Gamma$, variable set $M$ and terms $m, h$,
-    $\mathsf{match}(\Gamma; M, m, h)$ returns all $M$-unifiers between term $m$ and the $\mathsf{LFun}$ of subterms of $h$.
-    The pseudocode for $\mathsf{match}$ is given in \textbf{Algorithm \ref{matching}}. An auxiliary function
-    $\mathsf{unify}$ is used in the pseudocode. Given $\lambda C$ context $\Gamma$, variable set $M$
-    and two $\lambda C$ terms $t_1, t_2$, $\mathsf{union}(\Gamma; M, t_1, t_2)$ returns a complete set of
-    $M$-unifiers of $t_1$ and $t_2$ under $\Gamma$. In Lean, the function $\mathsf{Meta.isDefEq}$ is the closest
-    to the $\mathsf{union}$ here, but $\mathsf{Meta.isDefEq}$ always returns at most one unifier.
-  \item Given context $\Gamma$ and terms $m, h$,
-    $\mathsf{matchInst}(\Gamma; m, h)$ introduces all leading non-prop $\forall$ quantifiers into the context
-    (as free variables), collects all the newly introduced free variables into a variable set $M$, then returns
-    $\mathsf{match}(\Gamma'; M, m, h')$, where $\Gamma', h'$ are $\Gamma, h$ after introduction of free variables.
-    In Lean, this is equivalent to calling $\mathsf{match}$ after instantiating all the leading non-prop
-    $\forall$ quantifiers of $h$ with metavariables.
-\end{enumerate}
 
 \begin{algorithm}\label{matching}
   \DontPrintSemicolon
@@ -76,4 +78,82 @@ functions in a $\lambda C$ term is defined as follows:
   }
 \end{algorithm}
 
-\noindent \textbf{TODO:} Non-subsumption equivalence; Saturation loop
+\noindent The matching procedure in the saturation loop is handled by $\mathsf{matchInst}$ and $\mathsf{match}$.
+\begin{enumerate}
+  \item Given context $\Gamma$, variable set $M$ and terms $m, h$,
+    $\mathsf{match}(\Gamma; M, m, h)$ returns all $M$-unifiers between term $m$ and the $\mathsf{LFun}$ of subterms of $h$.
+    The pseudocode for $\mathsf{match}$ is given in \textbf{Algorithm \ref{matching}}. An auxiliary function
+    $\mathsf{unify}$ is used in the pseudocode. Given $\lambda C$ context $\Gamma$, variable set $M$
+    and two $\lambda C$ terms $t_1, t_2$, $\mathsf{union}(\Gamma; M, t_1, t_2)$ returns a complete set of
+    $M$-unifiers of $t_1$ and $t_2$ under $\Gamma$. In Lean, the function $\mathsf{Meta.isDefEq}$ performs
+    unification, but is incomplete and returns at most one unifier.
+  \item Given context $\Gamma$ and terms $m, h$,
+    $\mathsf{matchInst}(\Gamma; m, h)$ computes all instances of the hypothesis $h$ which has some subterm whose
+    $\mathsf{LFun}$ is $\beta\eta$ equivalent to $m$. To do this, $\mathsf{matchInst}$ introduces all leading non-prop $\forall$
+    quantifiers into the context (as free variables), collects all the newly introduced free variables into a variable set $M$,
+    then computes $\mathsf{match}(\Gamma'; M, m, h')$, where $\Gamma', h'$ are $\Gamma, h$ after introduction of free variables.
+    For each unifier $(\Gamma, \Gamma', \sigma)$ in $\mathsf{match}(\Gamma'; M, m, h)$, $\mathsf{matchInst}$ compute $\overline{\sigma}(h)$,
+    then abstracts newly introduced free variables in $\overline{\sigma}(h)$ as $\forall$ binders to generate an instance of $h$.
+    $\mathsf{matchInst}(\Gamma; m, h)$ returns the set of instances of $h$ generated by this procedure. 
+\end{enumerate}
+
+\begin{algorithm}\label{saturate}
+  \DontPrintSemicolon
+  \SetNoFillComment
+  \SetKwFunction{saturateFun}{\textsf{saturate}}
+  \caption{Main saturation loop of quantifier instantiation}
+  \Fn{\saturateFun{$\Gamma; H, maxInsts$}}{
+    \Input{$\lambda C$ context $\Gamma$, list of $\lambda C$ terms $H$, and threshold $maxInsts$}
+    \Output{A list of $\lambda C$ terms}
+    $hi := H$ \tcc*[h]{List of hypothesis instances} \;
+    $ci := \mathsf{Queue.empty}()$ \tcc*[h]{A queue of constant instances} \;
+    \For{h : H}{
+      \For{$m : \mathsf{monoInsts}(\Gamma; \emptyset, h)$}{$ci.\mathsf{push}(m)$}
+    }
+    $activeci := ci.\mathsf{copy}()$ \;
+    \While{$! \ activeci.\mathsf{empty}()$}{
+      $m := activeci.\mathsf{front}()$ \;
+      $activeci.\mathsf{popFront}()$ \;
+      $prevhi = hi.\mathsf{copy}()$ \;
+      \For{h : prevhi}{
+        $newHi := \mathsf{matchInst}(\Gamma; m, h)$ \;
+        \For{nh : newHi}{
+          \lIf{$nh \in hi$}{\Continue}
+          $hi.\mathsf{push}(nh)$ \;
+          $newci := \mathsf{monoInsts}(\Gamma; \emptyset, nh)$ \;
+          \For{nm : newci}{
+            \lIf{$nm \in ci$}{\Continue}
+            $ci.\mathsf{push}(nm)$ \;
+            $activeci.\mathsf{push}(nm)$
+          }
+        }
+        \lIf{$hi.\mathsf{size}() + ci.\mathsf{size}() > maxInsts$}{\Break}
+      }
+      \lIf{$hi.\mathsf{size}() + ci.\mathsf{size}() > maxInsts$}{\Break}
+    }
+    $monohi := \mathsf{List.empty}()$ \;
+    \For{h : hi}{
+      \lIf{$\mathsf{QMono}(\Gamma; \emptyset, h)$}{$monohi.\mathsf{push}(h)$}
+    }
+    \Return $monohi$
+  }
+\end{algorithm}
+
+\noindent The saturation loop of Lean-auto is shown in \textbf{Algorithm \ref{saturate}}.
+Given a $\lambda C$ context $\Gamma$ and a list $H$ of hypotheses, $\mathsf{saturate}$ returns
+a list of instances of hypotheses in $H$ that are suitable for $\lambda_\to^*$ abstraction
+(i.e. satisfy the $\mathsf{QMono}$ predicate).
+It must be noted that, in the actual implementation of Lean-auto, when
+checking whether a constant(hypothesis) instance belongs to a collection (e.g., set, list, queue, etc.)
+of constant(hypothesis) instances, we test equality only up to \text{instance equivalence}.
+
+\begin{definition}
+For two $\lambda C$ terms $t_1, t_2$, $t_1$ and $t_2$ are equivalent as constant(hypothesis) instances
+iff $t_1$ is a constant(hypothesis) instance of $t_2$ and $t_2$ is a constant(hypothesis)
+instance of $t_1$.
+\end{definition}
+
+\noindent Checking membership up to equivalence ensures that collections of constant(hypothesis)
+instances in our algorithms are free of redundant entries. Note that instance equivalence testing
+can be reduced to unification, which can in turn be approximated by $\mathsf{Meta.isDefEq}$ in Lean.
+ 
