@@ -1,3 +1,29 @@
 \section{Introduction}
 
-\textbf{TODO:} Maybe move $\beta\eta$-equivalence here
+  Interactive Theorem Provers (ITPs) are widely used in formal mathematics and
+  software/hardware verification. Hammers, a type of proof automation tool for
+  ITPs, utilize Automated Theorem Provers (ATPs) to automatically solve proof goals
+  arising from the formalization process. A hammer has three main components:
+  premise selection, translation from the ITP's logical system to the ATP's
+  logical system, and proof reconstruction from the ATP's logical system to
+  the ITP's logical system. Several popular ITPs, including Coq, Lean and Agda,
+  are based on a highly expressive logical system called dependent type theory.
+  On the other hand, ATPs are usually based on less expressive logical systems such
+  as first-order logic (FOL) and higher-order logic (HOL). This discrepancy in
+  logical systems poses a significant challenge to the translation procedure from
+  ITPs to ATPs.
+
+  \noindent There are two existing approaches for translation from more expressive
+  logical systems to less expressive ones. The first approach is encoding-based translation,
+  which is used in CoqHammer to translate Coq into untyped FOL. The idea is to encode
+  constructions in the more expressive system using function symbols in the less
+  expressive system, and define the translation as a recursive function on the construction
+  rules of the more expressive system. For example, in CoqHammer, encoding of typing relations
+  and type inhabitation is achieved by introducing two uninterpreted function symbols;
+  translation functions for propositions, types and terms are defined recursively on
+  the formation rules of dependent type theory. 
+
+  \noindent The second approach is called monomorphization, which is used to eliminate polymorphism
+  in Isabelle.
+
+  \noindent \textbf{TODO:} Maybe move $\beta\eta$-equivalence here
