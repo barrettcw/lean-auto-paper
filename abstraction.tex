@@ -347,12 +347,12 @@ $$\neg \mathsf{QMono}(\alpha : \mathsf{U}_1, \beta : \alpha \to \mathsf{U}_1; \e
   \Fn{\gvn{t}} {
     \Input{$\lambda C$ term $t$}
     \Output{$\lambda_\to^*$ variable name corresponding to $t$}
-    \uIf{$H.contains(t)$}{
-      \Return $H.find(t)$
+    \uIf{$H.\mathsf{contains}(t)$}{
+      \Return $H.\mathsf{find}(t)$
     }
-    $newname := \mathsf{freshVarName}()$ \;
-    $H.add(t, newname)$ \;
-    \Return $newname$ 
+    $\vnewname := \mathsf{freshVarName}()$ \;
+    $H.\mathsf{add}(t, \vnewname)$ \;
+    \Return $\vnewname$ 
   }
   \;
   \Fn{\lamAbstraction{$\Gamma; V, t$}}{
@@ -362,28 +362,28 @@ $$\neg \mathsf{QMono}(\alpha : \mathsf{U}_1, \beta : \alpha \to \mathsf{U}_1; \e
     \Switch(\textbf{with}){t}{
       \Case(\tcc*[h]{Function application}){$a \ b$}{
         $f := \mathsf{getAppFn}(t)$ \;
-        $args := \mathsf{getAppArgs}(t)$ \;
+        $\vargs := \mathsf{getAppArgs}(t)$ \;
         \uIf{$f \in V$}{
-          \For{a : args}{$a := \mathsf{lamAbst}(\Gamma; V, a)$}
-          \Return $\mathsf{mkAppN}(f, args)$
+          \For{$a : \vargs$}{$a := \mathsf{lamAbst}(\Gamma; V, a)$}
+          \Return $\mathsf{mkAppN}(f, \vargs)$
         }
-        $lf := \mathsf{LFun}(\Gamma; f, args)$ \;
-        $largs := \mathsf{LArgs}(\Gamma; f, args)$ \;
-        $lvar := \mathsf{getLVarName}(t)$ \;
-        \Return $\mathsf{mkAppN}(lvar, largs)$
+        $\vlf := \mathsf{LFun}(\Gamma; f, \vargs)$ \;
+        $\vlargs := \mathsf{LArgs}(\Gamma; f, \vargs)$ \;
+        $\vlvar := \mathsf{getLVarName}(\vlf)$ \;
+        \Return $\mathsf{mkAppN}(\vlvar, \vlargs)$
       }
       \Case{$\forall (v : a). b$}{
-        $atype := \mathsf{inferType}(\Gamma; a)$ \;
-        $babst := \mathsf{lamAbst}(\Gamma, v : a; V \cup \{v\}, b)$ \;
-        \uIf{$atype = \mathsf{U}_0$}{
-          $aabst := \mathsf{lamAbst}(\Gamma; V, a)$ \;
-          \Return $aabst \to babst$
+        $\vatype := \mathsf{inferType}(\Gamma; a)$ \;
+        $\vbabst := \mathsf{lamAbst}(\Gamma, v : a; V \cup \{v\}, b)$ \;
+        \uIf{$\vatype = \mathsf{U}_0$}{
+          $\vaabst := \mathsf{lamAbst}(\Gamma; V, a)$ \;
+          \Return $\vaabst \to \vbabst$
         }
-        \Return $\forall (v : a). babst$
+        \Return $\forall (v : a). \vbabst$
       }
       \Case{$\lambda (v : a). b$}{
-        $babst := \mathsf{lamAbst}(\Gamma, v : a; V \cup \{v\}, b)$ \;
-        \Return $\lambda (v : a). babst$
+        $\vbabst := \mathsf{lamAbst}(\Gamma, v : a; V \cup \{v\}, b)$ \;
+        \Return $\lambda (v : a). \vbabst$
       }
       \Other{\Return $\mathsf{getLVarName}(t)$}
     }

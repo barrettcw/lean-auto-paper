@@ -60,12 +60,12 @@ functions in a $\lambda C$ term is defined as follows:
     \Output{A set of unifiers}
     \Switch(\textbf{with}){h}{
       \Case(\tcc*[h]{Function application}){$a \ b$}{
-        $matches := \emptyset$ \;
+        $\vmatches := \emptyset$ \;
         $f := \mathsf{getAppFn}(t)$ \;
-        $args := \mathsf{getAppArgs}(t)$ \;
-        \For{a : args}{$matches := \mathsf{union}(matches, \mathsf{match}(\Gamma; M, m, a))$}
-        $lf := \mathsf{LFun}(\Gamma; f, arg)$ \;
-        $matches := \mathsf{union}(matches, \mathsf{unify}(\Gamma; M, m, lf))$
+        $\vargs := \mathsf{getAppArgs}(t)$ \;
+        \For{$a : \vargs$}{$\vmatches := \mathsf{union}(\vmatches, \mathsf{match}(\Gamma; M, m, a))$}
+        $\vlf := \mathsf{LFun}(\Gamma; f, arg)$ \;
+        $\vmatches := \mathsf{union}(\vmatches, \mathsf{unify}(\Gamma; M, m, \vlf))$
       }
       \Case{$\forall (v : a). b$}{
         \Return $\mathsf{union}(\mathsf{match}(\Gamma; M, m, a), \mathsf{match}(\Gamma, v : a; M, m, b))$
@@ -102,40 +102,40 @@ functions in a $\lambda C$ term is defined as follows:
   \SetNoFillComment
   \SetKwFunction{saturateFun}{\textsf{saturate}}
   \caption{Main saturation loop of quantifier instantiation}
-  \Fn{\saturateFun{$\Gamma; H, maxInsts$}}{
-    \Input{$\lambda C$ context $\Gamma$, list of $\lambda C$ terms $H$, and threshold $maxInsts$}
+  \Fn{\saturateFun{$\Gamma; H, \vmaxInsts$}}{
+    \Input{$\lambda C$ context $\Gamma$, list of $\lambda C$ terms $H$, and threshold $\vmaxInsts$}
     \Output{A list of $\lambda C$ terms}
-    $hi := H$ \tcc*[h]{List of hypothesis instances} \;
-    $ci := \mathsf{Queue.empty}()$ \tcc*[h]{A queue of constant instances} \;
+    $\vhi := H$ \tcc*[h]{List of hypothesis instances} \;
+    $\vci := \mathsf{Queue.empty}()$ \tcc*[h]{A queue of constant instances} \;
     \For{h : H}{
-      \For{$m : \mathsf{monoInsts}(\Gamma; \emptyset, h)$}{$ci.\mathsf{push}(m)$}
+      \For{$m : \mathsf{monoInsts}(\Gamma; \emptyset, h)$}{$\vci.\mathsf{push}(m)$}
     }
-    $activeci := ci.\mathsf{copy}()$ \;
-    \While{$! \ activeci.\mathsf{empty}()$}{
-      $m := activeci.\mathsf{front}()$ \;
-      $activeci.\mathsf{popFront}()$ \;
-      $prevhi = hi.\mathsf{copy}()$ \;
-      \For{h : prevhi}{
-        $newHi := \mathsf{matchInst}(\Gamma; m, h)$ \;
-        \For{nh : newHi}{
-          \lIf{$nh \in hi$}{\Continue}
-          $hi.\mathsf{push}(nh)$ \;
-          $newci := \mathsf{monoInsts}(\Gamma; \emptyset, nh)$ \;
-          \For{nm : newci}{
-            \lIf{$nm \in ci$}{\Continue}
-            $ci.\mathsf{push}(nm)$ \;
-            $activeci.\mathsf{push}(nm)$
+    $\vactiveci := \vci.\mathsf{copy}()$ \;
+    \While{$! \ \vactiveci.\mathsf{empty}()$}{
+      $m := \vactiveci.\mathsf{front}()$ \;
+      $\vactiveci.\mathsf{popFront}()$ \;
+      $\vprevhi = \vhi.\mathsf{copy}()$ \;
+      \For{$h : \vprevhi$}{
+        $\vnewhi := \mathsf{matchInst}(\Gamma; m, h)$ \;
+        \For{$\vnh : \vnewhi$}{
+          \lIf{$\vnh \in \vhi$}{\Continue}
+          $\vhi.\mathsf{push}(\vnh)$ \;
+          $\vnewci := \mathsf{monoInsts}(\Gamma; \emptyset, \vnh)$ \;
+          \For{$\vnc : \vnewci$}{
+            \lIf{$\vnc \in \vci$}{\Continue}
+            $\vci.\mathsf{push}(\vnc)$ \;
+            $\vactiveci.\mathsf{push}(\vnc)$
           }
         }
-        \lIf{$hi.\mathsf{size}() + ci.\mathsf{size}() > maxInsts$}{\Break}
+        \lIf{$\vhi.\mathsf{size}() + \vci.\mathsf{size}() > \vmaxInsts$}{\Break}
       }
-      \lIf{$hi.\mathsf{size}() + ci.\mathsf{size}() > maxInsts$}{\Break}
+      \lIf{$\vhi.\mathsf{size}() + \vci.\mathsf{size}() > \vmaxInsts$}{\Break}
     }
-    $monohi := \mathsf{List.empty}()$ \;
-    \For{h : hi}{
-      \lIf{$\mathsf{QMono}(\Gamma; \emptyset, h)$}{$monohi.\mathsf{push}(h)$}
+    $\vmonohi := \mathsf{List.empty}()$ \;
+    \For{$h : \vhi$}{
+      \lIf{$\mathsf{QMono}(\Gamma; \emptyset, h)$}{$\vmonohi.\mathsf{push}(h)$}
     }
-    \Return $monohi$
+    \Return $\vmonohi$
   }
 \end{algorithm}
 
