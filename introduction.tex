@@ -35,14 +35,15 @@
   $\mathsf{List.append} : \forall (\alpha : \mathsf{Type}). \mathsf{List} \ \alpha \to \mathsf{List} \ \alpha \to \mathsf{List} \ \alpha$,
   four lists $xs, ys, zs, ts$ of natural numbers, and the premise $xs = zs \land ys = ts$, the proposition
   $\mathsf{List.append} \ \mathbb{N} \ xs \ ys = \mathsf{List.append} \ \mathbb{N} \ zs \ ts$ is
-  provable using two rewrites, which are admissible proof rules in many-sorted FOL. Monomorphization
+  provable using two rewrites, which are admissible proof rules in FOL. Monomorphization
   has the advantage that term structures are preserved during translation, and that
-  translation results are smaller than those produced by encoding-based approach.
-  However, complex term structures such as existential type quantifiers and non-leading universal
-  type quantifiers are difficult to handle in monomorphization, and makes the translation incomplete.
+  translation results are smaller than those produced by encoding-based approaches.
+  However, monomorphization is an incomplete translation procedure because it has difficulty
+  handling complex term structures such as existential
+  type quantifiers and non-leading universal type quantifiers.
 
   \noindent This paper proposes an extension of Sledgehammer's monomorphization procedure
   to dependent type theory. We implemented the translation in Lean4 under the name Lean-auto.
-  Completeness of the translation is sacrificed for smaller translation
+  As mentioned above, completeness is sacrificed for smaller translation
   results. We argue that smaller problem size is crucial to obtaining better performance
   from ATPs, and that our translation can handel realistic Lean4 use cases despite being incomplete.
