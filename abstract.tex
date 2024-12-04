@@ -1,14 +1,16 @@
 \begin{abstract}
   Proof automation is crucial to large-scale formal mathematics and software/hardware verification projects
-  in ITPs. Sophisticated tools called Hammers have been developed to provide general proof
+  in ITPs. Sophisticated tools called \textit{hammers} have been developed to provide general proof
   automation in ITPs such as Coq and Isabelle, leveraging the power of ATPs. An important
-  component of Hammers is the translation algorithm from the ITP's logical system
+  component of a hammer is the translation algorithm from the ITP's logical system
   to the ATP's logical system. In this paper, we propose a novel translation algorithm
   for ITPs based on dependent type theory. The algorithm is implemented in Lean4 under
-  the name Lean-auto. The core of our algorithm is an extension of
-  the monomorphization procedure implemented in Isabelle Sledgehammer.
+  the name Lean-auto. The core of our algorithm is an extension of the monomorphization
+  procedure implemented in the context of simple type theory in Isabelle's Sledgehammer, but,
+  as we explain, handling dependent types and Lean4's hierarchy of typeclasses
+  requires substantially new ideas.
   Soundness is guaranteed, and experimental results suggest that
-  the algorithm is sufficiently complete for practical uses of Lean in formal mathematics and
+  the algorithm is sufficiently complete for practical uses of Lean4 in formal mathematics and
   software verification. We also show that our algorithm produces more efficient
   translations compared to the encoding-based approach used in CoqHammer.
   

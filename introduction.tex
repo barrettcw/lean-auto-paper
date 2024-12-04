@@ -1,49 +1,78 @@
 \section{Introduction}
 
-  Interactive Theorem Provers (ITPs) are widely used in formal mathematics and
-  software/hardware verification. Hammers, a type of proof automation tool for
+  Interactive Theorem Provers (ITPs)\cite{Harrison2014HistoryOI}
+  are widely used in formal mathematics and software/hardware verification. Hammers
+  \cite{Blanchette2016HammeringTQ}\cite{Czajka2018HammerFC}, a type of proof automation tool for
   ITPs, utilize Automated Theorem Provers (ATPs, including SMT solvers) to automatically solve proof goals
   arising from the formalization process. A hammer has three main components:
   premise selection, translation from the ITP's logical system to the ATP's
   logical system, and proof reconstruction from the ATP's logical system to
-  the ITP's logical system. Several popular ITPs, including Coq, Lean and Agda,
-  are based on a highly expressive logical system called dependent type theory.
+  the ITP's logical system. Several popular ITPs, including
+  Coq\cite{CoqRefMan}, Lean\cite{Lean4} and Agda\cite{Agda},
+  are based on a highly expressive logical system called dependent type theory \cite{Coquand1988}.
   On the other hand, ATPs are usually based on less expressive logical systems such
   as first-order logic (FOL) and higher-order logic (HOL). This discrepancy in
   logical systems poses a significant challenge to the translation procedure from
   ITPs to ATPs.
 
-  \noindent There are two existing approaches for translation from more expressive
-  logical systems to less expressive ones. The first approach is encoding-based translation,
-  which is used in CoqHammer to translate Coq into untyped FOL. The idea is to encode
+  There are two existing approaches for translation from more expressive
+  logical systems to less expressive ones, namely encoding-based translation and monomorphization.
+  Encoding-based translation is used in CoqHammer\cite{Czajka2018HammerFC}
+  to translate Coq into untyped FOL, while monomorphization is used to
+  eliminate polymorphism in Isabelle Sledgehammer\cite{Blanchette2016HammeringTQ}\cite{Paulson2012ThreeYO}.
+  
+  The idea of encoding-based translation is to encode
   constructions in the more expressive system using function symbols in the less
   expressive system, and define the translation as a recursive function on the construction
-  rules of the more expressive system. For example, in CoqHammer, encoding of typing relations
-  and type inhabitation is achieved by introducing two uninterpreted function symbols;
-  translation functions for propositions, types and terms are defined recursively on
-  the formation rules of dependent type theory. Encoding-based translation has the advantage of
-  being (almost) complete and straightforward to compute. However, type information are
-  usually omitted to produce translation results of reasonable size, which sacrifices soundness.
-  Moreover, even with type information omitted, the result is usually much larger
+  rules of the more expressive system. For example, in the dependent type theory of Coq,
+  we have the type judgement relation $\Gamma \vdash x : w$, which means ``$x$ is of
+  type $w$ under context $\Gamma$''. There is no direct equivalent of this
+  typing relation in untyped FOL. To express the Coq type judgement in untyped FOL, 
+  \cite{Czajka2018HammerFC} first introduces the uninterpreted FOL predicate $T(u^*, a^*)$ for
+  first-order terms $u^*$ and $a^*$ translated from Coq term $u$ and atomic Coq type $a$
+  (here \textit{atomic} roughly means that $a$ cannot be
+  further decomposed by the translation procedure of \cite{Czajka2018HammerFC}). Then, \cite{Czajka2018HammerFC}
+  defines the recursive function $\mathcal{G}_\Gamma(u, w)$ on Coq context $\Gamma$ and Coq terms $u, w$.
+  The function $\mathcal{G}_\Gamma(u, w)$ translates the typing relation $\Gamma \vdash u : w$ into an untyped FOL formula,
+  in which the $T$ predicate is used to express type judgements involving atomic types.
+  
+  Encoding-based translation has the advantage of being (almost) complete
+  and straightforward to compute. However, certain features of the more expressive
+  logical system are usually omitted to produce translation results of reasonable size,
+  which sacrifices soundness. Moreover, even with this tradeoff, the translation result is usually much larger
   than the original term.
 
-  \noindent The second approach is called monomorphization, which is used to eliminate polymorphism
-  in Isabelle. The idea is that, the proof of many propositions in the more expressive logical
+  The idea of monomorphization is that, the proof of many propositions in the more expressive logical
   system can essentially be conducted in the less expressive logical system. In other words,
   many features of the more expressive system are often irrelevant to the proof. For example,
-  in polymorphic HOL, given the function
-  $\mathsf{List.append} : \forall (\alpha : \mathsf{Type}). \mathsf{List} \ \alpha \to \mathsf{List} \ \alpha \to \mathsf{List} \ \alpha$,
-  four lists $xs, ys, zs, ts$ of natural numbers, and the premise $xs = zs \land ys = ts$, the proposition
-  $\mathsf{List.append} \ \mathbb{N} \ xs \ ys = \mathsf{List.append} \ \mathbb{N} \ zs \ ts$ is
-  provable using two rewrites, which are admissible proof rules in FOL. Monomorphization
-  has the advantage that term structures are preserved during translation, and that
-  translation results are smaller than those produced by encoding-based approaches.
-  However, monomorphization is an incomplete translation procedure because it has difficulty
-  handling complex term structures such as existential
+  in polymorphic HOL, given
+  \begin{enumerate}
+    \item The list map function $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{Type}). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$
+    \item Two lists of natural numbers $xs \ ys : \mathsf{List} \ \mathbb{N}$ and two functions $f \ g : \mathbb{N} \to \mathbb{N}$
+    \item The premise $xs = ys \land f = g$
+  \end{enumerate}
+  The equality
+  \begin{equation}\label{lmapphol}
+    \mathsf{List.map} \ \mathbb{N} \ \mathbb{N} \ f \ xs = \mathsf{List.append} \ \mathbb{N} \ \mathbb{N} \ g \ ys
+  \end{equation}
+  is provable using two rewrites $xs \Rightarrow ys, f \Rightarrow g$. The crucial observation is that, although $\textsf{List.map}$ is polymorphic, the term
+  $\mathsf{List.map} \ \mathbb{N} \ \mathbb{N}$ as a whole behaves just like a function symbol in monomorphic HOL,
+  therefore the rewrite can essentially be performed in monomorphic HOL. More formally,
+  the formula \eqref{lmapphol} is the image of the monomorphic HOL formula
+  $$h \ f^* \ xs^* = h \ g^* ys^*$$
+  under the inter-logical-system "substitution"
+  $$\sigma := \{h \mapsto \mathsf{List.map} \ \mathbb{N} \ \mathbb{N},
+    f^* \mapsto f, g^* \mapsto g, xs^* \mapsto xs, ys^* \mapsto ys\}$$
+  and the rewrites $xs \Rightarrow ys, f \Rightarrow g$ in polymorphic HOL are just manifestations of the
+  rewrites $xs^* \Rightarrow ys^*, f^* \Rightarrow g^*$ in monomorphic HOL.
+  
+  Monomorphization is a sound translation procedure, produces small translation results, and preserves
+  term structures during translation. However, monomorphization is incomplete,
+  because it has difficulty handling complex term structures such as existential
   type quantifiers and non-leading universal type quantifiers.
 
-  \noindent This paper proposes an extension of Sledgehammer's monomorphization procedure
+  This paper proposes an extension of Sledgehammer's monomorphization procedure
   to dependent type theory. We implemented the translation in Lean4 under the name Lean-auto.
   As mentioned above, completeness is sacrificed for smaller translation
   results. We argue that smaller problem size is crucial to obtaining better performance
-  from ATPs, and that our translation can handel realistic Lean4 use cases despite being incomplete.
+  from ATPs, and that our translation can handel real Lean4 use cases despite being incomplete.

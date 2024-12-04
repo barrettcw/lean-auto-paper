@@ -17,11 +17,11 @@ Before continuing our discussion, we formally define the concept of \textit{inst
   \end{enumerate}
 \end{definition}
 
-\noindent Unless otherwise stated, when discussing instances of functions, we will always be
+Unless otherwise stated, when discussing instances of functions, we will always be
 referring to \textit{constant instances}; when discussing instances of hypotheses, we will
 always be referring to \textit{hypothesis instances}.
 
-\noindent As mentioned in section \ref{motex}, the quantifier instantiation procedure
+As mentioned in section \ref{motex}, the quantifier instantiation procedure
 is based on a saturation loop which matches monomorphic instances of polymorphic functions
 with subterms of hypothesis instances. An instance of a polymorphic function is called
 \textit{monomorphic} iff all of the function's dependent arguments are instantiated with terms
@@ -77,7 +77,7 @@ functions in a $\lambda C$ term is defined as follows:
   }
 \end{algorithm}
 
-\noindent The matching procedure in the saturation loop is handled by $\mathsf{matchInst}$ and $\mathsf{match}$.
+The matching procedure in the saturation loop is handled by $\mathsf{matchInst}$ and $\mathsf{match}$.
 \begin{enumerate}
   \item Given context $\Gamma$, variable set $M$ and terms $m, h$,
     $\mathsf{match}(\Gamma; M, m, h)$ returns all $M$-unifiers between term $m$ and the $\mathsf{LFun}$ of subterms of $h$.
@@ -138,7 +138,7 @@ functions in a $\lambda C$ term is defined as follows:
   }
 \end{algorithm}
 
-\noindent The saturation loop of Lean-auto is shown in \textbf{Algorithm \ref{saturate}}.
+The saturation loop of Lean-auto is shown in \textbf{Algorithm \ref{saturate}}.
 Given a $\lambda C$ context $\Gamma$ and a list $H$ of hypotheses, $\mathsf{saturate}$ returns
 a list of instances of hypotheses in $H$ that are suitable for $\lambda_\to^*$ abstraction
 (i.e. satisfy the $\mathsf{QMono}$ predicate).
@@ -152,7 +152,7 @@ iff $t_1$ is a constant(hypothesis) instance of $t_2$ and $t_2$ is a constant(hy
 instance of $t_1$.
 \end{definition}
 
-\noindent Checking membership up to equivalence ensures that collections of constant(hypothesis)
+Checking membership up to equivalence ensures that collections of constant(hypothesis)
 instances in our algorithms are free of redundant entries. Note that instance equivalence testing
 can be reduced to unification, which can in turn be approximated by $\mathsf{Meta.isDefEq}$ in Lean.
  

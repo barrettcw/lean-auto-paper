@@ -22,7 +22,7 @@ denoted as $\cong$.
     0, & & n = 0
   \end{aligned}\right.$$
 
-  \noindent The set of $\lambda_C$ terms will be denoted as $\mathcal{T}_C$.
+  The set of $\lambda_C$ terms will be denoted as $\mathcal{T}_C$.
 \end{definition}
 
 \begin{definition} $\lambda_\to^*$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
@@ -30,7 +30,7 @@ denoted as $\cong$.
     \mathcal{A} := \{(\mathsf{U}_\ell, \mathsf{U}_\ell') | \ell \in \mathbb{N}^*\}$$
   $$\mathcal{R} := \{(\mathsf{U}_\ell, \mathsf{U}_m, \mathsf{U}_{\mathsf{max} \{l, m\}}) | \ell \in \mathbb{N}^*, m \in \mathbb{N}^*\}$$
 
-  \noindent The set of $\lambda_\to^*$ terms will be denoted as $\mathcal{T}_\to^*$.
+  The set of $\lambda_\to^*$ terms will be denoted as $\mathcal{T}_\to^*$.
 \end{definition}
 
 \begin{definition} $\lambda_\to$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
@@ -90,7 +90,7 @@ denoted as $\cong$.
     \item $\overline{\sigma}(t_1) \cong \overline{\sigma}(t_2)$
     \item For all variables $v \in \Gamma \backslash M$, $\sigma(v) = v$
   \end{enumerate}
-  \noindent Then $(\Gamma, \Gamma', \sigma)$ is called a $M$-unifier of $t_1$ and $t_2$. In the context of Lean,
+  Then $(\Gamma, \Gamma', \sigma)$ is called a $M$-unifier of $t_1$ and $t_2$. In the context of Lean,
   this corresponds to a unifier of $t_1$ and $t_2$ under context $\Gamma$, with $M$ as the set of metavariables.
 \end{definition}
 
@@ -102,14 +102,14 @@ denoted as $\cong$.
     \item $\forall'_t$, for each $t \in \mathcal{T}_\to^*$
   \end{enumerate}
   
-  \noindent and the following derivation rules:
+  and the following derivation rules:
   $$\frac{}{\vdash \mathsf{Bool} : \mathsf{U}_1} \ \ \ \ \frac{}{\Gamma \vdash \bot' : \mathsf{Bool}}$$
   $$\frac{}{\Gamma \vdash \to' : \mathsf{Bool} \to \mathsf{Bool} \to \mathsf{Bool}} \ \ \ \
   \frac{\Gamma \vdash s : \mathsf{U}_\ell}{\Gamma \vdash \forall'_s : (s \to \mathsf{Bool}) \to \mathsf{Bool}}$$
   
-  \noindent For simplicity, we use $\forall' (x : \alpha), t$ as a shorthand for $\forall'_\alpha \ (\lambda x : \alpha. t)$
+  For simplicity, we use $\forall' (x : \alpha), t$ as a shorthand for $\forall'_\alpha \ (\lambda x : \alpha. t)$
 
-  \noindent The canonical embedding $\pi : \mathcal{T}_\to^* \to \mathcal{T}_C$ of HOL into $\lambda C$ is defined as follows:
+  The canonical embedding $\pi : \mathcal{T}_\to^* \to \mathcal{T}_C$ of HOL into $\lambda C$ is defined as follows:
   $$\pi(\mathsf{Bool}) := \mathsf{U}_0 \ \ \ \pi(\mathsf{U}_\ell) := \mathsf{U}_\ell \ \ \
     \pi(\mathsf{U}_\ell') := \mathsf{U}_{\ell + 1}$$
   $$\pi(\bot') := \forall (\alpha : \mathsf{U}_0). \alpha \ \ \
@@ -118,7 +118,7 @@ denoted as $\cong$.
   $$\pi(x) := x, \text{ for } x \in V$$
   $$\pi(M \ N) := \pi(M) \ \pi(N) \ \ \ \pi(\lambda x : s. M) := \lambda x : \pi(s). \pi(M)$$
 
-  \noindent $\pi$ is extended to contexts via the following definition:
+  $\pi$ is extended to contexts via the following definition:
   $$\pi(\emptyset) := \emptyset \ \ \ \pi(\Gamma, x : \sigma) := \pi(\Gamma), x : \pi(\sigma)$$
 
   \noindent \textbf{TODO: Is this really equivalent to higher-order logic?}
@@ -154,7 +154,7 @@ denoted as $\cong$.
   is provable.
 \end{proof}
 
-\noindent We define logical symbols in $\lambda C$ as follows:
+We define logical symbols in $\lambda C$ as follows:
 $$\bot := \forall p : \mathsf{U}_0. p \ \ \ (\neg) := \lambda p : \mathsf{U}_0. p \to \bot$$
 $$(\land) := \lambda p \ q : \mathsf{U}_0. \forall r : \mathsf{U}_0. (p \to q \to r) \to r$$
 $$(\lor) := \lambda p \ q : \mathsf{U}_0. \forall r : \mathsf{U}_0. (p \to r) \to (q \to r) \to r$$
@@ -162,13 +162,13 @@ $$(\leftrightarrow) := \lambda p \ q. (p \to q) \land (q \to p)$$
 $$(=_\ell) := \lambda \alpha : \mathsf{U}_\ell. \lambda x \ y : \alpha. \forall p : \alpha \to \mathsf{U}_0. (p \ x \leftrightarrow p \ y)$$
 $$(\exists_\ell) := \lambda \alpha : \mathsf{U}_\ell. \lambda p : \alpha \to \mathsf{U}_0. \forall q : \mathsf{U}_0. ((\forall x : \alpha. p \ x \to q) \to q)$$
 
-\noindent The symbols $\neg', \land', \lor', \leftrightarrow'$ are defined in HOL in the
+The symbols $\neg', \land', \lor', \leftrightarrow'$ are defined in HOL in the
 same way, except that the $\mathsf{U}_0$s are replaced with $\mathsf{Bool}$ and the $\to$s are
 replaced with $\to'$. Equality and existential quantifier in HOL are defined as follows:
 $$(=_s') := \lambda x \ y : s. \forall' p : \alpha \to \mathsf{Bool}. (p \ x \leftrightarrow' p \ y)$$
 $$(\exists_s') := \lambda p : \alpha \to \mathsf{Bool}. \forall' q : \mathsf{Bool}. ((\forall' x : \alpha. p \ x \to' q) \to' q)$$
 
-\noindent We also assume that excluded middle, i.e. $\mathsf{em} : \forall p : \mathsf{U}_0, p \lor \neg p$,
+We also assume that excluded middle, i.e. $\mathsf{em} : \forall p : \mathsf{U}_0, p \lor \neg p$,
 is implicitly contained in the hypotheses of all $\lambda C$ problems. Similarly, $\mathsf{em}' : \forall p : \mathsf{Bool}. p \lor \neg p$
 is assumed to be implicitly contained in the hypotheses of all HOL problems.
 
@@ -191,7 +191,7 @@ The triple $(\pi(\Gamma'), \Gamma, \sigma)$ forms a substitution, and $p \cong \
 Therefore, $\Gamma \vdash? p$ is EHOP.
 \end{example}
 
-\noindent Note that moving implications in the goal into hypotheses (and vice versa) may
+Note that moving implications in the goal into hypotheses (and vice versa) may
 change the EHOP status of a problem. For example,
 $$\alpha : \mathsf{U}_1, x : \alpha, p : \alpha \to \mathsf{U}_0 \vdash? p \ x \to p \ x$$
 is EHOP. However, if we introduce $p \ x$ into the hypotheses, the problem is no longer EHOP:
@@ -221,7 +221,7 @@ is EHOP, which intuitively means that $\Gamma' \vdash p'$ is provable in HOL, an
 proof of $\Gamma' \vdash? p'$ can be translated into a proof of $\Gamma \vdash? p$ via
 the mapping $\sigma$.
 
-\noindent We start by defining dependent arguments of terms.
+We start by defining dependent arguments of terms.
 
 \begin{definition} Suppose $\Gamma \vdash s : \mathsf{U}_l$ in $\lambda C$.
   If $s = (\forall (x : s_1). s_2)$ and $x$ occurs in $s_2$,
@@ -279,7 +279,7 @@ the mapping $\sigma$.
   \mathsf{LArgs}(\Gamma; \mathsf{func}, (\lambda \beta. A, B)) = B$$
 \end{example}
 
-\noindent Now, we define the concept of quasi-monomorphic terms, the set of $\lambda C$ terms
+Now, we define the concept of quasi-monomorphic terms, the set of $\lambda C$ terms
   that Lean-auto can successfully abstract to $\lambda_\to^*$. Intuitively, quasi-monomorphic
   terms are $\lambda C$ terms that are structurally similar to HOL terms.
 
@@ -317,7 +317,7 @@ the mapping $\sigma$.
   \end{enumerate}
 \end{definition}
 
-\noindent According to the definition of $\mathsf{QMono}$, terms coming from canonical embedding of $\lambda_\to^*$
+According to the definition of $\mathsf{QMono}$, terms coming from canonical embedding of $\lambda_\to^*$
 terms are automatically quasi-monomorphic, e.g.
 $$\mathsf{QMono}(\alpha : \mathsf{U}_1, p : (\alpha \to \alpha) \to \mathsf{U}_0; \emptyset, \forall (p : \alpha \to \alpha). f \ p)$$
 Proofs are not allowed to be quantified by $\lambda$ or dependent $\forall$ binders:
@@ -335,7 +335,7 @@ its dependent arguments are not instantiated:
 $$\mathsf{QMono}(\emptyset; \emptyset, \lambda (f : (\forall (\alpha : \mathsf{U}_0). \alpha) \to (\forall (\alpha : \mathsf{U}_0). \alpha)) \
   (x : \forall (\alpha : \mathsf{U}_0). \alpha). f \ x)$$
   
-\noindent Except for within type declarations of bound variables, bodies of $\forall$ binders must be propositions:
+Except for within type declarations of bound variables, bodies of $\forall$ binders must be propositions:
 $$\neg \mathsf{QMono}(\alpha : \mathsf{U}_1, \beta : \alpha \to \mathsf{U}_1; \emptyset, \forall (x : \alpha). \beta \ x)$$
 
 \begin{algorithm}\label{lamabst}
@@ -390,7 +390,7 @@ $$\neg \mathsf{QMono}(\alpha : \mathsf{U}_1, \beta : \alpha \to \mathsf{U}_1; \e
   }
 \end{algorithm}
 
-\noindent Now, we describe the $\lambda_\to^*$ abstraction procedure $\mathsf{lamAbst}$ of Lean-auto. The algorithm
+Now, we describe the $\lambda_\to^*$ abstraction procedure $\mathsf{lamAbst}$ of Lean-auto. The algorithm
 is shown in \textbf{Algorithm \ref{lamabst}}. A global hash map $H$ is used to record the $\lambda_\to^*$
 free variables associated with abstracted $\lambda C$ terms. A few auxiliary functions are used in the algorithm:
 \begin{enumerate}

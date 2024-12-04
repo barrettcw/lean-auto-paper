@@ -20,12 +20,12 @@ discussions and more examples to illustrate details of our monomorphization proc
   \caption{Lean proof state of a problem involving \textbf{List}} \label{leanlistpretty}
 \end{figure}
 
-\noindent The Lean proof state of the problem we will consider is shown in Figure \ref{leanlistpretty}.
+The Lean proof state of the problem we will consider is shown in Figure \ref{leanlistpretty}.
 The hypotheses are displayed before $\vdash$, while the goal comes after $\vdash$. The hypothesis
 \usebox{\vmaprev} states that \usebox{\vmap} commutes with \usebox{\vrev}, and the hypothesis
 \usebox{\vrevrev} states that \usebox{\vrev} is the inverse function of itself.
 
-\noindent As a standard preprocessing step, we introduce all the $\forall$ quantifiers
+As a standard preprocessing step, we introduce all the $\forall$ quantifiers
 of the goal into the context, and apply proof by contradiction. The resulting proof state
 is shown in Figure \ref{leanlistexplicit}.
 For clarity, we have displayed the implicit arguments of all the functions.
@@ -40,7 +40,7 @@ For clarity, we have displayed the implicit arguments of all the functions.
   \label{leanlistexplicit}
 \end{figure}
 
-\noindent First, we focus on translating \texttt{neg\_goal} into $\lambda_\to$. Three polymorphic functions,
+First, we focus on translating \texttt{neg\_goal} into $\lambda_\to$. Three polymorphic functions,
 namely \usebox{\vEq}, \usebox{\vmap} and \usebox{\vrev}, occur in the goal.
 Although these functions are polymorphic, instances of these functions
 with type arguments instantiated could be monomorphic. The goal contains four of
@@ -56,7 +56,7 @@ instances to uninterpreted functions:
 \end{CenteredBox}
 \
 
-\noindent $\lambda_\to$ also forbids types dependent on types.
+$\lambda_\to$ also forbids types dependent on types.
 Therefore, \texttt{List A} and \texttt{List B}, which occur in the type of our
 uninterpreted functions, should be abstracted to uninterpreted type variables:
 
@@ -67,7 +67,7 @@ uninterpreted functions, should be abstracted to uninterpreted type variables:
 \end{CenteredBox}
 \
 
-\noindent After these abstractions, the goal becomes a formula in $\lambda_\to$:
+After these abstractions, the goal becomes a formula in $\lambda_\to$:
 
 \
 
@@ -76,7 +76,7 @@ uninterpreted functions, should be abstracted to uninterpreted type variables:
 \end{CenteredBox}
 \
 
-\noindent However, this abstraction technique is not directly applicable to \usebox{\vmaprev} and
+However, this abstraction technique is not directly applicable to \usebox{\vmaprev} and
 \usebox{\vrevrev}, because type arguments of polymorphic functions in them are quantified. For
 example, the type arguments of the first occurrence of \usebox{\vmap} in \usebox{\vmaprev}
 are $\alpha$ and $\beta$, both bound by universal quantifiers. Naturally, we would like
@@ -92,7 +92,7 @@ use \texttt{@reverse\_reverse B} to eliminate \texttt{reverse}. Notice how quant
 in the hypotheses are instantiated so that the type arguments of polymorphic functions
 in the instantiated hypotheses match the type arguments of their monomorphic instances in the goal.
 
-\noindent Quantifier instantiation in Lean-auto's monomorphization procedure is based
+Quantifier instantiation in Lean-auto's monomorphization procedure is based
 on a matching procedure that reflects the above observation. Given a set of formulas $S$,
 the matching procedure first computes the set $M$ of monomorphic instances of polymorphic functions occurring
 in $S$, then matches type-quantified formulas in $S$ with elements of $M$. For example,
@@ -115,7 +115,7 @@ The matching procedure will preform the following matchings:
     which produces \texttt{@reverse\_reverse A} and \texttt{@reverse\_reverse B}
 \end{enumerate}
 
-\noindent Since \texttt{@reverse\_reverse A}, \texttt{@reverse\_reverse B} and \texttt{@map\_reverse A B}
+Since \texttt{@reverse\_reverse A}, \texttt{@reverse\_reverse B} and \texttt{@map\_reverse A B}
 are present, the instances produced are already sufficient for proving the goal.
 But generally speaking, the newly generated hypothesis instances and polymorphic function instances
 in them can still be matched with each other (and existing instances) to produce new useful results.
@@ -144,7 +144,7 @@ where an argument is called dependent if the return type or the type of a later 
   \label{leanfinexplicit}
 \end{figure}
 
-\noindent It must be noted that whether an argument is dependent depends on how previous arguments
+It must be noted that whether an argument is dependent depends on how previous arguments
 are instantiated. Consider the example shown in figure \ref{dfun}. Note that the return
 type \texttt{$\beta$ a} depends on the last argument \texttt{a : $\alpha$} in the signature of
 \texttt{DFunLike.coe}. However, when $\beta$ is instantiated with \texttt{fun x => B$_0$}, as in the
