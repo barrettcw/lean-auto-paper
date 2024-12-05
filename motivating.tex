@@ -8,7 +8,7 @@
 
 In section \ref{exabst} and \ref{exinst}, we will demonstrate the execution of our monomorphization procedure on a
 concrete example involving the polymorphic \textbf{List} type in Lean. Note that both
-the examples and the monomorphization procedure here are simplified. Section \ref{exqdet} contains
+the examples and the monomorphization procedure here are simplified. Sect. \ref{exqdet} contains
 discussions and more examples to illustrate details of our monomorphization procedure.
 
 \subsection{$\lambda_\to$ Abstraction} \label{exabst}
@@ -17,10 +17,10 @@ discussions and more examples to illustrate details of our monomorphization proc
   \begin{CenteredBox}
     \lstinputlisting[style=leanHH]{LeanCode/reverse_map_pretty.inp}
   \end{CenteredBox}
-  \caption{Lean proof state of a problem involving \textbf{List}} \label{leanlistpretty}
+  \caption{Lean4 proof state of a problem involving \textbf{List}} \label{leanlistpretty}
 \end{figure}
 
-The Lean proof state of the problem we will consider is shown in Figure \ref{leanlistpretty}.
+The Lean4 proof state of the problem we will consider is shown in Figure \ref{leanlistpretty}.
 The hypotheses are displayed before $\vdash$, while the goal comes after $\vdash$. The hypothesis
 \usebox{\vmaprev} states that \usebox{\vmap} commutes with \usebox{\vrev}, and the hypothesis
 \usebox{\vrevrev} states that \usebox{\vrev} is the inverse function of itself.
@@ -34,7 +34,7 @@ For clarity, we have displayed the implicit arguments of all the functions.
   \begin{CenteredBox}
     \lstinputlisting[style=leanHH]{LeanCode/reverse_map_explicit.inp}
   \end{CenteredBox}
-  \caption{Lean proof state after quantifier introduction and proof by contradiction, with implicit arguments displayed.
+  \caption{Lean4 proof state after quantifier introduction and proof by contradiction, with implicit arguments displayed.
     Note that the equality sign in figure \ref{leanlistpretty} is a syntactic sugar of
     the polymorphic function {\usebox{\vEq}} seen here}
   \label{leanlistexplicit}
@@ -140,12 +140,12 @@ where an argument is called dependent if the return type or the type of a later 
   \begin{CenteredBox}
     \lstinputlisting[style=leanHH]{LeanCode/fin_explicit.inp}
   \end{CenteredBox}
-  \caption{Lean proof state of an example about \texttt{Fin}}
+  \caption{Lean4 proof state of an example about \texttt{Fin}}
   \label{leanfinexplicit}
 \end{figure}
 
-It must be noted that whether an argument is dependent depends on how previous arguments
-are instantiated. Consider the example shown in figure \ref{dfun}. Note that the return
+Note that whether an argument is dependent depends on how previous arguments
+are instantiated. Consider the example shown in figure \ref{dfun}. The return
 type \texttt{$\beta$ a} depends on the last argument \texttt{a : $\alpha$} in the signature of
 \texttt{DFunLike.coe}. However, when $\beta$ is instantiated with \texttt{fun x => B$_0$}, as in the
 expression at the bottom of figure \ref{dfun}, the return type \texttt{$\beta$ a} reduces to \texttt{B$_0$},

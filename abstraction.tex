@@ -1,4 +1,4 @@
-\section{$\lambda_\to^*$ abstraction}
+\section{$\lambda_\to^*$ abstraction}\label{sectabst}
 
 \subsection{$\lambda C$, $\lambda_\to^*$ and $\lambda_\to$}
 
@@ -102,12 +102,12 @@ denoted as $\cong$.
     \item $\forall'_t$, for each $t \in \mathcal{T}_\to^*$
   \end{enumerate}
   
-  and the following derivation rules:
+  \noindent and the following derivation rules:
   $$\frac{}{\vdash \mathsf{Bool} : \mathsf{U}_1} \ \ \ \ \frac{}{\Gamma \vdash \bot' : \mathsf{Bool}}$$
   $$\frac{}{\Gamma \vdash \to' : \mathsf{Bool} \to \mathsf{Bool} \to \mathsf{Bool}} \ \ \ \
   \frac{\Gamma \vdash s : \mathsf{U}_\ell}{\Gamma \vdash \forall'_s : (s \to \mathsf{Bool}) \to \mathsf{Bool}}$$
   
-  For simplicity, we use $\forall' (x : \alpha), t$ as a shorthand for $\forall'_\alpha \ (\lambda x : \alpha. t)$
+  \noindent For simplicity, we use $\forall' (x : \alpha), t$ as a shorthand for $\forall'_\alpha \ (\lambda x : \alpha. t)$
 
   The canonical embedding $\pi : \mathcal{T}_\to^* \to \mathcal{T}_C$ of HOL into $\lambda C$ is defined as follows:
   $$\pi(\mathsf{Bool}) := \mathsf{U}_0 \ \ \ \pi(\mathsf{U}_\ell) := \mathsf{U}_\ell \ \ \
@@ -118,7 +118,7 @@ denoted as $\cong$.
   $$\pi(x) := x, \text{ for } x \in V$$
   $$\pi(M \ N) := \pi(M) \ \pi(N) \ \ \ \pi(\lambda x : s. M) := \lambda x : \pi(s). \pi(M)$$
 
-  $\pi$ is extended to contexts via the following definition:
+  \noindent $\pi$ is extended to contexts via the following definition:
   $$\pi(\emptyset) := \emptyset \ \ \ \pi(\Gamma, x : \sigma) := \pi(\Gamma), x : \pi(\sigma)$$
 
   \noindent \textbf{TODO: Is this really equivalent to higher-order logic?}

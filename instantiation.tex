@@ -1,4 +1,4 @@
-\section{Quantifier Instantiation}
+\section{Quantifier Instantiation}\label{sectinst}
 Given a context $\Gamma$ and a list of hypotheses $h_1 : t_1, \dots, h_n : t_n$, the quantifier
 instantiation procedure of Lean-auto attempts to instantiate quantifiers in
 $t_1, \dots, t_n$ to obtain terms suitable for $\lambda_\to^*$ abstraction.
@@ -21,7 +21,7 @@ Unless otherwise stated, when discussing instances of functions, we will always 
 referring to \textit{constant instances}; when discussing instances of hypotheses, we will
 always be referring to \textit{hypothesis instances}.
 
-As mentioned in section \ref{motex}, the quantifier instantiation procedure
+As mentioned in sect. \ref{motex}, the quantifier instantiation procedure
 is based on a saturation loop which matches monomorphic instances of polymorphic functions
 with subterms of hypothesis instances. An instance of a polymorphic function is called
 \textit{monomorphic} iff all of the function's dependent arguments are instantiated with terms

@@ -5,14 +5,13 @@
   component of a hammer is the translation algorithm from the ITP's logical system
   to the ATP's logical system. In this paper, we propose a novel translation algorithm
   for ITPs based on dependent type theory. The algorithm is implemented in Lean4 under
-  the name Lean-auto. The core of our algorithm is an extension of the monomorphization
-  procedure implemented in the context of simple type theory in Isabelle's Sledgehammer, but,
-  as we explain, handling dependent types and Lean4's hierarchy of typeclasses
-  requires substantially new ideas.
-  Soundness is guaranteed, and experimental results suggest that
-  the algorithm is sufficiently complete for practical uses of Lean4 in formal mathematics and
+  the name Lean-auto. The core of our algorithm is inspired by the monomorphization
+  procedure in Isabelle Sledgehammer, but, as we explain, handling Lean4's dependent types
+  and its various language features requires substantially new ideas.
+  Soundness of the translation procedure is guaranteed, and experimental results suggest that
+  our algorithm is sufficiently complete for practical uses of Lean4 in formal mathematics and
   software verification. We also show that our algorithm produces more efficient
   translations compared to the encoding-based approach used in CoqHammer.
   
-  \keywords{Proof Automation \and Lean \and Dependent Type Theory}
+  \keywords{Proof Automation \and Lean4 \and Dependent Type Theory}
 \end{abstract}

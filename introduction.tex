@@ -13,89 +13,44 @@
   significant challenges to translation procedures between them.
   Several popular ITPs are based on highly expressive logical systems.
   For example, Isabelle \cite{Isabelle} is based on polymorphic higher-order logic, while
-  Coq \cite{CoqRefMan}, Lean \cite{Lean4} and Agda \cite{Agda}
+  Coq \cite{CoqRefMan}, Lean4 \cite{Lean4} and Agda \cite{Agda}
   are based an even more expressive logical system called dependent type theory \cite{LambdaWithType}\cite{Coquand1988}.
   Moreover, features such as typeclasses \cite{TypeClassHaskell}, universe polymorphism \cite{UPolyCoq} and inductive types \cite{CICIndDef}
   are commonly used as extensions to the base logical system to enhance usability of the ITP.
   On the other hand, ATPs are usually based on less expressive logical systems such
   as first-order logic (FOL) \cite{CVC5}\cite{Vampire}\cite{Z3Paper}\cite{EProver} and
   higher-order logic (HOL) \cite{HOVampire}\cite{ZipperpositionMakeWork}\cite{HOEProver}.
-
-  Here, we list several important logical systems involved in the translation from
-  ITPs to ATPs, from the least expressive to the most expressive
-  \begin{enumerate}
-    \item Untyped FOL
-    \item Many-sorted FOL, where function symbols and variables have types. The type
-      of an $n$-ary function symbol $f$ takes the form $s_1 \to \dots \to s_n \to t$,
-      where $s_1, \dots, s_n, t$ are sort constants.
-    \item Many-sorted HOL, or monomorphic HOL, closely related to simply typed lambda calculus
-      $\lambda_\to$ \cite{LambdaWithType}. HOL is more expressive than FOL because
-      functions are allowed to take function as arguments.
-    \item HOL with first-order polymorphism, or polymorphic HOL. \textbf{TODO}
-    \item Isabelle \textbf{TODO}
-    \item Dependent type theory \textbf{TODO}
-    \item Coq, Lean and Agda \textbf{TODO}
-  \end{enumerate}
-
+  An overview of the logical systems relevant to our work will be given in sect. \ref{sublogsys}.
+ 
   There are two existing approaches for translation from more expressive
   logical systems to less expressive ones: encoding-based translation and monomorphization.
   Encoding-based translation is used in CoqHammer \cite{Czajka2018HammerFC}
   to translate Coq into untyped FOL. Monomorphization is used to
   eliminate polymorphism in Isabelle Sledgehammer \cite{Blanchette2016HammeringTQ}\cite{Paulson2012ThreeYO}.
-  
-  The idea of encoding-based translation is to encode
-  constructions in the more expressive system using function symbols in the less
-  expressive system, and define the translation as a recursive function on the terms and formulas
-  of the more expressive system. For example, in the dependent type theory of Coq,
-  we have the type judgement relation $\Gamma \vdash x : w$, which means ``$x$ is of
-  type $w$ under context $\Gamma$''. There is no direct equivalent of this
-  typing relation in untyped FOL. To express the Coq type judgement in untyped FOL, 
-  CoqHammer first introduces the uninterpreted FOL predicate $T(u^*, a^*)$ for
-  first-order terms $u^*$ and $a^*$ translated from Coq term $u$ and atomic Coq type $a$
-  (here \textit{atomic} roughly means that $a$ cannot be
-  further decomposed by the translation procedure of CoqHammer). Then, a recursive function
-  $\mathcal{G}_\Gamma(u, w)$ on Coq context $\Gamma$ and Coq terms $u, w$ is defined.
-  The function $\mathcal{G}_\Gamma(u, w)$ translates the typing relation $\Gamma \vdash u : w$ into an untyped FOL formula,
-  in which the $T$ predicate is used to express type judgements involving atomic types.
-  
-  Encoding-based translation has the advantage of being (almost) complete
-  and straightforward to compute. However, certain features of the more expressive
-  logical system are usually omitted to produce translation results of reasonable size,
-  which sacrifices soundness. Moreover, even with this tradeoff, the translation result is usually much larger
-  than the original term.
+  After careful consideration, we decided that the ITP to ATP translation in
+  Lean-auto should be based on monomorphization. An overview of these two
+  translation methods and the reason we chose monomorphization will be presented in sect. \ref{subencmon}.
 
-  The idea of monomorphization is that, the proof of many propositions in the more expressive logical
-  system can essentially be conducted in the less expressive logical system. In other words,
-  many features of the more expressive system are often irrelevant to the proof. For example,
-  in polymorphic HOL, given
+  Given that ATPs have started supporting HOL in recent years \cite{HOVampire}\cite{ZipperpositionMakeWork}\cite{HOEProver},
+  we decided that Lean-auto should translate Lean4 to HOL. The overall translation has
+  two stages: preprocessing (sect. \ref{sectprep}) and monomorphization.
+  Monomorphization itself has two stages: quantifier instantiation (sect. \ref{sectinst})
+  and $\lambda_\to^*$ abstraction (sect. \ref{sectabst}). Preprocessing translates Lean4
+  into dependent type theory, and monomorphization translates dependent type theory
+  into HOL. The monomorphization procedure is inspired by Isabelle Sledgehammer.
+  However, since Isabelle is based on HOL, which is considerably different from
+  dependent type theory, the algorithm must be thoroughly redesigned.
+  
+  We evaluate Lean-auto on three types of ATPs:
   \begin{enumerate}
-    \item The list map function $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{Type}). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$
-    \item Two lists of natural numbers $xs \ ys : \mathsf{List} \ \mathbb{N}$ and two functions $f \ g : \mathbb{N} \to \mathbb{N}$
-    \item The premise $xs = ys \land f = g$
+    \item Native provers, or ATPs implemented in Lean4 itself. Currently, the only general-purpose
+      native prover in Lean4 is Duper \cite{DuperPaper}. Note that Lean-auto is
+      used as a preprocessing step in Duper (cf. sect. 5 of \cite{DuperPaper}).
+      This is because Duper's core algorithm, which is an extension of the algorithm used
+      in the higher-order prover zipperposition \cite{ZipperpositionMakeWork}, has limited support for dependent
+      type theory, and has difficulty handling Lean4 features like typeclasses.
+    \item TPTP solvers. We chose Zipperposition because it supports HOL.
+    \item SMT solvers. For this category, we chose Z3 and CVC5. Since SMT solvers
+      still don't fully support HOL, we implemented a simple procedure
+      (which is incomplete but sufficiently sound) to translate the HOL output of Lean-auto into FOL.
   \end{enumerate}
-  The equality
-  \begin{equation}\label{lmapphol}
-    \mathsf{List.map} \ \mathbb{N} \ \mathbb{N} \ f \ xs = \mathsf{List.append} \ \mathbb{N} \ \mathbb{N} \ g \ ys
-  \end{equation}
-  is provable using two rewrites $xs \Rightarrow ys, f \Rightarrow g$. The crucial observation is that, although $\textsf{List.map}$ is polymorphic, the term
-  $\mathsf{List.map} \ \mathbb{N} \ \mathbb{N}$ as a whole behaves just like a function symbol in monomorphic HOL,
-  therefore the rewrites can essentially be performed in monomorphic HOL. More formally,
-  the formula \eqref{lmapphol} is the image of the monomorphic HOL formula
-  $$h \ f^* \ xs^* = h \ g^* ys^*$$
-  under the inter-logical-system ``substitution''
-  $$\sigma := \{h \mapsto \mathsf{List.map} \ \mathbb{N} \ \mathbb{N},
-    f^* \mapsto f, g^* \mapsto g, xs^* \mapsto xs, ys^* \mapsto ys\}$$
-  and the rewrites $xs \Rightarrow ys, f \Rightarrow g$ in polymorphic HOL are just manifestations of the
-  rewrites $xs^* \Rightarrow ys^*, f^* \Rightarrow g^*$ in monomorphic HOL.
-  
-  Monomorphization is a sound translation procedure, produces small translation results, and preserves
-  term structures during translation. However, monomorphization is incomplete,
-  because it is not always possible to find an appropriate formula in the less
-  expressive logical system that is essentially equivalent to the original formula
-  in the more expressive logical system.
-
-  This paper proposes an extension of Sledgehammer's monomorphization procedure
-  to dependent type theory. We implemented the translation in Lean4 under the name Lean-auto.
-  As mentioned above, completeness is sacrificed for smaller translation
-  results. We argue that smaller problem size is crucial to obtaining better performance
-  from ATPs, and that our translation can handel real Lean4 use cases despite being incomplete.

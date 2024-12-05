@@ -1,0 +1,90 @@
+\section{Preliminaries}
+
+\subsection{Logical Systems in the ITP to ATP translation}\label{sublogsys}
+
+  In this section, we list several important logical systems involved in the translation from
+  ITPs to ATPs, from the least expressive to the most expressive
+  \begin{enumerate}
+    \item Untyped FOL
+    \item Many-sorted FOL, where function symbols and variables have types. The type
+      of an $n$-ary function symbol $f$ takes the form $s_1 \to \dots \to s_n \to t$,
+      where $s_1, \dots, s_n, t$ are sort constants.
+    \item Many-sorted HOL, or monomorphic HOL, closely related to simply typed lambda calculus
+      $\lambda_\to$ in the $\lambda$-cube \cite{LambdaWithType}. HOL is more expressive than FOL because
+      functions are allowed to take function as arguments.
+    \item HOL with rank-1 polymorphism, or polymorphic HOL, closely related
+      to $\lambda 2$ in the $\lambda$-cube \cite{LambdaWithType}. Here, function are
+      allowed to take type arguments. For example, it is possible to define the function
+      composition operator:
+      $$\begin{aligned}
+      \mathsf{compose} & : \forall (\alpha \ \beta \ \gamma : \mathsf{Type}). (\beta \to \gamma) \to (\alpha \to \beta) \to (\alpha \to \gamma) \\
+      \mathsf{compose} & := \lambda (\alpha \ \beta \ \gamma : \mathsf{Type}) \ (f : \beta \to \gamma) \ (g : \alpha \to \beta) \ (x : \alpha). f \ (g \ x)
+      \end{aligned}$$
+    \item Isabelle: Based on polymorphic HOL. Supports (co)inductive datatypes and recursive functions.
+    \item Dependent type theory, or $\lambda C$ in the $\lambda$-cube \cite{LambdaWithType}. Compared
+      to polymorphic HOL, types can depend on terms and types in $\lambda C$.
+    \item Coq, Lean and Agda: Based on $\lambda C$. Extensions to $\lambda C$ that are
+      present in (at least one of) these ITPs include (co)inductive types, universe levels,
+      universe polymorphism, typeclasses and many others.
+  \end{enumerate}
+
+\subsection{Encoding-based translation and Monomorphization}\label{subencmon}
+
+  The idea of encoding-based translation is to encode
+  constructions in the more expressive system using function symbols in the less
+  expressive system, and define the translation as a recursive function on the terms and formulas
+  of the more expressive system. For example, in the dependent type theory of Coq,
+  we have the type judgement relation $\Gamma \vdash x : w$, which means ``$x$ is of
+  type $w$ under context $\Gamma$''. There is no direct equivalent of this
+  typing relation in untyped FOL. To express the Coq type judgement in untyped FOL, 
+  CoqHammer first introduces the uninterpreted FOL predicate $T(u^*, a^*)$ for
+  first-order terms $u^*$ and $a^*$ translated from Coq term $u$ and atomic Coq type $a$
+  (here \textit{atomic} roughly means that $a$ cannot be
+  further decomposed by the translation procedure of CoqHammer). Then, a recursive function
+  $\mathcal{G}_\Gamma(u, w)$ on Coq context $\Gamma$ and Coq terms $u, w$ is defined.
+  The function $\mathcal{G}_\Gamma(u, w)$ translates the typing relation $\Gamma \vdash u : w$ into an untyped FOL formula,
+  in which the $T$ predicate is used to express type judgements involving atomic types.
+  
+  Encoding-based translation has the advantage of being (almost) complete
+  and straightforward to compute. However, certain features of the more expressive
+  logical system are usually omitted to produce translation results of reasonable size,
+  which sacrifices soundness. Moreover, even with this tradeoff, the translation result is usually much larger
+  than the original term.
+
+  The idea of monomorphization is that, the proof of many propositions in the more expressive logical
+  system can essentially be conducted in the less expressive logical system. In other words,
+  many features of the more expressive system are often irrelevant to the proof. For example,
+  in polymorphic HOL, given
+  \begin{enumerate}
+    \item The list map function $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{Type}). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$
+    \item Two lists of natural numbers $xs \ ys : \mathsf{List} \ \mathbb{N}$ and two functions $f \ g : \mathbb{N} \to \mathbb{N}$
+    \item The premise $xs = ys \land f = g$
+  \end{enumerate}
+  The equality
+  \begin{equation}\label{lmapphol}
+    \mathsf{List.map} \ \mathbb{N} \ \mathbb{N} \ f \ xs = \mathsf{List.append} \ \mathbb{N} \ \mathbb{N} \ g \ ys
+  \end{equation}
+  is provable using two rewrites $xs \Rightarrow ys, f \Rightarrow g$. The crucial observation is that, although $\textsf{List.map}$ is polymorphic, the term
+  $\mathsf{List.map} \ \mathbb{N} \ \mathbb{N}$ as a whole behaves just like a function symbol in monomorphic HOL,
+  therefore the rewrites can essentially be performed in monomorphic HOL. More formally,
+  the formula \eqref{lmapphol} is the image of the monomorphic HOL formula
+  $$h \ f^* \ xs^* = h \ g^* \ ys^*$$
+  under the inter-logical-system ``substitution''
+  $$\sigma := \{h \mapsto \mathsf{List.map} \ \mathbb{N} \ \mathbb{N},
+    f^* \mapsto f, g^* \mapsto g, xs^* \mapsto xs, ys^* \mapsto ys\}$$
+  and the rewrites $xs \Rightarrow ys, f \Rightarrow g$ in polymorphic HOL are just manifestations of the
+  rewrites $xs^* \Rightarrow ys^*, f^* \Rightarrow g^*$ in monomorphic HOL.
+  
+  Monomorphization is sound, produces small translation results, and preserves
+  term structures during translation. However, monomorphization is incomplete,
+  since it is not always possible to find an appropriate formula in the less
+  expressive logical system that is equivalent to the original formula
+  in the more expressive logical system.
+
+  \textbf{TODO} As mentioned above, completeness is sacrificed for smaller translation
+  results. We argue that smaller problem size is crucial to obtaining better performance
+  from ATPs, and that our translation can handel real Lean4 use cases despite being incomplete.
+
+\subsection{Lean4}
+
+\subsection{Pure Type Systems}
