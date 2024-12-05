@@ -1,19 +1,31 @@
 \section{Preliminaries}
 
-\subsection{Logical Systems in the ITP to ATP translation}\label{sublogsys}
+\subsection{Logical Systems of ITPs and ATPs}\label{sublogsys}
 
-  In this section, we list several important logical systems involved in the translation from
-  ITPs to ATPs, from the least expressive to the most expressive
+  In this section, we give overviews of the various logical systems
+  that are mentioned in our paper. In the following list, the logical systems
+  are ordered from the least expressive to the most expressive. 
   \begin{enumerate}
-    \item Untyped FOL
-    \item Many-sorted FOL, where function symbols and variables have types. The type
-      of an $n$-ary function symbol $f$ takes the form $s_1 \to \dots \to s_n \to t$,
-      where $s_1, \dots, s_n, t$ are sort constants.
-    \item Many-sorted HOL, or monomorphic HOL, closely related to simply typed lambda calculus
-      $\lambda_\to$ in the $\lambda$-cube \cite{LambdaWithType}. HOL is more expressive than FOL because
-      functions are allowed to take function as arguments.
-    \item HOL with rank-1 polymorphism, or polymorphic HOL, closely related
-      to $\lambda 2$ in the $\lambda$-cube \cite{LambdaWithType}. Here, function are
+    \item Untyped FOL, or predicate logic. Term are constructed from
+      function symbols, constant symbols and variables.
+      Formulas are constructed from terms, predicate symbols and logical symbols.
+    \item Many-sorted FOL, where function symbols and variables have
+      types\footnote{For consistency with dependent type theory, here we use ``type'' instead of ``sort''}
+      . The type of an $n$-ary function symbol $f$ takes the form
+      $s_1 \to \dots \to s_n \to t$, where $s_1, \dots, s_n, t$ are type constants.
+    \item Many-sorted HOL, or monomorphic HOL. HOL is more expressive than
+      FOL because functions are allowed to take function as arguments
+      (i.e. higher-order functions are allowed), and quantifiers can quantify over functions.
+      The distinction between terms and formulas weakens, since
+      formulas are just terms of type $\mathsf{Bool}$\footnote{Here $\mathsf{Bool}$ is a special sort constant}, 
+      and all logical symbols can be defined as
+      functions\footnote{Although in monomorphic HOL we need one copy of $\forall, \exists$ and $=$ for each type}.
+      The terms calculus (i.e. construction rules of terms) of monomorphic HOL
+      is identical to $\lambda_\to$ in the $\lambda$-cube \cite{LambdaWithType}.
+      Note that HOL is more than just $\lambda_\to$ since it also has axioms and
+      deduction rules as a logical system.
+    \item HOL with rank-1 polymorphism, or polymorphic HOL, whose term calculus is identical
+      to $\lambda 2$ in the $\lambda$-cube \cite{LambdaWithType}. In polymorphic HOL, function are
       allowed to take type arguments. For example, it is possible to define the function
       composition operator:
       $$\begin{aligned}
@@ -27,6 +39,14 @@
       present in (at least one of) these ITPs include (co)inductive types, universe levels,
       universe polymorphism, typeclasses and many others.
   \end{enumerate}
+  
+  \noindent All previously mentioned hammers translate between these logical systems. Isabelle
+  Sledgehammer translates between Isabelle and
+  HOL/FOL\footnote{The exact logical system depends on the mode being used}.
+  CoqHammer translates between Coq and untyped FOL. Lean-auto translates
+  between Lean and monomorphic HOL. As mentioned before, Lean-auto's
+  preprocessing translates Lean into $\lambda C$, and monomorphization
+  translates $\lambda C$ into monomorphic HOL.
 
 \subsection{Encoding-based translation and Monomorphization}\label{subencmon}
 
@@ -81,9 +101,11 @@
   expressive logical system that is equivalent to the original formula
   in the more expressive logical system.
 
-  \textbf{TODO} As mentioned above, completeness is sacrificed for smaller translation
-  results. We argue that smaller problem size is crucial to obtaining better performance
-  from ATPs, and that our translation can handel real Lean4 use cases despite being incomplete.
+  % TODO: Give concrete reasons why term size would be large, including
+  %       implicit arguments and typeclass instances
+  % TODO: As mentioned above, completeness is sacrificed for smaller translation
+  %       results. We argue that smaller problem size is crucial to obtaining better performance
+  %       from ATPs, and that our translation can handel real Lean4 use cases despite being incomplete.
 
 \subsection{Lean4}
 

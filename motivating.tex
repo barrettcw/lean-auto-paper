@@ -119,7 +119,7 @@ Since \texttt{@reverse\_reverse A}, \texttt{@reverse\_reverse B} and \texttt{@ma
 are present, the instances produced are already sufficient for proving the goal.
 But generally speaking, the newly generated hypothesis instances and polymorphic function instances
 in them can still be matched with each other (and existing instances) to produce new useful results.
-(\textbf{TODO:} Give a concrete example taken from my graduation thesis?)
+% TODO: Give a concrete example taken from my graduation thesis?
 Hence, the monomorphization procedure in Lean-auto uses a saturation loop which
 repeats the matching procedure until either no new instances can be produced or a predefined
 threshold is reached.
