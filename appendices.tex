@@ -1,0 +1,40 @@
+\appendix
+\section{Derivation rules of PTS}\label{apppts}
+
+  The type judgement $\Gamma \vdash t : \alpha$ in a PTS specified
+  by $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ is defined by the following
+  axioms and rules:
+
+  $$\begin{aligned}
+    & \text{(axioms)}      & & \frac{}{\emptyset \vdash s_1 : s_2} & & \text{if } (s_1, s_2) \in \mathcal{A} \\
+    & \text{(start)}       & & \frac{\Gamma \vdash A : s}{\Gamma, x : A \vdash x : A} & & \text{if } x \notin \Gamma \\
+    & \text{(weakening)}   & & \frac{\Gamma \vdash A : B \ \ \ \Gamma \vdash C : s}{\Gamma, x : C \vdash A : B} & & \text{if } x \notin \Gamma \\
+    & \text{(product)}     & & \frac{\Gamma \vdash A : s_1 \ \ \ \Gamma, x : A \vdash B : s_2}{\Gamma \vdash (\Pi x : A. B) : s_3} & & \text{if } (s_1, s_2, s_3) \in \mathcal{R} \\
+    & \text{(application)} & & \frac{\Gamma \vdash f : (\Pi x : A. B) \ \ \ \Gamma \vdash a : A}{\Gamma \vdash f \ a : B[x := a]} & & \\
+    & \text{(abstraction)} & & \frac{\Gamma, x : A \vdash b : B \ \ \ \Gamma \vdash (\Pi x : A. B) : s}{\Gamma \vdash (\lambda x : A.b) : (\Pi x : A. B)} & & \\
+    & \text{(conversion)}  & & \frac{\Gamma \vdash A : B \ \ \ \Gamma \vdash B' : s \ \ \ B =_\beta B'}{\Gamma \vdash A : B'} & &
+  \end{aligned}$$
+
+\section{$\lambda C, \lambda_\to$ and $\lambda_\to^*$}\label{applll}
+
+  \begin{definition} $\lambda C$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
+    $$\mathcal{S} := \{\mathsf{U}_\ell | \ell \in \mathbb{N}\} \ \ \ \mathcal{A} := \{(\mathsf{U}_\ell, \mathsf{U}_{\ell + 1}) | \ell \in \mathbb{N}\}$$
+    $$\mathcal{R} := \{(\mathsf{U}_\ell, \mathsf{U}_m, \mathsf{U}_{\mathsf{imax}(\ell, m)}) | \ell \in \mathbb{N}, m \in \mathbb{N}\}$$
+    $$\mathsf{imax}(m, n) := \left\{\begin{aligned}
+      \mathsf{max}(m, n), & & n > 0 \\
+      0, & & n = 0
+    \end{aligned}\right.$$
+  \end{definition}
+  
+  \begin{definition} $\lambda_\to$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
+    $$\mathcal{S} := \{\mathsf{U}_1, \mathsf{U}_1'\} \ \ \ \mathcal{A} := \{(\mathsf{U}_1, \mathsf{U}_1')\} \ \ \ 
+      \mathcal{R} := \{(\mathsf{U}_1, \mathsf{U}_1, \mathsf{U}_1)\}$$
+    This is equivalent to simply typed lambda calculus, where $\mathsf{U}_1$ and $\mathsf{U}_1'$ are
+    usually denoted as $*$ and $\square$, respectively.
+  \end{definition}
+
+  \begin{definition} $\lambda_\to^*$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
+    $$\mathcal{S} := \{\mathsf{U}_\ell | \ell \in \mathbb{N}^*\} \cup \{\mathsf{U}_\ell' | \ell \in \mathbb{N}^*\} \ \ \
+      \mathcal{A} := \{(\mathsf{U}_\ell, \mathsf{U}_\ell') | \ell \in \mathbb{N}^*\}$$
+    $$\mathcal{R} := \{(\mathsf{U}_\ell, \mathsf{U}_m, \mathsf{U}_{\mathsf{max} \{l, m\}}) | \ell \in \mathbb{N}^*, m \in \mathbb{N}^*\}$$
+  \end{definition}

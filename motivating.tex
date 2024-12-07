@@ -11,13 +11,23 @@ concrete example involving the polymorphic \textbf{List} type in Lean. Note that
 the examples and the monomorphization procedure here are simplified. Sect. \ref{exqdet} contains
 discussions and more examples to illustrate details of our monomorphization procedure.
 
-\subsection{$\lambda_\to$ Abstraction} \label{exabst}
+\subsection{$\lambda_\to^*$ Abstraction} \label{exabst}
 
 \begin{figure}
   \begin{CenteredBox}
     \lstinputlisting[style=leanHH]{LeanCode/reverse_map_pretty.inp}
   \end{CenteredBox}
   \caption{Lean4 proof state of a problem involving \textbf{List}} \label{leanlistpretty}
+\end{figure}
+
+\begin{figure}
+  \begin{CenteredBox}
+    \lstinputlisting[style=leanHH]{LeanCode/reverse_map_explicit.inp}
+  \end{CenteredBox}
+  \caption{Lean4 proof state after quantifier introduction and proof by contradiction, with implicit arguments displayed.
+    Note that the equality sign in figure \ref{leanlistpretty} is a syntactic sugar of
+    the polymorphic function {\usebox{\vEq}} seen here}
+  \label{leanlistexplicit}
 \end{figure}
 
 The Lean4 proof state of the problem we will consider is shown in Figure \ref{leanlistpretty}.
@@ -30,16 +40,6 @@ of the goal into the context, and apply proof by contradiction. The resulting pr
 is shown in Figure \ref{leanlistexplicit}.
 For clarity, we have displayed the implicit arguments of all the functions.
 
-\begin{figure}
-  \begin{CenteredBox}
-    \lstinputlisting[style=leanHH]{LeanCode/reverse_map_explicit.inp}
-  \end{CenteredBox}
-  \caption{Lean4 proof state after quantifier introduction and proof by contradiction, with implicit arguments displayed.
-    Note that the equality sign in figure \ref{leanlistpretty} is a syntactic sugar of
-    the polymorphic function {\usebox{\vEq}} seen here}
-  \label{leanlistexplicit}
-\end{figure}
-
 First, we focus on translating \texttt{neg\_goal} into $\lambda_\to$. Three polymorphic functions,
 namely \usebox{\vEq}, \usebox{\vmap} and \usebox{\vrev}, occur in the goal.
 Although these functions are polymorphic, instances of these functions
@@ -49,32 +49,23 @@ and \texttt{@reverse A}. Note that all the polymorphic functions occur
 within their monomorphic instances. Therefore, we can abstract these monomorphic
 instances to uninterpreted functions:
 
-\
-
-\begin{CenteredBox}
+\centerline{
     \lstinputlisting[style=leanHH, linerange={1-2}]{LeanCode/reverse_map_abstract.inp}
-\end{CenteredBox}
-\
+}
 
 $\lambda_\to$ also forbids types dependent on types.
 Therefore, \texttt{List A} and \texttt{List B}, which occur in the type of our
 uninterpreted functions, should be abstracted to uninterpreted type variables:
 
-\
-
-\begin{CenteredBox}
+\centerline{
   \lstinputlisting[style=leanHH, linerange={3-3}]{LeanCode/reverse_map_abstract.inp}
-\end{CenteredBox}
-\
+}
 
 After these abstractions, the goal becomes a formula in $\lambda_\to$:
 
-\
-
-\begin{CenteredBox}
+\centerline{
     \lstinputlisting[style=leanHH, linerange={4-4}]{LeanCode/reverse_map_abstract.inp}
-\end{CenteredBox}
-\
+}
 
 However, this abstraction technique is not directly applicable to \usebox{\vmaprev} and
 \usebox{\vrevrev}, because type arguments of polymorphic functions in them are quantified. For
@@ -124,17 +115,17 @@ Hence, the monomorphization procedure in Lean-auto uses a saturation loop which
 repeats the matching procedure until either no new instances can be produced or a predefined
 threshold is reached.
 
-\subsection{The requirement of $\lambda_\to$ abstraction on quantifier instantiation} \label{exqdet}
+\subsection{The requirement of $\lambda_\to^*$ abstraction on quantifier instantiation} \label{exqdet}
 
 In the previous \texttt{List} example, after the type arguments of polymorphic functions
-are instantiated, the $\lambda_\to$ abstraction technique becomes applicable. However, this is
+are instantiated, the $\lambda_\to^*$ abstraction technique becomes applicable. However, this is
 generally not true in dependent type theory. Consider the following example about \texttt{Fin} shown
 in figure \ref{leanfinexplicit}. Note that \texttt{add} has no type arguments. However, in
 \texttt{add\_comm}, we cannot apply the abstraction technique because the first argument of
 \texttt{add} contains quantified variable \texttt{n}, and the type of the second and third argument
 of \texttt{add} depends on the first argument. In fact, in the most general case, $\lambda_\to$
 abstraction is applicable if dependent arguments of functions do not contain bound variables,
-where an argument is called dependent if the return type or the type of a later argument depend on it.
+where an argument is called dependent if the return type or the type of a later argument depends on it.
 
 \begin{figure}
   \begin{CenteredBox}

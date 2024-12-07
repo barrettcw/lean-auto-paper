@@ -1,15 +1,72 @@
 \section{Preliminaries}
 
+\subsection{Dependent Type Theory}\label{subdtt}
+
+  Dependent type theory, or $\lambda C$ in the $\lambda$-cube,
+  or \textit{calculus of constructions} (CoC) \cite{LambdaWithType},
+  is a highly expressive type system and logical system. It is the logical
+  foundation of Coq, Lean4 and Agda. To align with the logical system of
+  Lean4, we will use the variant of $\lambda C$ which contains a countable
+  number of non-cumulative universe levels. The syntax of terms of $\lambda C$ is defined
+  inductively as follows:
+  $$\mathcal{T}_C ::= V \ | \ \mathsf{U}_\ell \ | \ \mathcal{T}_C \ \mathcal{T}_C \ |
+    \ \lambda (V : \mathcal{T}_C). \mathcal{T}_C \ | \ \forall (V : \mathcal{T}_C). \mathcal{T}_C$$
+  where $V$ is the set of variables, $\mathsf{U}_\ell (\ell \in \mathbb{N})$ are
+  the sorts (i.e. types of type) and $\ell$ is called the universe level
+  of $\mathsf{U}_\ell$, $\mathcal{T}_C \ \mathcal{T}_C$ is function application,
+  $\lambda (V : \mathcal{T}_C). \mathcal{T}_C$ is $\lambda$ abstraction, and
+  $\forall (V : \mathcal{T}_C). \mathcal{T}_C$ is product type.
+  We use $\forall$ instead of $\mathrm{\Pi}$ to align with the syntax of Lean, Coq and Agda.
+  Syntactical equality of terms will be denoted as $=$, and the $\beta\eta$-equivalence of terms will be
+  denoted as $\cong$. We adopt the following commonly used notational conventions:
+  \begin{enumerate}
+    \item Function application binds stronger than $\lambda$ and $\forall$, and is left associative.
+    \item Consecutive $\lambda$s and $\forall$s can be merged:
+      $$\lambda (x_1 : \alpha_1) \ \dots \ (x_n : \alpha_n). t \ \ \ = \ \ \ \lambda (x_1 : \alpha_1) \ \dots \ \lambda (x_n : \alpha_n). t$$
+      $$\forall (x_1 : \alpha_1) \ \dots \ (x_n : \alpha_n). \beta \ \ \ = \ \ \ \forall (x_1 : \alpha_1) \ \dots \ \forall (x_n : \alpha_n). \beta$$
+    \item Consecutive $\lambda$s and $\forall$s with the same binder type can be further merged:
+      $$\lambda (x_1 \ \dots \ x_n : \alpha) . t \ \ \ = \ \ \ \lambda (x_1 : \alpha) \ \dots (x_n : \alpha). t$$
+      $$\forall (x_1 \ \dots \ x_n : \alpha) . t \ \ \ = \ \ \ \forall (x_1 : \alpha) \ \dots (x_n : \alpha). t$$
+    \item When the product type is non-dependent, $\to$ can be used instead of $\forall$:
+      $$\alpha \to \beta \ \ \ = \ \ \ \forall (x : \alpha). \beta$$
+      $\to$ is right associative. Importantly, $\to$ binds stronger than $\forall$, i.e.,
+      $\forall (x : \alpha). \beta \to \gamma$ is interpreted as $\forall (x : \alpha). (\beta \to \gamma)$
+      instead of $(\forall (x : \alpha). \beta) \to \gamma$, the latter being the convention commonly used
+      when presenting FOL and HOL.
+  \end{enumerate}
+
+  A $\lambda C$ term $t$ is only meaningful under a context\footnote{Except for 
+  the sorts $\mathsf{U}_\ell$}\footnote{It is common to also include \textit{constants},
+  and an \textit{environment} $\mathcal{E}$ (or \textit{signature} $\Sigma$) to specify their
+  types. However, it is not strictly necessary since constants can be viewed as variables,
+  and type information for them can also be provided in the context}, which provides type information
+  for free variables occurring in $t$. A context $\Gamma$ is a list of variable declarations
+  $x_1 : \alpha_1, \dots, x_n : \alpha_n$, where $x_i \in V$ and $\alpha_i \in \mathcal{T}_C$.
+  Type judgements will be written as $\Gamma \vdash t : \alpha$, which stands for ``$\lambda C$ term $t$
+  has type $\alpha$ under context $\Gamma$''. Derivation rules for type judgements of
+  $\lambda C$ will be given in sect. \ref{sectpts}. If $\Gamma \vdash t : \alpha$, then $t$ is
+  called a \textit{well-formed term}, and $\alpha$ is called a (well-formed)
+  \textit{type}\footnote{In $\lambda C$, all well-formed types are also well-formed terms}.
+  Under context $\Gamma$, a type $\alpha$ is called \textit{inhabited} iff there exists $t$ such
+  that $\Gamma \vdash t : \alpha$, in which case $t$ is called an \textit{inhabitant} of $\alpha$.
+  The sort $\mathsf{U}_0$ is the type of propositions. A \textit{proof} of a proposition
+  $p : \mathsf{U}_0$ is an inhabitant of $p$. A proposition $p : \mathsf{U}_0$ is \textit{provable}
+  iff it is inhabited.
+
+  We use $\lambda C$ notation for all logical systems that can be embedded in $\lambda C$.
+  When presenting Lean4 examples, we will follow extra notational conventions
+  of Lean4, which will be explained in sect. \ref{sectlean}.
+
 \subsection{Logical Systems of ITPs and ATPs}\label{sublogsys}
 
   In this section, we give overviews of the various logical systems
-  that are mentioned in our paper. In the following list, the logical systems
+  that are relevant to our paper. In the following list, the logical systems
   are ordered from the least expressive to the most expressive. 
   \begin{enumerate}
     \item Untyped FOL, or predicate logic. Term are constructed from
       function symbols, constant symbols and variables.
       Formulas are constructed from terms, predicate symbols and logical symbols.
-    \item Many-sorted FOL, where function symbols and variables have
+    \item Many-sorted FOL, where function symbols, predicate symbols and variables have
       types\footnote{For consistency with dependent type theory, here we use ``type'' instead of ``sort''}
       . The type of an $n$-ary function symbol $f$ takes the form
       $s_1 \to \dots \to s_n \to t$, where $s_1, \dots, s_n, t$ are type constants.
@@ -24,6 +81,9 @@
       is identical to $\lambda_\to$ in the $\lambda$-cube \cite{LambdaWithType}.
       Note that HOL is more than just $\lambda_\to$ since it also has axioms and
       deduction rules as a logical system.
+    \item Many-sorted HOL with a countable number of universe levels, denoted as $\text{HOL}^*$. This is an
+      intermediate logical system used in Lean-auto's monomorphization. Its term calculus $\lambda_\to^*$
+      will be defined in sect. \ref{sectpts}.
     \item HOL with rank-1 polymorphism, or polymorphic HOL, whose term calculus is identical
       to $\lambda 2$ in the $\lambda$-cube \cite{LambdaWithType}. In polymorphic HOL, function are
       allowed to take type arguments. For example, it is possible to define the function
@@ -33,9 +93,8 @@
       \mathsf{compose} & := \lambda (\alpha \ \beta \ \gamma : \mathsf{Type}) \ (f : \beta \to \gamma) \ (g : \alpha \to \beta) \ (x : \alpha). f \ (g \ x)
       \end{aligned}$$
     \item Isabelle: Based on polymorphic HOL. Supports (co)inductive datatypes and recursive functions.
-    \item Dependent type theory, or $\lambda C$ in the $\lambda$-cube \cite{LambdaWithType}. Compared
-      to polymorphic HOL, types can depend on terms and types in $\lambda C$.
-    \item Coq, Lean and Agda: Based on $\lambda C$. Extensions to $\lambda C$ that are
+    \item Dependent type theory. Compared to polymorphic HOL, types can depend on terms and types in $\lambda C$.
+    \item Coq, Lean4 and Agda: Based on $\lambda C$. Extensions to $\lambda C$ that are
       present in (at least one of) these ITPs include (co)inductive types, universe levels,
       universe polymorphism, typeclasses and many others.
   \end{enumerate}
@@ -44,69 +103,93 @@
   Sledgehammer translates between Isabelle and
   HOL/FOL\footnote{The exact logical system depends on the mode being used}.
   CoqHammer translates between Coq and untyped FOL. Lean-auto translates
-  between Lean and monomorphic HOL. As mentioned before, Lean-auto's
-  preprocessing translates Lean into $\lambda C$, and monomorphization
+  between Lean4 and monomorphic HOL. As mentioned before, Lean-auto's
+  preprocessing translates Lean4 into $\lambda C$, and monomorphization
   translates $\lambda C$ into monomorphic HOL.
 
-\subsection{Encoding-based translation and Monomorphization}\label{subencmon}
+\subsection{Lean and Mathlib}\label{sectlean}
 
-  The idea of encoding-based translation is to encode
-  constructions in the more expressive system using function symbols in the less
-  expressive system, and define the translation as a recursive function on the terms and formulas
-  of the more expressive system. For example, in the dependent type theory of Coq,
-  we have the type judgement relation $\Gamma \vdash x : w$, which means ``$x$ is of
-  type $w$ under context $\Gamma$''. There is no direct equivalent of this
-  typing relation in untyped FOL. To express the Coq type judgement in untyped FOL, 
-  CoqHammer first introduces the uninterpreted FOL predicate $T(u^*, a^*)$ for
-  first-order terms $u^*$ and $a^*$ translated from Coq term $u$ and atomic Coq type $a$
-  (here \textit{atomic} roughly means that $a$ cannot be
-  further decomposed by the translation procedure of CoqHammer). Then, a recursive function
-  $\mathcal{G}_\Gamma(u, w)$ on Coq context $\Gamma$ and Coq terms $u, w$ is defined.
-  The function $\mathcal{G}_\Gamma(u, w)$ translates the typing relation $\Gamma \vdash u : w$ into an untyped FOL formula,
-  in which the $T$ predicate is used to express type judgements involving atomic types.
+  Lean is an interactive theorem prover based on dependent type theory. Lean-auto
+  is implemented in Lean4, the latest version of Lean. At present, the
+  most prominent project in Lean is Mathlib \cite{MathlibPaper},
+  which was later renamed to Mathlib4\footnote{Github link: https://github.com/leanprover-community/mathlib4}
+  when it was moved to Lean4. Notably, Mathlib is the foundation of the
+  Liquid Tensor Experiment \cite{LiquidTensor}, which successfully
+  formalized cutting-edge results in mathematics. 
+
+  We will follow Lean4 conventions when presenting Lean4 examples. Sorts are
+  printed as \texttt{Type $\ell$} instead of $\mathsf{U}_\ell$, and the universe levels $\ell$
+  are erased in many of our examples for simplicity.
+  Functions are allowed to have implicit arguments, which are represented by
+  $\{x : \alpha\}$ instead of $(x : \alpha)$ in the type of the function.
+  Prepending \textrm{@} to the name of a function causes implicit arguments
+  to become explicit. For example, given the polymorphic list map function
+
+  \centerline{\texttt{List.map : $\forall$ \{$\alpha \ \beta$ : Type\}, ($\alpha$ → $\beta$) → List $\alpha$ → List $\beta$}}
   
-  Encoding-based translation has the advantage of being (almost) complete
-  and straightforward to compute. However, certain features of the more expressive
-  logical system are usually omitted to produce translation results of reasonable size,
-  which sacrifices soundness. Moreover, even with this tradeoff, the translation result is usually much larger
-  than the original term.
+  \noindent the expression \texttt{@List.map $\alpha$ $\beta$ f} is the same as \texttt{List.map f}, where \texttt{f : $\alpha$ → $\beta$}.
 
-  The idea of monomorphization is that, the proof of many propositions in the more expressive logical
-  system can essentially be conducted in the less expressive logical system. In other words,
-  many features of the more expressive system are often irrelevant to the proof. For example,
-  in polymorphic HOL, given
-  \begin{enumerate}
-    \item The list map function $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{Type}). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$
-    \item Two lists of natural numbers $xs \ ys : \mathsf{List} \ \mathbb{N}$ and two functions $f \ g : \mathbb{N} \to \mathbb{N}$
-    \item The premise $xs = ys \land f = g$
-  \end{enumerate}
-  The equality
-  \begin{equation}\label{lmapphol}
-    \mathsf{List.map} \ \mathbb{N} \ \mathbb{N} \ f \ xs = \mathsf{List.append} \ \mathbb{N} \ \mathbb{N} \ g \ ys
-  \end{equation}
-  is provable using two rewrites $xs \Rightarrow ys, f \Rightarrow g$. The crucial observation is that, although $\textsf{List.map}$ is polymorphic, the term
-  $\mathsf{List.map} \ \mathbb{N} \ \mathbb{N}$ as a whole behaves just like a function symbol in monomorphic HOL,
-  therefore the rewrites can essentially be performed in monomorphic HOL. More formally,
-  the formula \eqref{lmapphol} is the image of the monomorphic HOL formula
-  $$h \ f^* \ xs^* = h \ g^* \ ys^*$$
-  under the inter-logical-system ``substitution''
-  $$\sigma := \{h \mapsto \mathsf{List.map} \ \mathbb{N} \ \mathbb{N},
-    f^* \mapsto f, g^* \mapsto g, xs^* \mapsto xs, ys^* \mapsto ys\}$$
-  and the rewrites $xs \Rightarrow ys, f \Rightarrow g$ in polymorphic HOL are just manifestations of the
-  rewrites $xs^* \Rightarrow ys^*, f^* \Rightarrow g^*$ in monomorphic HOL.
+  An important feature of Lean4 is typeclasses, which is used extensively by
+  Lean4's builtin library and Mathlib4 to overload arithmetic operators and represent
+  mathematical structures. For example, consider the \texttt{HAdd} typeclass
+  and the \texttt{HAdd.hAdd} function used to represent the addition operator in Lean4
   
-  Monomorphization is sound, produces small translation results, and preserves
-  term structures during translation. However, monomorphization is incomplete,
-  since it is not always possible to find an appropriate formula in the less
-  expressive logical system that is equivalent to the original formula
-  in the more expressive logical system.
+  \centerline{\texttt{HAdd : $\forall$ ($\alpha \ \beta \ \gamma$ : Type) : Type}}
+  \centerline{\texttt{HAdd.hAdd : $\forall$ \{$\alpha \ \beta \ \gamma$ : Type\} [self : HAdd $\alpha \ \beta \ \gamma$] : $\alpha$ → $\beta$ → $\gamma$}}
 
-  % TODO: Give concrete reasons why term size would be large, including
-  %       implicit arguments and typeclass instances
-  % TODO: As mentioned above, completeness is sacrificed for smaller translation
-  %       results. We argue that smaller problem size is crucial to obtaining better performance
-  %       from ATPs, and that our translation can handel real Lean4 use cases despite being incomplete.
+  \noindent An inhabitant of \texttt{HAdd $\alpha \ \beta \ \gamma$}, called a
+  typeclass instance, is a wrapper of a ``heterogeneous'' addition operator (with $\alpha$ and $\beta$ as its input types and
+  $\beta$ as its output type). The square bracket in the type of \texttt{HAdd.hAdd}
+  indicates that the enclosed argument is an instance argument, which is a special type
+  of implicit argument intended to be filled by Lean4's typeclass inference algorithm.
+  Given the syntax $x + y$ where $x : \alpha$ and $y : \beta$,
+  the typeclass inference algorithm will attempt to find a type $\gamma$ and a previously
+  defined wrapper \texttt{inst : HAdd $\alpha \ \beta \ \gamma$}, and elaborate the
+  syntax $x + y$ into the expression \texttt{@HAdd.hAdd $\alpha \ \beta \ \gamma$ inst}.
+  In \texttt{@HAdd.hAdd $\alpha \ \beta \ \gamma$ inst}, the \texttt{HAdd.hAdd} function
+  unwraps \texttt{inst} and returns the addition operator. This provides a mechanism
+  for overloading the addition operator. The same mechanism is used to represent mathematical
+  structures. For example, a group is just a wrapper for its identity element, multiplication
+  operator, inverse operator, and a proof that these operators follow the group axioms.
 
-\subsection{Lean4}
+  \noindent Other important features of Lean4 include inductive types, recursive functions
+  and definitional equality. These features and how Lean-auto handles them will be discussed
+  in sect. \ref{sectprep}.
 
-\subsection{Pure Type Systems}
+\subsection{Pure Type Systems}\label{sectpts}
+
+  Pure type system (PTS) \cite{LambdaWithType} is a mechanism which enables concise specification
+  for a certain class of type systems. We use PTS to formally specify the underlying type systems
+  of the logical systems used in Lean-auto's translation.
+
+  The specification of a PTS consists of a triple $(\mathcal{S}, \mathcal{A}, \mathcal{R})$,
+  where $\mathcal{S}$ is the set of \textit{sorts}, $\mathcal{A} \subseteq \mathcal{S} \times \mathcal{S}$ is
+  the set of \textit{axioms}, and $\mathcal{R} \subseteq \mathcal{S} \times \mathcal{S} \times \mathcal{S}$
+  is the set of \textit{rules}. An axiom $(s_1, s_2) \in \mathcal{A}$ is intended to represent
+  the typing relation $s_1 : s_2$. The term syntax of a PTS is defined as
+  $$\mathcal{T} ::= V \ | \ \mathcal{S} \ | \ \mathcal{T} \ \mathcal{T} \ |
+    \ \lambda (V : \mathcal{T}). \mathcal{T} \ | \ \forall (V : \mathcal{T}). \mathcal{T}$$
+  \noindent The derivation rules of PTS are given in Appendix \ref{apppts}.
+
+  Three type systems, $\lambda C, \lambda_\to$ and $\lambda_\to^*$, will be formulated
+  using PTS. $\lambda C$ is the same described in sect. \ref{subdtt}, with
+  a countable number of universe levels $\ell \in \mathbb{N}$. $\lambda_\to$,
+  is the term calculus of monomorphic HOL. $\lambda_\to^*$ is the term
+  calculus of the intermediate system $\text{HOL}^*$ used by Lean-auto's
+  monomorphization. Note that $\mathsf{U}_0$ is not present in $\lambda_\to$ and $\lambda_\to^*$
+  because it is a special sort for representing propositions in $\lambda C$.
+  Propositions in $\lambda_\to$ and $\lambda_\to^*$ will be represented by
+  a special type $\mathsf{Bool} : \mathsf{U}_1$.
+  
+  $\lambda_\to^*$ and $\lambda_\to$ are similar, except that $\lambda_\to^*$ allows a
+  countable number of universe levels $\ell \in \mathbb{N}^*$. For example,
+  for the type $(\alpha \to \beta) \to \gamma$, if in $\lambda_\to$,
+  then $\alpha \ \beta \ \gamma$ must be of type $\mathsf{U}_1$; if in
+  $\lambda_\to^*$, then it's possible that $\alpha : \mathsf{U}_{\ell_1},
+  \beta : \mathsf{U}_{\ell_2}, \gamma : \mathsf{U}_{\ell_3}$ where $\ell_1, \ell_2, \ell_3$
+  may be different. A technicality related to PTS requires the presence of
+  the sorts $\mathsf{U}_\ell'$ in $\lambda_\to^*$, with axioms $\mathsf{U}_\ell : \mathsf{U}_\ell'$.
+
+  The specifications of $\lambda C, \lambda_\to$ and $\lambda_\to^*$ using PTS are given in
+  Appendix \ref{applll}. The set of $\lambda_C, \lambda_\to$ and $\lambda_\to^*$ terms will be
+  denoted as $\mathcal{T}_C, \mathcal{T}_\to$ and $\mathcal{T}_\to^*$, respectively.

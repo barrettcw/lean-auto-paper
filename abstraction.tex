@@ -1,59 +1,5 @@
 \section{$\lambda_\to^*$ abstraction}\label{sectabst}
 
-\subsection{$\lambda C$, $\lambda_\to^*$ and $\lambda_\to$}
-
-In this subsection, we define three type systems: $\lambda C, \lambda_\to^*$ and $\lambda_\to$. $\lambda C$
-is calculus of constructions with a countable family of non-cumulative universe levels, similar
-to the type theory of Lean; $\lambda_\to^*$ is simply typed lambda calculus with a countable
-family of universe levels, without $\mathsf{U}_0$ and without the typing relation
-$\mathsf{U}_\ell : \mathsf{U}_{\ell + 1}$, intended to model the output of Lean-auto's translation;
-$\lambda_\to$ is simply typed lambda calculus. All three systems will be
-specified as pure-type systems $(\mathcal{S}, \mathcal{A}, \mathcal{R})$, where $\mathcal{S}$
-is the set of sorts, $\mathcal{A} \subseteq \mathcal{S}^2$ is the set of axioms, and
-$\mathcal{R} \subseteq \mathcal{S}^3$ corresponds to the formation rules. The syntactical
-equality of terms will be denoted as $=$, and the $\beta\eta$-equivalence of terms will be
-denoted as $\cong$.
-
-\begin{definition} $\lambda C$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
-  $$\mathcal{S} := \{\mathsf{U}_\ell | \ell \in \mathbb{N}\} \ \ \ \mathcal{A} := \{(\mathsf{U}_\ell, \mathsf{U}_{\ell + 1}) | \ell \in \mathbb{N}\}$$
-  $$\mathcal{R} := \{(\mathsf{U}_\ell, \mathsf{U}_m, \mathsf{U}_{\mathsf{imax}(\ell, m)}) | \ell \in \mathbb{N}, m \in \mathbb{N}\}$$
-  $$\mathsf{imax}(m, n) := \left\{\begin{aligned}
-    \mathsf{max}(m, n), & & n > 0 \\
-    0, & & n = 0
-  \end{aligned}\right.$$
-
-  The set of $\lambda_C$ terms will be denoted as $\mathcal{T}_C$.
-\end{definition}
-
-\begin{definition} $\lambda_\to^*$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
-  $$\mathcal{S} := \{\mathsf{U}_\ell | \ell \in \mathbb{N}^*\} \cup \{\mathsf{U}_\ell' | \ell \in \mathbb{N}^*\} \ \ \
-    \mathcal{A} := \{(\mathsf{U}_\ell, \mathsf{U}_\ell') | \ell \in \mathbb{N}^*\}$$
-  $$\mathcal{R} := \{(\mathsf{U}_\ell, \mathsf{U}_m, \mathsf{U}_{\mathsf{max} \{l, m\}}) | \ell \in \mathbb{N}^*, m \in \mathbb{N}^*\}$$
-
-  The set of $\lambda_\to^*$ terms will be denoted as $\mathcal{T}_\to^*$.
-\end{definition}
-
-\begin{definition} $\lambda_\to$ is the pure type system $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ where
-  $$\mathcal{S} := \{\mathsf{U}_1, \mathsf{U}_1'\} \ \ \ \mathcal{A} := \{(\mathsf{U}_1, \mathsf{U}_1')\} \ \ \ 
-    \mathcal{R} := \{(\mathsf{U}_1, \mathsf{U}_1, \mathsf{U}_1)\}$$
-  This is equivalent to simply typed lambda calculus, where $\mathsf{U}_1$ and $\mathsf{U}_1'$ are
-  usually denoted as $*$ and $\square$, respectively. The set of $\lambda_\to$ terms will be denoted
-  as $\mathcal{T}_\to$.
-\end{definition}
-
-\begin{theorem} A $\lambda_\to^*$ problem is provable iff it is $\lambda_\to$ provable after forgetting
-  universe levels, assuming the existence of lifting functions in $\lambda C$.
-\end{theorem}
-\begin{proof}
-  % TODO: Put this after the definition of provability
-  %       Maybe a direct induction would be more elegant?
-  If a $\lambda_\to^*$ problem is provable, obviously it is $\lambda_\to$ provable
-  after forgetting the universe levels. If a $\lambda_\to^*$ problem is $\lambda_\to$ provable
-  after forgetting the universe levels, note that the lifting of a $\lambda_\to^*$ problem is sort of
-  an instance of the problem after forgetting universe levels, hence provable. Moreover,
-  a $\lambda_\to^*$ problem is provable iff its lifting is provable.  
-\end{proof}
-
 \subsection{Essentially higher-order problem}
 
 \begin{definition} Let $\sigma : V \to \mathcal{T}_C$ be a mapping.
@@ -94,8 +40,7 @@ denoted as $\cong$.
   this corresponds to a unifier of $t_1$ and $t_2$ under context $\Gamma$, with $M$ as the set of metavariables.
 \end{definition}
 
-\begin{definition} Many-sorted higher-order logic (HOL) is defined as $\lambda_\to^*$ augmented
-  with the following symbols:
+\begin{definition} $\text{HOL}^*$ is defined as $\lambda_\to^*$ augmented with the following symbols:
   \begin{enumerate}
     \item $\mathsf{Bool}$
     \item $\bot'$ and $\to'$
@@ -152,6 +97,21 @@ denoted as $\cong$.
   a term $t'$ such that $\pi(\Gamma') \vdash t' : \pi(p')$. By theorem \ref{ceptj},
   $\Gamma \vdash \overline{\sigma}(t') : \overline{\sigma}(\pi(p'))$, thus $\Gamma \vdash? p$
   is provable.
+\end{proof}
+
+%TODO: Define HOL
+
+\begin{theorem} An $\text{HOL}^*$ problem is provable iff it is HOL provable after forgetting
+  universe levels, assuming the existence of lifting functions in $\lambda C$.
+\end{theorem}
+\begin{proof}
+  % TODO: Put this after the definition of provability
+  %       Maybe a direct induction would be more elegant?
+  If a $\lambda_\to^*$ problem is provable, obviously it is $\lambda_\to$ provable
+  after forgetting the universe levels. If a $\lambda_\to^*$ problem is $\lambda_\to$ provable
+  after forgetting the universe levels, note that the lifting of a $\lambda_\to^*$ problem is sort of
+  an instance of the problem after forgetting universe levels, hence provable. Moreover,
+  a $\lambda_\to^*$ problem is provable iff its lifting is provable.  
 \end{proof}
 
 We define logical symbols in $\lambda C$ as follows:
