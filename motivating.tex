@@ -7,9 +7,9 @@
 \begin{lrbox}{\vrevrev} {\color{hypcolor} \verb|reverse_reverse|} \end{lrbox}
 
 In section \ref{exabst} and \ref{exinst}, we will demonstrate the execution of our monomorphization procedure on a
-concrete example involving the polymorphic \textbf{List} type in Lean. Note that both
-the examples and the monomorphization procedure here are simplified. Sect. \ref{exqdet} contains
-discussions and more examples to illustrate details of our monomorphization procedure.
+concrete example. Note that both the examples and the monomorphization procedure
+here are simplified. Sect. \ref{exqdet} contains discussions and more examples
+to illustrate details of our monomorphization procedure.
 
 \subsection{$\lambda_\to^*$ Abstraction} \label{exabst}
 
@@ -19,6 +19,14 @@ discussions and more examples to illustrate details of our monomorphization proc
   \end{CenteredBox}
   \caption{Lean4 proof state of a problem involving \textbf{List}} \label{leanlistpretty}
 \end{figure}
+
+The Lean4 proof state of the problem we will consider is shown in Figure \ref{leanlistpretty}.
+The hypotheses are displayed before $\vdash$, while the goal comes after $\vdash$.
+\usebox{\vmaprev} states that \usebox{\vmap} commutes with \usebox{\vrev}, and
+\usebox{\vrevrev} states that \usebox{\vrev} is the inverse function of itself.
+We will focus on the most important part of monomorphization, which is the
+$\lambda C$ to $\text{HOL}^*$ translation. Note that the problem is already in the
+$\lambda C$ fragment of Lean.
 
 \begin{figure}
   \begin{CenteredBox}
@@ -30,48 +38,38 @@ discussions and more examples to illustrate details of our monomorphization proc
   \label{leanlistexplicit}
 \end{figure}
 
-The Lean4 proof state of the problem we will consider is shown in Figure \ref{leanlistpretty}.
-The hypotheses are displayed before $\vdash$, while the goal comes after $\vdash$. The hypothesis
-\usebox{\vmaprev} states that \usebox{\vmap} commutes with \usebox{\vrev}, and the hypothesis
-\usebox{\vrevrev} states that \usebox{\vrev} is the inverse function of itself.
-
-As a standard preprocessing step, we introduce all the $\forall$ quantifiers
+As a standard first step, we introduce all the $\forall$ quantifiers
 of the goal into the context, and apply proof by contradiction. The resulting proof state
 is shown in Figure \ref{leanlistexplicit}.
 For clarity, we have displayed the implicit arguments of all the functions.
 
-First, we focus on translating \texttt{neg\_goal} into $\lambda_\to$. Three polymorphic functions,
-namely \usebox{\vEq}, \usebox{\vmap} and \usebox{\vrev}, occur in the goal.
+First, we focus on translating \texttt{neg\_goal} into $\text{HOL}^*$. Following the
+discussion of sect. \ref{subencmon}, we would like to find an $\text{HOL}^*$ formula $\varphi$
+and a ``substitution'' $\sigma$ such that the image of $\varphi$ under $\sigma$ is \texttt{neg\_goal}.
+Features not allowed in $\varphi$ include polymorphic. We also want the problem to
+be provable after the translation, so $\varphi$ should preserve as much information in
+\texttt{neg\_goal} as possible.
+
+Three polymorphic functions, namely \usebox{\vEq}, \usebox{\vmap} and \usebox{\vrev}, occur in the \texttt{neg\_goal}.
 Although these functions are polymorphic, instances of these functions
-with type arguments instantiated could be monomorphic. The goal contains four of
-such monomorphic instances: \texttt{@Eq (List B)}, \texttt{@reverse B}, \texttt{@map A B}
-and \texttt{@reverse A}. Note that all the polymorphic functions occur
-within their monomorphic instances. Therefore, we can abstract these monomorphic
-instances to uninterpreted functions:
+with dependent arguments instantiated could behave like monomorphic functions.
+The type constructor \texttt{List} is also not allowed in $\text{HOL}^*$, but
+\texttt{List A} and \texttt{List B} behave just like $\text{HOL}^*$ type variables.
+Therefore, we can choose
+$$\begin{aligned}
+\varphi := & \ \neg (\mathsf{EqLB} \ (\mathsf{rB} \ (\mathsf{mAB} \ f^* \ (\mathsf{rA} \ \mathit{xs}^*))) \ (\mathsf{mAB} \ f^* \ \mathit{xs}^*)) \\
+\sigma := & \ \{\mathsf{EqLB} \mapsto \texttt{@Eq (List B)}, \ \ \mathsf{mAB} \mapsto \texttt{@map A B}, \\
+          & \ \ \mathsf{rA} \mapsto \texttt{@reverse A}, \ \ \mathsf{rB} \mapsto \texttt{@reverse B}, \ \ f^* \mapsto \texttt{f}, \ \ \mathit{xs}^* \mapsto \texttt{xs}\}
+\end{aligned}$$
 
-\centerline{
-    \lstinputlisting[style=leanHH, linerange={1-2}]{LeanCode/reverse_map_abstract.inp}
-}
+In a sense, the monomorphic instances of polymorphic functions are ``abstracted'' to $\text{HOL}^*$
+variables. Note that the logical rules of $\text{HOL}^*$ are not relevant to this abstraction procedure, only
+the term calculus $\lambda_\to^*$ is involved. Therefore, we name this procedure $\lambda_\to^*$ \textit{abstraction}.
 
-$\lambda_\to$ also forbids types dependent on types.
-Therefore, \texttt{List A} and \texttt{List B}, which occur in the type of our
-uninterpreted functions, should be abstracted to uninterpreted type variables:
-
-\centerline{
-  \lstinputlisting[style=leanHH, linerange={3-3}]{LeanCode/reverse_map_abstract.inp}
-}
-
-After these abstractions, the goal becomes a formula in $\lambda_\to$:
-
-\centerline{
-    \lstinputlisting[style=leanHH, linerange={4-4}]{LeanCode/reverse_map_abstract.inp}
-}
-
-However, this abstraction technique is not directly applicable to \usebox{\vmaprev} and
-\usebox{\vrevrev}, because type arguments of polymorphic functions in them are quantified. For
-example, the type arguments of the first occurrence of \usebox{\vmap} in \usebox{\vmaprev}
-are $\alpha$ and $\beta$, both bound by universal quantifiers. Naturally, we would like
-to instantiate these quantifiers to make the abstraction technique applicable
+However, $\lambda_\to^*$ abstraction is not directly applicable to \usebox{\vmaprev} and
+\usebox{\vrevrev}, because dependent arguments of polymorphic functions in them are universally
+quantified. Naturally, we would like to instantiate these quantifiers to make $\lambda_\to^*$
+abstraction applicable.
 
 \subsection{Quantifier Instantiation} \label{exinst}
 
@@ -80,8 +78,8 @@ either first use \texttt{@map\_reverse A B} to swap the outer \texttt{reverse} w
 use \texttt{@reverse\_reverse A} to eliminate \texttt{reverse}; or, first use
 \texttt{@map\_reverse A B} to swap the inner \texttt{reverse} with \texttt{map}, then
 use \texttt{@reverse\_reverse B} to eliminate \texttt{reverse}. Notice how quantifiers
-in the hypotheses are instantiated so that the type arguments of polymorphic functions
-in the instantiated hypotheses match the type arguments of their monomorphic instances in the goal.
+in the hypotheses are instantiated so that the dependent arguments of polymorphic functions
+in the instantiated hypotheses match the dependent arguments of their monomorphic instances in the goal.
 
 Quantifier instantiation in Lean-auto's monomorphization procedure is based
 on a matching procedure that reflects the above observation. Given a set of formulas $S$,
@@ -117,33 +115,6 @@ threshold is reached.
 
 \subsection{The requirement of $\lambda_\to^*$ abstraction on quantifier instantiation} \label{exqdet}
 
-In the previous \texttt{List} example, after the type arguments of polymorphic functions
-are instantiated, the $\lambda_\to^*$ abstraction technique becomes applicable. However, this is
-generally not true in dependent type theory. Consider the following example about \texttt{Fin} shown
-in figure \ref{leanfinexplicit}. Note that \texttt{add} has no type arguments. However, in
-\texttt{add\_comm}, we cannot apply the abstraction technique because the first argument of
-\texttt{add} contains quantified variable \texttt{n}, and the type of the second and third argument
-of \texttt{add} depends on the first argument. In fact, in the most general case, $\lambda_\to$
-abstraction is applicable if dependent arguments of functions do not contain bound variables,
-where an argument is called dependent if the return type or the type of a later argument depends on it.
-
-\begin{figure}
-  \begin{CenteredBox}
-    \lstinputlisting[style=leanHH]{LeanCode/fin_explicit.inp}
-  \end{CenteredBox}
-  \caption{Lean4 proof state of an example about \texttt{Fin}}
-  \label{leanfinexplicit}
-\end{figure}
-
-Note that whether an argument is dependent depends on how previous arguments
-are instantiated. Consider the example shown in figure \ref{dfun}. The return
-type \texttt{$\beta$ a} depends on the last argument \texttt{a : $\alpha$} in the signature of
-\texttt{DFunLike.coe}. However, when $\beta$ is instantiated with \texttt{fun x => B$_0$}, as in the
-expression at the bottom of figure \ref{dfun}, the return type \texttt{$\beta$ a} reduces to \texttt{B$_0$},
-which no longer depends on the last argument. Lean-auto takes preceding arguments into
-consideration when determining whether an argument is dependent, and is able to detect
-that the last argument is non-dependent in this case.
-
 \begin{figure}
   \begin{CenteredBox}
     \begin{lstlisting}[style=leanHH]
@@ -158,3 +129,12 @@ that the last argument is non-dependent in this case.
   containing it}
   \label{dfun}
 \end{figure}
+
+Note that whether an argument is dependent depends on how previous arguments
+are instantiated. Consider the example shown in figure \ref{dfun}. The return
+type \texttt{$\beta$ a} depends on the last argument \texttt{a : $\alpha$} in the signature of
+\texttt{DFunLike.coe}. However, when $\beta$ is instantiated with \texttt{fun x => B$_0$}, as in the
+expression at the bottom of figure \ref{dfun}, the return type \texttt{$\beta$ a} reduces to \texttt{B$_0$},
+which no longer depends on the last argument. Lean-auto takes preceding arguments into
+consideration when determining whether an argument is dependent, and is able to detect
+that the last argument is non-dependent in this case.

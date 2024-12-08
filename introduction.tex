@@ -27,7 +27,13 @@
   as first-order logic (FOL) \cite{CVC5}\cite{Vampire}\cite{Z3Paper}\cite{EProver} and
   higher-order logic (HOL) \cite{HOVampire}\cite{ZipperpositionMakeWork}\cite{HOEProver}.
   An overview of the logical systems relevant to our work will be given in sect. \ref{sublogsys}.
- 
+
+  The focus of our paper is the Lean to ATP translation procedure in Lean-auto.
+  However, Lean-auto does have a proof reconstruction procedure which fully supports proof
+  reconstruction of one of the three types of ATPs we use to evaluate Lean-auto.
+  Ongoing projects are expected to implement premise selection and more proof reconstruction support.
+  See sect. \ref{sectexpr} for more discussions.
+
   There are two existing approaches for translation from more expressive
   logical systems to less expressive ones: encoding-based translation and monomorphization.
   Encoding-based translation is used in CoqHammer \cite{Czajka2018HammerFC}
@@ -47,24 +53,3 @@
   into HOL. The monomorphization procedure is inspired by Isabelle Sledgehammer.
   However, since Isabelle is based on HOL, which is considerably different from
   dependent type theory, the algorithm is thoroughly redesigned.
-  
-  We evaluate Lean-auto on three types of ATPs:
-  \begin{enumerate}
-    \item Native provers, or ATPs implemented in Lean4 itself. Currently, the only general-purpose
-      native prover in Lean4 is Duper \cite{DuperPaper}. Note that Lean-auto is
-      used as a preprocessing step in Duper (cf. sect. 5 of \cite{DuperPaper}).
-      This is because Duper's core algorithm, which is based on the algorithm used
-      in the higher-order prover Zipperposition \cite{ZipperpositionMakeWork}, has limited support for dependent
-      type theory, and has difficulty handling Lean4 features like typeclasses.
-    \item TPTP solvers. We chose Zipperposition because it supports HOL.
-    \item SMT solvers. For this category, we chose Z3 and CVC5. Since SMT solvers
-      still don't fully support HOL, we implemented a simple procedure
-      (which is incomplete but sufficiently sound) to translate the HOL output of Lean-auto into FOL.
-  \end{enumerate}
-
-  Currently, Lean-auto only supports proof reconstruction for native provers,
-  which utilizes a verified checker implemented in Lean-auto. An
-  ongoing project Lean-smt\footnote{GitHub link: https://github.com/ufmg-smite/lean-smt}
-  will provide support for SMT proof reconstruction in the future. For TPTP solvers,
-  the verified checker in Lean-auto may be extended to support their proof reconstruction.
-  % TODO: TPTP solvers can also be used as premise selection for duper, similar to Sledgehammer

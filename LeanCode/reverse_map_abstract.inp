@@ -1,4 +1,0 @@
-@Eq (List B) → EqListB       @map A B   → mapAB
-@reverse A   → reverseA      @reverse B → reverseB
-List A → ListA      List B → ListB
-EqListB (reverseB (mapAB f (reverseA xs))) (mapAB f xs)

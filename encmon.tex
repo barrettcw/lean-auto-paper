@@ -26,23 +26,21 @@
   than the original term.
 
   The idea of monomorphization is that, the proof of many propositions in the more expressive logical
-  system can \textit{essentially} be conducted in the less expressive logical system. In other words,
-  many features of the more expressive system are often irrelevant to the proof. For example,
+  system can \textit{essentially} be conducted in the less expressive logical system. For example,
   in polymorphic HOL, given
   \begin{enumerate}
-    \item The list map function $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{Type}). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$
+    \item The list map function $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{U}_1). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$
     \item Two lists of natural numbers $xs \ ys : \mathsf{List} \ \mathbb{N}$ and two functions $f \ g : \mathbb{N} \to \mathbb{N}$
     \item The premise $xs = ys \land f = g$
   \end{enumerate}
   The equality
   \begin{equation}\label{lmapphol}
-    \mathsf{List.map} \ \mathbb{N} \ \mathbb{N} \ f \ xs = \mathsf{List.append} \ \mathbb{N} \ \mathbb{N} \ g \ ys
+    \mathsf{List.map} \ \mathbb{N} \ \mathbb{N} \ f \ xs = \mathsf{List.map} \ \mathbb{N} \ \mathbb{N} \ g \ ys
   \end{equation}
   is provable using two rewrites $xs \Rightarrow ys, f \Rightarrow g$. The crucial observation is that, although $\textsf{List.map}$ is polymorphic, the term
-  $\mathsf{List.map} \ \mathbb{N} \ \mathbb{N}$ as a whole behaves just like a function symbol in monomorphic HOL,
+  $\mathsf{List.map} \ \mathbb{N} \ \mathbb{N}$ as a whole behaves just like a monomorphic function,
   therefore the rewrites can essentially be performed in monomorphic HOL. More formally,
-  the formula \eqref{lmapphol} is the image of the monomorphic HOL formula
-  $$h \ f^* \ xs^* = h \ g^* \ ys^*$$
+  the formula \eqref{lmapphol} is the image of the monomorphic HOL formula $h \ f^* \ xs^* = h \ g^* \ ys^*$
   under the inter-logical-system ``substitution''
   $$\sigma := \{h \mapsto \mathsf{List.map} \ \mathbb{N} \ \mathbb{N},
     f^* \mapsto f, g^* \mapsto g, xs^* \mapsto xs, ys^* \mapsto ys\}$$
@@ -55,8 +53,12 @@
   expressive logical system that is equivalent to the original formula
   in the more expressive logical system.
 
-  % TODO: Give concrete reasons why term size would be large, including
-  %       implicit arguments and typeclass instances
-  % TODO: As mentioned above, completeness is sacrificed for smaller translation
-  %       results. We argue that smaller problem size is crucial to obtaining better performance
-  %       from ATPs, and that our translation can handel real Lean4 use cases despite being incomplete.
+  %TODO: A more concrete example
+
+  As mentioned in sect. \ref{sectlean}, an user-facing Lean syntax as simple as $x + y$ corresponds to
+  the complicated expression \texttt{HAdd.hAdd $\alpha \ \beta \ \gamma$ inst x y}, where \texttt{inst}
+  is a potentially large expression synthesized by typeclass inference. Therefore,
+  encoding-based translation may produce overly large results on common Lean expressions.
+  On the other hand, our monomorphization procedure will translate the above expression
+  into $h \ x^* \ y^*$, where \texttt{HAdd.hAdd $\alpha \ \beta \ \gamma$ inst}
+  is ``absorbed'' into $h$ through the inter-logical-system ``substitution''.

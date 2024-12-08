@@ -12,7 +12,7 @@
     & \text{(product)}     & & \frac{\Gamma \vdash A : s_1 \ \ \ \Gamma, x : A \vdash B : s_2}{\Gamma \vdash (\Pi x : A. B) : s_3} & & \text{if } (s_1, s_2, s_3) \in \mathcal{R} \\
     & \text{(application)} & & \frac{\Gamma \vdash f : (\Pi x : A. B) \ \ \ \Gamma \vdash a : A}{\Gamma \vdash f \ a : B[x := a]} & & \\
     & \text{(abstraction)} & & \frac{\Gamma, x : A \vdash b : B \ \ \ \Gamma \vdash (\Pi x : A. B) : s}{\Gamma \vdash (\lambda x : A.b) : (\Pi x : A. B)} & & \\
-    & \text{(conversion)}  & & \frac{\Gamma \vdash A : B \ \ \ \Gamma \vdash B' : s \ \ \ B =_\beta B'}{\Gamma \vdash A : B'} & &
+    & \text{(conversion)}  & & \frac{\Gamma \vdash A : B \ \ \ \Gamma \vdash B' : s \ \ \ B \cong B'}{\Gamma \vdash A : B'} & &
   \end{aligned}$$
 
 \section{$\lambda C, \lambda_\to$ and $\lambda_\to^*$}\label{applll}

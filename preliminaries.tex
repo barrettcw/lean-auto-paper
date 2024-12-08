@@ -18,30 +18,17 @@
   $\forall (V : \mathcal{T}_C). \mathcal{T}_C$ is product type.
   We use $\forall$ instead of $\mathrm{\Pi}$ to align with the syntax of Lean, Coq and Agda.
   Syntactical equality of terms will be denoted as $=$, and the $\beta\eta$-equivalence of terms will be
-  denoted as $\cong$. We adopt the following commonly used notational conventions:
-  \begin{enumerate}
-    \item Function application binds stronger than $\lambda$ and $\forall$, and is left associative.
-    \item Consecutive $\lambda$s and $\forall$s can be merged:
-      $$\lambda (x_1 : \alpha_1) \ \dots \ (x_n : \alpha_n). t \ \ \ = \ \ \ \lambda (x_1 : \alpha_1) \ \dots \ \lambda (x_n : \alpha_n). t$$
-      $$\forall (x_1 : \alpha_1) \ \dots \ (x_n : \alpha_n). \beta \ \ \ = \ \ \ \forall (x_1 : \alpha_1) \ \dots \ \forall (x_n : \alpha_n). \beta$$
-    \item Consecutive $\lambda$s and $\forall$s with the same binder type can be further merged:
-      $$\lambda (x_1 \ \dots \ x_n : \alpha) . t \ \ \ = \ \ \ \lambda (x_1 : \alpha) \ \dots (x_n : \alpha). t$$
-      $$\forall (x_1 \ \dots \ x_n : \alpha) . t \ \ \ = \ \ \ \forall (x_1 : \alpha) \ \dots (x_n : \alpha). t$$
-    \item When the product type is non-dependent, $\to$ can be used instead of $\forall$:
-      $$\alpha \to \beta \ \ \ = \ \ \ \forall (x : \alpha). \beta$$
-      $\to$ is right associative. Importantly, $\to$ binds stronger than $\forall$, i.e.,
-      $\forall (x : \alpha). \beta \to \gamma$ is interpreted as $\forall (x : \alpha). (\beta \to \gamma)$
-      instead of $(\forall (x : \alpha). \beta) \to \gamma$, the latter being the convention commonly used
-      when presenting FOL and HOL.
-  \end{enumerate}
+  denoted as $\cong$.
+  
+  We adopt the following commonly used notational conventions:
+  function application binds stronger than $\lambda$ and $\forall$, and is left associative;
+  consecutive $\lambda$s and $\forall$s can be merged, and $\lambda$s and $\forall$s with the same
+  binder type can be further merged into the same parenthesis; when the product type is non-dependent,
+  $\to$ can be used instead of $\forall$. Importantly, $\to$ binds stronger than $\forall$, i.e.,
+  $\forall (x : \alpha). \beta \to \gamma$ is interpreted as $\forall (x : \alpha). (\beta \to \gamma)$
+  instead of $(\forall (x : \alpha). \beta) \to \gamma$, the latter being the convention commonly used
+  when presenting FOL and HOL.
 
-  A $\lambda C$ term $t$ is only meaningful under a context\footnote{Except for 
-  the sorts $\mathsf{U}_\ell$}\footnote{It is common to also include \textit{constants},
-  and an \textit{environment} $\mathcal{E}$ (or \textit{signature} $\Sigma$) to specify their
-  types. However, it is not strictly necessary since constants can be viewed as variables,
-  and type information for them can also be provided in the context}, which provides type information
-  for free variables occurring in $t$. A context $\Gamma$ is a list of variable declarations
-  $x_1 : \alpha_1, \dots, x_n : \alpha_n$, where $x_i \in V$ and $\alpha_i \in \mathcal{T}_C$.
   Type judgements will be written as $\Gamma \vdash t : \alpha$, which stands for ``$\lambda C$ term $t$
   has type $\alpha$ under context $\Gamma$''. Derivation rules for type judgements of
   $\lambda C$ will be given in sect. \ref{sectpts}. If $\Gamma \vdash t : \alpha$, then $t$ is
@@ -49,9 +36,15 @@
   \textit{type}\footnote{In $\lambda C$, all well-formed types are also well-formed terms}.
   Under context $\Gamma$, a type $\alpha$ is called \textit{inhabited} iff there exists $t$ such
   that $\Gamma \vdash t : \alpha$, in which case $t$ is called an \textit{inhabitant} of $\alpha$.
-  The sort $\mathsf{U}_0$ is the type of propositions. A \textit{proof} of a proposition
+  Propositions are types of type $\mathsf{U}_0$. A \textit{proof} of a proposition
   $p : \mathsf{U}_0$ is an inhabitant of $p$. A proposition $p : \mathsf{U}_0$ is \textit{provable}
   iff it is inhabited.
+
+  For a function $f : \forall (x_1 : \alpha_1) \ \dots \ (x_n : \alpha_n). \beta$ (here $\beta$ may begin with $\forall$),
+  the $n$-th argument of $f$ is called a \textit{static dependent argument} iff $x_n$ occurs in $\beta$.
+  In many cases, dependent arguments are also type arguments, for example the first and second argument
+  of $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{U}_1). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$.
+  We also use the terminology \textit{dependent argument}
 
   We use $\lambda C$ notation for all logical systems that can be embedded in $\lambda C$.
   When presenting Lean4 examples, we will follow extra notational conventions
@@ -61,39 +54,24 @@
 
   In this section, we give overviews of the various logical systems
   that are relevant to our paper. In the following list, the logical systems
-  are ordered from the least expressive to the most expressive. 
+  are ordered from the least expressive to the most expressive. Note that, except
+  for $\lambda C$ and more expressive systems, all other logical systems have
+  two components: term calculus (which specifies the construction and computation
+  rules of terms), and logical axioms/rules.
   \begin{enumerate}
-    \item Untyped FOL, or predicate logic. Term are constructed from
-      function symbols, constant symbols and variables.
-      Formulas are constructed from terms, predicate symbols and logical symbols.
-    \item Many-sorted FOL, where function symbols, predicate symbols and variables have
-      types\footnote{For consistency with dependent type theory, here we use ``type'' instead of ``sort''}
-      . The type of an $n$-ary function symbol $f$ takes the form
-      $s_1 \to \dots \to s_n \to t$, where $s_1, \dots, s_n, t$ are type constants.
-    \item Many-sorted HOL, or monomorphic HOL. HOL is more expressive than
-      FOL because functions are allowed to take function as arguments
-      (i.e. higher-order functions are allowed), and quantifiers can quantify over functions.
-      The distinction between terms and formulas weakens, since
-      formulas are just terms of type $\mathsf{Bool}$\footnote{Here $\mathsf{Bool}$ is a special sort constant}, 
-      and all logical symbols can be defined as
-      functions\footnote{Although in monomorphic HOL we need one copy of $\forall, \exists$ and $=$ for each type}.
-      The terms calculus (i.e. construction rules of terms) of monomorphic HOL
-      is identical to $\lambda_\to$ in the $\lambda$-cube \cite{LambdaWithType}.
-      Note that HOL is more than just $\lambda_\to$ since it also has axioms and
-      deduction rules as a logical system.
+    \item Untyped FOL, or predicate logic
+    \item Many-sorted FOL
+    \item Many-sorted HOL (monomorphic HOL, or just HOL), where functions are allowed
+      to take function as arguments, and quantifiers can quantify over functions.
     \item Many-sorted HOL with a countable number of universe levels, denoted as $\text{HOL}^*$. This is an
       intermediate logical system used in Lean-auto's monomorphization. Its term calculus $\lambda_\to^*$
-      will be defined in sect. \ref{sectpts}.
+      will be discussed in sect. \ref{sectpts}.
     \item HOL with rank-1 polymorphism, or polymorphic HOL, whose term calculus is identical
       to $\lambda 2$ in the $\lambda$-cube \cite{LambdaWithType}. In polymorphic HOL, function are
-      allowed to take type arguments. For example, it is possible to define the function
-      composition operator:
-      $$\begin{aligned}
-      \mathsf{compose} & : \forall (\alpha \ \beta \ \gamma : \mathsf{Type}). (\beta \to \gamma) \to (\alpha \to \beta) \to (\alpha \to \gamma) \\
-      \mathsf{compose} & := \lambda (\alpha \ \beta \ \gamma : \mathsf{Type}) \ (f : \beta \to \gamma) \ (g : \alpha \to \beta) \ (x : \alpha). f \ (g \ x)
-      \end{aligned}$$
+      allowed to take type arguments, and quantifiers can quantify over types. However, type
+      constructors, or types dependent on types, are not allowed.
     \item Isabelle: Based on polymorphic HOL. Supports (co)inductive datatypes and recursive functions.
-    \item Dependent type theory. Compared to polymorphic HOL, types can depend on terms and types in $\lambda C$.
+    \item Dependent type theory, or $\lambda C$. Compared to polymorphic HOL, types can depend on terms and types in $\lambda C$.
     \item Coq, Lean4 and Agda: Based on $\lambda C$. Extensions to $\lambda C$ that are
       present in (at least one of) these ITPs include (co)inductive types, universe levels,
       universe polymorphism, typeclasses and many others.
@@ -117,42 +95,44 @@
   Liquid Tensor Experiment \cite{LiquidTensor}, which successfully
   formalized cutting-edge results in mathematics. 
 
-  We will follow Lean4 conventions when presenting Lean4 examples. Sorts are
-  printed as \texttt{Type $\ell$} instead of $\mathsf{U}_\ell$, and the universe levels $\ell$
-  are erased in many of our examples for simplicity.
+  We will follow Lean4 conventions when presenting Lean4 examples. Sorts $\mathsf{U}_{\ell + 1}$
+  are printed as \texttt{Type $\ell$} (\texttt{Type $0$} can be abbreviated as \texttt{Type}), and $\mathsf{U}_0$ is printed as \texttt{Prop}.
+  Functions and constants can have universe level parameters, but for simplicity,
+  they are not shown in many of our Lean4 examples. 
   Functions are allowed to have implicit arguments, which are represented by
   $\{x : \alpha\}$ instead of $(x : \alpha)$ in the type of the function.
   Prepending \textrm{@} to the name of a function causes implicit arguments
   to become explicit. For example, given the polymorphic list map function
+  with the first and second argument being implicit:
 
   \centerline{\texttt{List.map : $\forall$ \{$\alpha \ \beta$ : Type\}, ($\alpha$ → $\beta$) → List $\alpha$ → List $\beta$}}
   
   \noindent the expression \texttt{@List.map $\alpha$ $\beta$ f} is the same as \texttt{List.map f}, where \texttt{f : $\alpha$ → $\beta$}.
 
-  An important feature of Lean4 is typeclasses, which is used extensively by
-  Lean4's builtin library and Mathlib4 to overload arithmetic operators and represent
-  mathematical structures. For example, consider the \texttt{HAdd} typeclass
-  and the \texttt{HAdd.hAdd} function used to represent the addition operator in Lean4
+  Typeclasses are extensively used by Lean4's builtin library and Mathlib4 to
+  overload arithmetic operators and represent mathematical structures. For example,
+  consider the \texttt{HAdd} typeclass and the \texttt{HAdd.hAdd} function
+  used to represent the addition operator in Lean4
   
-  \centerline{\texttt{HAdd : $\forall$ ($\alpha \ \beta \ \gamma$ : Type) : Type}}
-  \centerline{\texttt{HAdd.hAdd : $\forall$ \{$\alpha \ \beta \ \gamma$ : Type\} [self : HAdd $\alpha \ \beta \ \gamma$] : $\alpha$ → $\beta$ → $\gamma$}}
+  \centerline{\texttt{HAdd : $\forall$ ($\alpha \ \beta \ \gamma$ : Type), Type}}
+  \centerline{\texttt{HAdd.hAdd : $\forall$ \{$\alpha \ \beta \ \gamma$ : Type\} [self : HAdd $\alpha \ \beta \ \gamma$], $\alpha$ → $\beta$ → $\gamma$}}
 
   \noindent An inhabitant of \texttt{HAdd $\alpha \ \beta \ \gamma$}, called a
   typeclass instance, is a wrapper of a ``heterogeneous'' addition operator (with $\alpha$ and $\beta$ as its input types and
   $\beta$ as its output type). The square bracket in the type of \texttt{HAdd.hAdd}
   indicates that the enclosed argument is an instance argument, which is a special type
   of implicit argument intended to be filled by Lean4's typeclass inference algorithm.
-  Given the syntax $x + y$ where $x : \alpha$ and $y : \beta$,
+  Given the syntax \texttt{x + y} where \texttt{x : $\alpha$} and \texttt{y : $\beta$},
   the typeclass inference algorithm will attempt to find a type $\gamma$ and a previously
-  defined wrapper \texttt{inst : HAdd $\alpha \ \beta \ \gamma$}, and elaborate the
-  syntax $x + y$ into the expression \texttt{@HAdd.hAdd $\alpha \ \beta \ \gamma$ inst}.
+  defined instance \texttt{inst : HAdd $\alpha \ \beta \ \gamma$}, and elaborate the
+  syntax \texttt{x + y} into the expression \texttt{@HAdd.hAdd $\alpha \ \beta \ \gamma$ inst}.
   In \texttt{@HAdd.hAdd $\alpha \ \beta \ \gamma$ inst}, the \texttt{HAdd.hAdd} function
   unwraps \texttt{inst} and returns the addition operator. This provides a mechanism
   for overloading the addition operator. The same mechanism is used to represent mathematical
   structures. For example, a group is just a wrapper for its identity element, multiplication
   operator, inverse operator, and a proof that these operators follow the group axioms.
 
-  \noindent Other important features of Lean4 include inductive types, recursive functions
+  Other important features of Lean4 include inductive types, recursive functions
   and definitional equality. These features and how Lean-auto handles them will be discussed
   in sect. \ref{sectprep}.
 
@@ -171,14 +151,12 @@
     \ \lambda (V : \mathcal{T}). \mathcal{T} \ | \ \forall (V : \mathcal{T}). \mathcal{T}$$
   \noindent The derivation rules of PTS are given in Appendix \ref{apppts}.
 
-  Three type systems, $\lambda C, \lambda_\to$ and $\lambda_\to^*$, will be formulated
-  using PTS. $\lambda C$ is the same described in sect. \ref{subdtt}, with
-  a countable number of universe levels $\ell \in \mathbb{N}$. $\lambda_\to$,
-  is the term calculus of monomorphic HOL. $\lambda_\to^*$ is the term
-  calculus of the intermediate system $\text{HOL}^*$ used by Lean-auto's
-  monomorphization. Note that $\mathsf{U}_0$ is not present in $\lambda_\to$ and $\lambda_\to^*$
-  because it is a special sort for representing propositions in $\lambda C$.
-  Propositions in $\lambda_\to$ and $\lambda_\to^*$ will be represented by
+  Three type systems, $\lambda C$, $\lambda_\to$ and $\lambda_\to^*$, will be formulated
+  using PTS. As mentioned in sect. \ref{sublogsys}, $\lambda_\to$
+  is the term calculus of monomorphic HOL, and $\lambda_\to^*$ is the term
+  calculus of $\text{HOL}^*$. Note that $\mathsf{U}_0$ is not present in $\lambda_\to$ and $\lambda_\to^*$
+  because it is a special sort for propositions in $\lambda C$.
+  Propositions in $\text{HOL}$ and $\text{HOL}^*$ will be represented by
   a special type $\mathsf{Bool} : \mathsf{U}_1$.
   
   $\lambda_\to^*$ and $\lambda_\to$ are similar, except that $\lambda_\to^*$ allows a
