@@ -47,8 +47,8 @@
   Since ATPs have started supporting HOL in recent years \cite{HOVampire}\cite{ZipperpositionMakeWork}\cite{HOEProver},
   we decided that Lean-auto should translate Lean4 to HOL. The overall translation has
   two stages: preprocessing (sect. \ref{sectprep}) and monomorphization.
-  Monomorphization itself has two stages: quantifier instantiation (sect. \ref{sectinst})
-  and $\lambda_\to^*$ abstraction (sect. \ref{sectabst}). Preprocessing translates Lean4
+  Monomorphization itself has three stages: quantifier instantiation (sect. \ref{sectinst}),
+  $\lambda_\to^*$ abstraction (sect. \ref{sectabst}) and universe lifting. Preprocessing translates Lean4
   into dependent type theory, and monomorphization translates dependent type theory
   into HOL. The monomorphization procedure is inspired by Isabelle Sledgehammer.
   However, since Isabelle is based on HOL, which is considerably different from

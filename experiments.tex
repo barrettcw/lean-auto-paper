@@ -2,7 +2,7 @@
 
   We evaluate Lean-auto on three types of ATPs:
   \begin{enumerate}
-    \item Native provers, or ATPs implemented in Lean4 itself. Currently, the only general-purpose
+    \item Native provers, or ATPs implemented in Lean4 itself. At present, the only general-purpose
       native prover in Lean4 is Duper \cite{DuperPaper}. Note that Lean-auto is
       used as a preprocessing step in Duper (cf. sect. 5 of \cite{DuperPaper}).
       This is because Duper's core algorithm, which is based on the algorithm used
@@ -19,4 +19,17 @@
   ongoing project Lean-smt\footnote{GitHub link: https://github.com/ufmg-smite/lean-smt}
   will provide support for SMT proof reconstruction in the future. For TPTP solvers,
   the verified checker in Lean-auto may be extended to support their proof reconstruction.
-  % TODO: TPTP solvers can also be used as premise selection for duper, similar to Sledgehammer
+
+  Since we have not found suitable premise selection tools in Lean4, we emulate
+  premise selection using a simple procedure. For each theorem $T$ used to evaluate
+  Lean-auto, we collect all the theorems used in its human proof. The set of collected theorems
+  roughly equals the set of necessary premises needed to prove $T$. Therefore, it could
+  be used as a replacement for the output of premise selection.
+
+  The evaluation dataset consists of 128 human theorems randomly drawn from the entire
+  Mathlib4\footnote{Commit d5ab93e3a3afadaf265a583a92f7e7c47203b540}. A
+  Lean4 constant is considered a human theorem iff it is a constant and
+  is declared somewhere in a \texttt{.lean} file\footnote{We use
+  \texttt{Lean.findDeclarationRanges?} to test whether a theorem is
+  declared in a \texttt{.lean} file}. Evaluation is conducted on a laptop
+  with \texttt{AMD Ryzen 9 7945HX} 16-Core CPU and \texttt{32GB} memory.

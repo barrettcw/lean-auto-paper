@@ -1,12 +1,19 @@
 \section{$\lambda_\to^*$ abstraction}\label{sectabst}
 
-\subsection{Essentially higher-order problem}
+This section gives a formal presentation of the $\lambda_\to^*$ abstraction technique.
+In sect. \ref{fmehop}, we define the notion of \textit{essentially higher-order problem}.
+Intuitively, a $\lambda C$ problem $p$ is essentially higher-order iff there exists
+a provable $\text{HOL}^*$ problem $\varphi$ and a ``substitution'' $\sigma$ such that $p$ is the
+image of $\varphi$ under $\sigma$. In sect. \ref{labstalgo}, we first define the notion of
+\textit{quasi-monomorphic problems}, then we present the $\lambda_\to^*$ abstraction algorithm.
+
+\subsection{Essentially higher-order problem}\label{fmehop}
 
 \begin{definition} Let $\sigma : V \to \mathcal{T}_C$ be a mapping.
   Define its extension $\overline{\sigma} : \mathcal{T}_C \to \mathcal{T}_C$ as
-  $$\overline{\sigma}(\mathsf{U}_\ell) := \mathsf{U}_\ell$$
-  $$\overline{\sigma}(x) := \sigma(x), \text{ for }x \in V$$
-  $$\overline{\sigma}(M \ N) := \overline{\sigma}(M) \ \overline{\sigma}(M)$$
+  $$\overline{\sigma}(\mathsf{U}_\ell) := \mathsf{U}_\ell \ \ \ \ \ \
+    \overline{\sigma}(x) := \sigma(x), \text{ for }x \in V \ \ \ \ \ \
+    \overline{\sigma}(M \ N) := \overline{\sigma}(M) \ \overline{\sigma}(M)$$
   $$\overline{\sigma}(\lambda x : s. M) := \lambda x : \overline{\sigma}(s). \overline{\sigma[x \mapsto x]}(M)$$
   $$\overline{\sigma}(\forall x : s. M) := \forall x : \overline{\sigma}(s). \overline{\sigma[x \mapsto x]}(M)$$
   where
@@ -25,8 +32,7 @@
 \begin{theorem}
   Let $(\Gamma, \Gamma', \sigma)$ be a substitution. If $\Gamma \vdash t : s$, then $\Gamma' \vdash \overline{\sigma}(t) : \overline{\sigma}(s)$
 \end{theorem}
-\begin{proof} Induction on the derivation of $\Gamma \vdash t : s$, note that $\Gamma'$ and $\sigma$
-  should be universally quantified in the induction hypothesis.
+\begin{proof} Induction on the derivation of $\Gamma \vdash t : s$.
 \end{proof}
 
 \begin{definition} Let $\Gamma$ be a $\lambda C$ context and $t_1, t_2$ be $\lambda C$ terms.
@@ -53,53 +59,54 @@
   \frac{\Gamma \vdash s : \mathsf{U}_\ell}{\Gamma \vdash \forall'_s : (s \to \mathsf{Bool}) \to \mathsf{Bool}}$$
   
   \noindent For simplicity, we use $\forall' (x : \alpha), t$ as a shorthand for $\forall'_\alpha \ (\lambda x : \alpha. t)$
+  %TODO: Define HOL*
 
-  The canonical embedding $\pi : \mathcal{T}_\to^* \to \mathcal{T}_C$ of HOL into $\lambda C$ is defined as follows:
-  $$\pi(\mathsf{Bool}) := \mathsf{U}_0 \ \ \ \pi(\mathsf{U}_\ell) := \mathsf{U}_\ell \ \ \
-    \pi(\mathsf{U}_\ell') := \mathsf{U}_{\ell + 1}$$
-  $$\pi(\bot') := \forall (\alpha : \mathsf{U}_0). \alpha \ \ \
-  \pi(\to') := \lambda (p \ q : \mathsf{U}_0). \forall (x : p). q$$
-  $$\pi(\forall_t') := \lambda (p : \pi(t) \to \mathsf{U}_0). \forall (x : \pi(t)). p \ x$$
-  $$\pi(x) := x, \text{ for } x \in V$$
-  $$\pi(M \ N) := \pi(M) \ \pi(N) \ \ \ \pi(\lambda x : s. M) := \lambda x : \pi(s). \pi(M)$$
+\end{definition}
 
-  \noindent $\pi$ is extended to contexts via the following definition:
-  $$\pi(\emptyset) := \emptyset \ \ \ \pi(\Gamma, x : \sigma) := \pi(\Gamma), x : \pi(\sigma)$$
+\begin{definition} The canonical embedding $\pi : \mathcal{T}_\to^* \to \mathcal{T}_C$ of $\text{HOL}^*$ into $\lambda C$ is defined as follows:
+  $$\begin{aligned}
+  & \pi(\mathsf{Bool}) := \mathsf{U}_0 \ \ \ \ \ \ \pi(\mathsf{U}_\ell) := \mathsf{U}_\ell \ \ \ \ \ \
+    \pi(\mathsf{U}_\ell') := \mathsf{U}_{\ell + 1} \ \ \ \ \ \ \pi(x) := x, \text{ for } x \in V \\
+    & \pi(M \ N) := \pi(M) \ \pi(N) \ \ \ \ \ \ \pi(\lambda x : s. M) := \lambda x : \pi(s). \pi(M) \\
+  & \pi(\bot') := \forall (\alpha : \mathsf{U}_0). \alpha \ \ \ \ \ \ \ \ \ \
+  \pi(\to') := \lambda (p \ q : \mathsf{U}_0). \forall (x : p). q \\
+  & \pi(\forall_t') := \lambda (p : \pi(t) \to \mathsf{U}_0). \forall (x : \pi(t)). p \ x
+  \end{aligned}$$
+
+  \noindent $\pi$ is extended to contexts as follows: $\pi(\emptyset) := \emptyset, \pi(\Gamma, x : \sigma) := \pi(\Gamma), x : \pi(\sigma)$
 
   %TODO: Is this really equivalent to higher-order logic?
 
 \end{definition}
 
-\begin{theorem}\label{ceptj} Canonical embedding preserves judgement, i.e. if $\Gamma \vdash t : s$ in HOL, then
+\begin{theorem}\label{ceptj} Canonical embedding preserves judgement, i.e. if $\Gamma \vdash t : s$ in $\text{HOL}^*$, then
   $\pi(\Gamma) \vdash \pi(t) : \pi(s)$ in $\lambda C$ \end{theorem}
-\begin{proof} Induction on the derivation rules of HOL. \end{proof}
+\begin{proof} Induction on the logical rules of $\text{HOL}^*$. \end{proof}
 
-\begin{definition} An (HOL/$\lambda C$) problem is a tuple $(\Gamma, p)$, denoted
-  as $\Gamma \vdash? p$, where $\Gamma$ is a (HOL/$\lambda C$)
+\begin{definition} An ($\text{HOL}^*/\lambda C$) problem is a tuple $(\Gamma, p)$, denoted
+  as $\Gamma \vdash? p$, where $\Gamma$ is a ($\text{HOL}^*/\lambda C$)
   context, called the hypotheses of the problem, and $p$ is an
-  (HOL/$\lambda C$) term, called the goal of the problem. A $\lambda C$ problem
+  ($\text{HOL}^*/\lambda C$) term, called the goal of the problem. A $\lambda C$ problem
   $\Gamma \vdash? p$ is provable iff there exists a $\lambda C$ term $t$ such that
-  $\Gamma \vdash t : p$. An HOL problem $\Gamma \vdash? p$ is provable iff there exists
+  $\Gamma \vdash t : p$. An $\text{HOL}^*$ problem $\Gamma \vdash? p$ is provable iff there exists
   a $\lambda C$ term $t$ such that $\pi(\Gamma) \vdash t : \pi(p)$.
 \end{definition}
 
 \begin{definition} A $\lambda C$ problem $\Gamma \vdash? p$ is essentially higher-order provable (EHOP)
-  iff there exists a provable HOL problem $\Gamma' \vdash? p'$ and a substitution
+  iff there exists a provable $\text{HOL}^*$ problem $\Gamma' \vdash? p'$ and a substitution
   $(\pi(\Gamma'), \Gamma, \sigma)$ such that $p \cong \overline{\sigma}(\pi(p'))$.
 \end{definition}
 
 \begin{theorem}
   If a $\lambda C$ problem $\Gamma \vdash? p$ is EHOP, then it is provable.
 \end{theorem}
-\begin{proof} By the definition of EHOP, there exists a provable HOL problem
+\begin{proof} By the definition of EHOP, there exists a provable $\text{HOL}^*$ problem
   $\Gamma' \vdash? p'$ and substitution $(\pi(\Gamma'), \Gamma, \sigma)$ such that
-  $p \cong \overline{\sigma}(\pi(p'))$. By the definition of HOL provability, there exists
+  $p \cong \overline{\sigma}(\pi(p'))$. By the definition of $\text{HOL}^*$ provability, there exists
   a term $t'$ such that $\pi(\Gamma') \vdash t' : \pi(p')$. By theorem \ref{ceptj},
   $\Gamma \vdash \overline{\sigma}(t') : \overline{\sigma}(\pi(p'))$, thus $\Gamma \vdash? p$
   is provable.
 \end{proof}
-
-%TODO: Define HOL
 
 \begin{theorem} An $\text{HOL}^*$ problem is provable iff it is HOL provable after forgetting
   universe levels, assuming the existence of lifting functions in $\lambda C$.
@@ -122,15 +129,15 @@ $$(\leftrightarrow) := \lambda p \ q. (p \to q) \land (q \to p)$$
 $$(=_\ell) := \lambda \alpha : \mathsf{U}_\ell. \lambda x \ y : \alpha. \forall p : \alpha \to \mathsf{U}_0. (p \ x \leftrightarrow p \ y)$$
 $$(\exists_\ell) := \lambda \alpha : \mathsf{U}_\ell. \lambda p : \alpha \to \mathsf{U}_0. \forall q : \mathsf{U}_0. ((\forall x : \alpha. p \ x \to q) \to q)$$
 
-The symbols $\neg', \land', \lor', \leftrightarrow'$ are defined in HOL in the
+The symbols $\neg', \land', \lor', \leftrightarrow'$ are defined in $\text{HOL}^*$ in the
 same way, except that the $\mathsf{U}_0$s are replaced with $\mathsf{Bool}$ and the $\to$s are
-replaced with $\to'$. Equality and existential quantifier in HOL are defined as follows:
+replaced with $\to'$. Equality and existential quantifier in $\text{HOL}^*$ are defined as follows:
 $$(=_s') := \lambda x \ y : s. \forall' p : \alpha \to \mathsf{Bool}. (p \ x \leftrightarrow' p \ y)$$
 $$(\exists_s') := \lambda p : \alpha \to \mathsf{Bool}. \forall' q : \mathsf{Bool}. ((\forall' x : \alpha. p \ x \to' q) \to' q)$$
 
 We also assume that excluded middle, i.e. $\mathsf{em} : \forall p : \mathsf{U}_0, p \lor \neg p$,
 is implicitly contained in the hypotheses of all $\lambda C$ problems. Similarly, $\mathsf{em}' : \forall p : \mathsf{Bool}. p \lor \neg p$
-is assumed to be implicitly contained in the hypotheses of all HOL problems.
+is assumed to be implicitly contained in the hypotheses of all $\text{HOL}^*$ problems.
 
 \begin{example} Consider the $\lambda C$ problem $\Gamma \vdash? p$ where
 \begin{align*}
@@ -165,24 +172,22 @@ is EHOP. However, if we introduce $p \ x$ into the hypotheses, the problem is no
 \begin{proof}
   Note that $h : p \ x$ under the hypotheses of \eqref{hypnehop}, thus \eqref{hypnehop} is provable.
   To show that \eqref{hypnehop} is not EHOP, we use proof by contradiction. Suppose there
-  is an HOL problem $\Gamma' \vdash p'$ and a substitution $(\Gamma', \Gamma, \sigma)$ such
+  is an $\text{HOL}^*$ problem $\Gamma' \vdash p'$ and a substitution $(\Gamma', \Gamma, \sigma)$ such
   that $p \cong \overline{\sigma}(\pi(p'))$. Then, the $\beta\eta$ normal form of $p'$ must be of the form
   $f \ t_1 \ \dots \ t_k$ where $f$ is a variable. Note that $\Gamma'$, as a context of $\lambda_\to^*$,
-  consists solely of HOL (type or term) variable declarations.
+  consists solely of $\text{HOL}^*$ (type or term) variable declarations.
   % TODO: Use model theory
 \end{proof}
 
-\subsection{$\lambda_\to^*$ abstraction algorithm}
+\subsection{$\lambda_\to^*$ abstraction algorithm}\label{labstalgo}
 
 In this subsection, we will present the $\lambda_\to^*$ abstraction algorithm of Lean-auto. When given a
 $\lambda C$ problem $\Gamma \vdash? p$, the algorithm attempts to find a $\lambda_\to^*$
 problem $\Gamma' \vdash? p'$ and a substitution $(\pi(\Gamma'), \Gamma, \sigma)$ such that
-$p \cong \overline{\sigma}(\pi(p'))$. If the algorithm succeeds, then by definition, $\Gamma \vdash? p$
-is EHOP, which intuitively means that $\Gamma' \vdash p'$ is provable in HOL, and that the
-proof of $\Gamma' \vdash? p'$ can be translated into a proof of $\Gamma \vdash? p$ via
-the mapping $\sigma$.
+$p \cong \overline{\sigma}(\pi(p'))$, and that $p'$ retains as much information in $p$ as
+possible.
 
-We start by defining dependent arguments of terms.
+First, we give a formal definition of \textit{dependent arguments}.
 
 \begin{definition} Suppose $\Gamma \vdash s : \mathsf{U}_l$ in $\lambda C$.
   If $s = (\forall (x : s_1). s_2)$ and $x$ occurs in $s_2$,

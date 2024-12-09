@@ -113,7 +113,7 @@ Hence, the monomorphization procedure in Lean-auto uses a saturation loop which
 repeats the matching procedure until either no new instances can be produced or a predefined
 threshold is reached.
 
-\subsection{The requirement of $\lambda_\to^*$ abstraction on quantifier instantiation} \label{exqdet}
+\subsection{Dependent Arguments are Not Static} \label{exqdet}
 
 \begin{figure}
   \begin{CenteredBox}
@@ -130,11 +130,15 @@ threshold is reached.
   \label{dfun}
 \end{figure}
 
-Note that whether an argument is dependent depends on how previous arguments
+A side effect of the expressiveness of $\lambda C$ is that, whether
+an argument is dependent depends on how previous arguments
 are instantiated. Consider the example shown in figure \ref{dfun}. The return
 type \texttt{$\beta$ a} depends on the last argument \texttt{a : $\alpha$} in the signature of
 \texttt{DFunLike.coe}. However, when $\beta$ is instantiated with \texttt{fun x => B$_0$}, as in the
 expression at the bottom of figure \ref{dfun}, the return type \texttt{$\beta$ a} reduces to \texttt{B$_0$},
 which no longer depends on the last argument. Lean-auto takes preceding arguments into
 consideration when determining whether an argument is dependent, and is able to detect
-that the last argument is non-dependent in this case.
+that the last argument is non-dependent in the above case.
+
+%TODO: Intricacies in Quasi-monomorphic problems
+%TODO: Definitional equality

@@ -44,7 +44,9 @@
   the $n$-th argument of $f$ is called a \textit{static dependent argument} iff $x_n$ occurs in $\beta$.
   In many cases, dependent arguments are also type arguments, for example the first and second argument
   of $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{U}_1). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$.
-  We also use the terminology \textit{dependent argument}
+  We also use the terminology \textit{dependent argument}, which will be formally defined in
+  sect. \ref{labstalgo}. ``Dependent argument'' and ``static dependent argument'' usually have the same
+  meaning. Their difference will be explained in sect. \ref{exqdet}.
 
   We use $\lambda C$ notation for all logical systems that can be embedded in $\lambda C$.
   When presenting Lean4 examples, we will follow extra notational conventions
@@ -83,7 +85,7 @@
   CoqHammer translates between Coq and untyped FOL. Lean-auto translates
   between Lean4 and monomorphic HOL. As mentioned before, Lean-auto's
   preprocessing translates Lean4 into $\lambda C$, and monomorphization
-  translates $\lambda C$ into monomorphic HOL.
+  translates $\lambda C$ into HOL.
 
 \subsection{Lean and Mathlib}\label{sectlean}
 
@@ -132,9 +134,8 @@
   structures. For example, a group is just a wrapper for its identity element, multiplication
   operator, inverse operator, and a proof that these operators follow the group axioms.
 
-  Other important features of Lean4 include inductive types, recursive functions
-  and definitional equality. These features and how Lean-auto handles them will be discussed
-  in sect. \ref{sectprep}.
+  Other important Lean4 features relevant to Lean-auto include inductive types, pattern matching and definitions.
+  These features and how Lean-auto handles them will be discussed in sect. \ref{sectprep}.
 
 \subsection{Pure Type Systems}\label{sectpts}
 
