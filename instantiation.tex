@@ -143,16 +143,16 @@ Given a $\lambda C$ context $\Gamma$ and a list $H$ of hypotheses, $\mathsf{satu
 a list of instances of hypotheses in $H$ that are suitable for $\lambda_\to^*$ abstraction
 (i.e. satisfy the $\mathsf{QMono}$ predicate).
 It must be noted that, in the actual implementation of Lean-auto, when
-checking whether a constant(hypothesis) instance belongs to a collection (e.g., set, list, queue, etc.)
-of constant(hypothesis) instances, we test equality only up to \text{instance equivalence}.
+checking whether a constant (hypothesis) instance belongs to a collection (e.g., set, list, queue, etc.)
+of constant (hypothesis) instances, we test equality only up to \text{instance equivalence}.
 
 \begin{definition}
-For two $\lambda C$ terms $t_1, t_2$, $t_1$ and $t_2$ are equivalent as constant(hypothesis) instances
-iff $t_1$ is a constant(hypothesis) instance of $t_2$ and $t_2$ is a constant(hypothesis)
+For two $\lambda C$ terms $t_1, t_2$, $t_1$ and $t_2$ are equivalent as constant (hypothesis) instances
+iff $t_1$ is a constant (hypothesis) instance of $t_2$ and $t_2$ is a constant (hypothesis)
 instance of $t_1$.
 \end{definition}
 
-Checking membership up to equivalence ensures that collections of constant(hypothesis)
+Checking membership up to equivalence ensures that collections of constant (hypothesis)
 instances in our algorithms are free of redundant entries. Note that instance equivalence testing
 can be reduced to unification, which can in turn be approximated by $\mathsf{Meta.isDefEq}$ in Lean.
  
