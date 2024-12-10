@@ -21,9 +21,9 @@
   
   Encoding-based translation has the advantage of being (almost) complete
   and straightforward to compute. However, certain features of the more expressive
-  logical system are usually omitted to produce translation results of reasonable size,
-  which sacrifices soundness. Moreover, even with this tradeoff, the translation result is usually much larger
-  than the original term.
+  logical system must be omitted to produce translation results of reasonable size,
+  which sacrifices soundness \cite{Czajka2018HammerFC}. Moreover, even with this tradeoff,
+  the translation result is usually much larger than the original term.
 
   The idea of monomorphization is that, the proof of many propositions in the more expressive logical
   system can \textit{essentially} be conducted in the less expressive logical system. For example,
@@ -55,7 +55,7 @@
 
   %TODO: A more concrete example
 
-  As mentioned in sect. \ref{sectlean}, an user-facing Lean syntax as simple as $x + y$ corresponds to
+  As mentioned in Sect. \ref{sectlean}, an user-facing Lean syntax as simple as $x + y$ corresponds to
   the complicated expression \texttt{HAdd.hAdd $\alpha \ \beta \ \gamma$ inst x y}, where \texttt{inst}
   is a potentially large expression synthesized by typeclass inference. Therefore,
   encoding-based translation may produce overly large results on common Lean expressions.

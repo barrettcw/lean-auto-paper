@@ -1,0 +1,15 @@
+\section{Conclusion}
+
+In this paper, we presented the ITP to ATP translation implemented in Lean-auto.
+Our contributions are three-fold. First, we addressed challenges posed by
+Lean4's dependent type theory and various language features. Second, we formally
+presented our monomorphization algorithm in the context of dependent type theory.
+Finally, we implemented the translation procedure in Lean-auto and applied it to Mathlib4.
+
+A possible direction for future work is to design a \textit{complete} $\lambda_\to^*$
+abstraction algorithm. By \textit{complete}, we mean that for any essentially
+higher-order $\lambda C$ problem $p$, the algorithm should always find a provable
+higher-order problem $\varphi$ and a ``substitution'' $\sigma$ such that $p$
+is the image of $\varphi$ under $\sigma$. Another direction is to investigate
+potential ways of handling existential type quantifiers and non-leading universal
+type quantifiers.

@@ -8,8 +8,8 @@
 
 In section \ref{exabst} and \ref{exinst}, we will demonstrate the execution of our monomorphization procedure on a
 concrete example. Note that both the examples and the monomorphization procedure
-here are simplified. Sect. \ref{exqdet} contains discussions and more examples
-to illustrate details of our monomorphization procedure.
+here are simplified. Sect. \ref{exqdet} discusses the challenges posed by dependent
+type theory and Lean4.
 
 \subsection{$\lambda_\to^*$ Abstraction} \label{exabst}
 
@@ -33,7 +33,7 @@ $\lambda C$ fragment of Lean.
     \lstinputlisting[style=leanHH]{LeanCode/reverse_map_explicit.inp}
   \end{CenteredBox}
   \caption{Lean4 proof state after quantifier introduction and proof by contradiction, with implicit arguments displayed.
-    Note that the equality sign in figure \ref{leanlistpretty} is a syntactic sugar of
+    Note that the equality sign in Figure \ref{leanlistpretty} is a syntactic sugar of
     the polymorphic function {\usebox{\vEq}} seen here}
   \label{leanlistexplicit}
 \end{figure}
@@ -44,7 +44,7 @@ is shown in Figure \ref{leanlistexplicit}.
 For clarity, we have displayed the implicit arguments of all the functions.
 
 First, we focus on translating \texttt{neg\_goal} into $\text{HOL}^*$. Following the
-discussion of sect. \ref{subencmon}, we would like to find an $\text{HOL}^*$ formula $\varphi$
+discussion of Sect. \ref{subencmon}, we would like to find an $\text{HOL}^*$ formula $\varphi$
 and a ``substitution'' $\sigma$ such that the image of $\varphi$ under $\sigma$ is \texttt{neg\_goal}.
 Features not allowed in $\varphi$ include polymorphic. We also want the problem to
 be provable after the translation, so $\varphi$ should preserve as much information in
@@ -52,17 +52,24 @@ be provable after the translation, so $\varphi$ should preserve as much informat
 
 Three polymorphic functions, namely \usebox{\vEq}, \usebox{\vmap} and \usebox{\vrev}, occur in the \texttt{neg\_goal}.
 Although these functions are polymorphic, instances of these functions
-with dependent arguments instantiated could behave like monomorphic functions.
+with dependent arguments instantiated could behave like $\text{HOL}^*$ variables
+(we will refer to such instances as $\mathit{HOL}^*$ \textit{instances}).
 The type constructor \texttt{List} is also not allowed in $\text{HOL}^*$, but
-\texttt{List A} and \texttt{List B} behave just like $\text{HOL}^*$ type variables.
+\texttt{List A} and \texttt{List B} behave just like $\text{HOL}^*$ type variables
+(we will refer to expressions such as \texttt{List A} and \texttt{List B} as $\mathit{HOL}^*$ \textit{type instances}).
 Therefore, we can choose
 $$\begin{aligned}
-\varphi := & \ \neg (\mathsf{EqLB} \ (\mathsf{rB} \ (\mathsf{mAB} \ f^* \ (\mathsf{rA} \ \mathit{xs}^*))) \ (\mathsf{mAB} \ f^* \ \mathit{xs}^*)) \\
-\sigma := & \ \{\mathsf{EqLB} \mapsto \texttt{@Eq (List B)}, \ \ \mathsf{mAB} \mapsto \texttt{@map A B}, \\
-          & \ \ \mathsf{rA} \mapsto \texttt{@reverse A}, \ \ \mathsf{rB} \mapsto \texttt{@reverse B}, \ \ f^* \mapsto \texttt{f}, \ \ \mathit{xs}^* \mapsto \texttt{xs}\}
+  \varphi := & \ \neg (\mathsf{EqLB} \ (\mathsf{rB} \ (\mathsf{mAB} \ f^* \ (\mathsf{rA} \ \mathit{xs}^*))) \ (\mathsf{mAB} \ f^* \ \mathit{xs}^*)) \\
+  \sigma := & \ \{\mathsf{EqLB} \mapsto \texttt{@Eq (List B)}, \ \ \mathsf{mAB} \mapsto \texttt{@map A B}, \\
+            & \ \ \mathsf{rA} \mapsto \texttt{@reverse A}, \ \ \mathsf{rB} \mapsto \texttt{@reverse B}, \ \ f^* \mapsto \texttt{f}, \ \ \mathit{xs}^* \mapsto \texttt{xs} \\
+            & \ \ \mathsf{LA} \to \texttt{List A}, \ \ \mathsf{LB} \to \texttt{List B}, \ \ \mathsf{A} \to \texttt{A}, \ \ \mathsf{B} \to \texttt{B}\} \\
 \end{aligned}$$
+where $\mathsf{EqLB} : \mathsf{LB} \to \mathsf{LB} \to \mathsf{Bool}, \
+\mathsf{rA} : \mathsf{LA} \to \mathsf{LA}, \ \mathsf{rB} : \mathsf{LB} \to \mathsf{LB}, \ 
+\mathsf{mAB} : (\mathsf{A} \to \mathsf{B}) \to \mathsf{LA} \to \mathsf{LB}, \
+f^* : \mathsf{A} \to \mathsf{B}, \ \mathit{xs}^* : \mathsf{LA}$.
 
-In a sense, the monomorphic instances of polymorphic functions are ``abstracted'' to $\text{HOL}^*$
+In a sense, the $\text{HOL}^*$ (type) instances are ``abstracted'' to $\text{HOL}^*$ (type)
 variables. Note that the logical rules of $\text{HOL}^*$ are not relevant to this abstraction procedure, only
 the term calculus $\lambda_\to^*$ is involved. Therefore, we name this procedure $\lambda_\to^*$ \textit{abstraction}.
 
@@ -73,17 +80,18 @@ abstraction applicable.
 
 \subsection{Quantifier Instantiation} \label{exinst}
 
-If we were to prove the goal manually, there are at least two ways we can proceed. We can
+To understand how quantifiers should be instantiated, we investigate how they would
+be instantiated if we were to prove the goal manually. There are at least two ways we can proceed. We can
 either first use \texttt{@map\_reverse A B} to swap the outer \texttt{reverse} with \texttt{map}, then
 use \texttt{@reverse\_reverse A} to eliminate \texttt{reverse}; or, first use
 \texttt{@map\_reverse A B} to swap the inner \texttt{reverse} with \texttt{map}, then
-use \texttt{@reverse\_reverse B} to eliminate \texttt{reverse}. Notice how quantifiers
-in the hypotheses are instantiated so that the dependent arguments of polymorphic functions
-in the instantiated hypotheses match the dependent arguments of their monomorphic instances in the goal.
+use \texttt{@reverse\_reverse B} to eliminate \texttt{reverse}. Notice how the dependent
+arguments of a polymorphic function $f$ in the instantiated hypotheses match the dependent
+arguments of $f$ in the $\text{HOL}^*$ instances of $f$ in the goal.
 
 Quantifier instantiation in Lean-auto's monomorphization procedure is based
 on a matching procedure that reflects the above observation. Given a set of formulas $S$,
-the matching procedure first computes the set $M$ of monomorphic instances of polymorphic functions occurring
+the matching procedure first computes the set $M$ of $\text{HOL}^*$ instances of polymorphic functions occurring
 in $S$, then matches type-quantified formulas in $S$ with elements of $M$. For example,
 given $S=$\texttt{\{@map\_reverse, @reverse\_reverse, neg\_goal\}}, the set $M$ will be
 \texttt{\{@reverse A, @reverse B, @map A B, @Eq (List B)\}}, all of which collected from \texttt{neg\_goal}.
@@ -113,7 +121,9 @@ Hence, the monomorphization procedure in Lean-auto uses a saturation loop which
 repeats the matching procedure until either no new instances can be produced or a predefined
 threshold is reached.
 
-\subsection{Dependent Arguments are Not Static} \label{exqdet}
+\subsection{Challenges related to Lean4} \label{exqdet}
+
+\noindent \textbf{Dependent Arguments are Dynamic}
 
 \begin{figure}
   \begin{CenteredBox}
@@ -130,15 +140,65 @@ threshold is reached.
   \label{dfun}
 \end{figure}
 
-A side effect of the expressiveness of $\lambda C$ is that, whether
-an argument is dependent depends on how previous arguments
-are instantiated. Consider the example shown in figure \ref{dfun}. The return
+  In $\lambda C$, whether an argument is dependent depends on how previous arguments
+are instantiated. Consider the example shown in Figure \ref{dfun}. The return
 type \texttt{$\beta$ a} depends on the last argument \texttt{a : $\alpha$} in the signature of
 \texttt{DFunLike.coe}. However, when $\beta$ is instantiated with \texttt{fun x => B$_0$}, as in the
-expression at the bottom of figure \ref{dfun}, the return type \texttt{$\beta$ a} reduces to \texttt{B$_0$},
+expression at the bottom of Figure \ref{dfun}, the return type \texttt{$\beta$ a} reduces to \texttt{B$_0$},
 which no longer depends on the last argument. Lean-auto takes preceding arguments into
 consideration when determining whether an argument is dependent, and is able to detect
 that the last argument is non-dependent in the above case.
 
-%TODO: Intricacies in Quasi-monomorphic problems
-%TODO: Definitional equality
+\noindent \textbf{$\text{HOL}^*$ Instances are Dynamic}
+
+  Whether an expression is an $\text{HOL}^*$ instance is context-dependent.
+Consider the simple expression \texttt{@reverse = @reverse}, where \texttt{reverse}
+is the same as in Figure \ref{leanlistexplicit}. Although \texttt{@reverse} is polymorphic,
+it \textit{behaves like} a $\text{HOL}^*$ variable in \texttt{@reverse = @reverse}. More formally,
+consider
+$$\begin{aligned}
+\varphi &:= (f = f) \\
+\sigma  &:= \{f \mapsto \texttt{@reverse}, \ \ \alpha \mapsto \texttt{(} \forall \ \texttt{\{}\alpha \ \beta \ : \ \texttt{Type\}}, \ 
+  \texttt{List} \ \alpha \to \texttt{List} \ \beta \texttt{)}\}
+\end{aligned}$$
+where $f : \alpha$. Then, \texttt{@reverse = @reverse} is the image of the $\text{HOL}^*$ formula $\varphi$
+under $\sigma$. Intuitively, the dependent arguments of \texttt{reverse} can be ``absorbed''
+into the higher variable $\alpha$ because both dependent arguments of \texttt{reverse} are unapplied.
+Lean-auto is able to detect such context-dependent $\text{HOL}^*$ instances.
+
+\noindent \textbf{Definitional Equality}
+
+  There are three separate occasions in Lean-auto where definitional
+equality has to be addressed.
+
+  First, when a symbol is defined in Lean4, (potentially multiple) \textit{equational theorems} that
+reflect the definitional equalities related to the symbol are automatically generated.
+Lean-auto will automatically collect all the definitional equalities associated with the
+list of symbols in the \textit{definitional equality instruction} supplied by the user. An
+extra list of symbols can be supplied in the \textit{unfolding instruction}, and Lean-auto will
+recursively unfold symbols in this list.
+
+  Second, during $\lambda_\to^*$ abstraction, we would like $\text{HOL}^*$ instances
+that are syntactically different but definitionally equal to be abstracted to the
+same $\text{HOL}^*$ variable. Reducing all $\text{HOL}^*$ instances to their normal forms is
+not an option because reduction is prohibitively expensive on complex
+expression in real-life Lean4 projects. To address this issue, out $\lambda_\to^*$ abstraction algorithm keeps a
+set $H$ of mutually definitionally unequal $\text{HOL}^*$ instances. Whenever a new $\text{HOL}^*$
+instance $t$ is found, we test definitional equality of $t$ with elements of $H$
+using $\mathsf{Lean.isDefEq}$. Since $\mathsf{Lean.isDefEq}$ is still expensive,
+a \textit{fingerprint} is computed for each $\text{HOL}^*$ instance, and fingerprint equality
+is tested before calling $\mathsf{Lean.isDefEq}$.
+
+  Finally, we would also like definitionally equal $\text{HOL}^*$ type instances to
+be abstracted to the same $\text{HOL}^*$ type variable during $\lambda_\to^*$ abstraction.
+Here, we choose to reduce all $\text{HOL}^*$ type instances to their normal forms, because they
+are usually very simple expressions.
+
+\noindent \textbf{Typeclass Instances must be Absorbed}
+
+  In Lean4, many function's instance argument(s) are not dependent arguments,
+for example the fourth argument of \texttt{HAdd.hAdd} mentioned in Sect. \ref{sectlean}.
+Lean-auto's actual implementation ensures that typeclass arguments are absorbed into
+$\text{HOL}^*$ variables by requiring that all instance quantifiers be instantiated
+and that all $\text{HOL}^*$ instances take typeclass arguments with them. For
+simplicity, this detail is not included in Sect \ref{sectabst} and Sect \ref{sectinst}.

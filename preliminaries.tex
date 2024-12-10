@@ -31,7 +31,7 @@
 
   Type judgements will be written as $\Gamma \vdash t : \alpha$, which stands for ``$\lambda C$ term $t$
   has type $\alpha$ under context $\Gamma$''. Derivation rules for type judgements of
-  $\lambda C$ will be given in sect. \ref{sectpts}. If $\Gamma \vdash t : \alpha$, then $t$ is
+  $\lambda C$ will be given in Sect. \ref{sectpts}. If $\Gamma \vdash t : \alpha$, then $t$ is
   called a \textit{well-formed term}, and $\alpha$ is called a (well-formed)
   \textit{type}\footnote{In $\lambda C$, all well-formed types are also well-formed terms}.
   Under context $\Gamma$, a type $\alpha$ is called \textit{inhabited} iff there exists $t$ such
@@ -45,12 +45,12 @@
   In many cases, dependent arguments are also type arguments, for example the first and second argument
   of $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{U}_1). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$.
   We also use the terminology \textit{dependent argument}, which will be formally defined in
-  sect. \ref{labstalgo}. ``Dependent argument'' and ``static dependent argument'' usually have the same
-  meaning. Their difference will be explained in sect. \ref{exqdet}.
+  Sect. \ref{labstalgo}. In practical scenarios, ``Dependent argument'' and ``static dependent argument'' usually
+  have the same meaning. Their intricate difference will be explained in Sect. \ref{exqdet}.
 
   We use $\lambda C$ notation for all logical systems that can be embedded in $\lambda C$.
   When presenting Lean4 examples, we will follow extra notational conventions
-  of Lean4, which will be explained in sect. \ref{sectlean}.
+  of Lean4, which will be explained in Sect. \ref{sectlean}.
 
 \subsection{Logical Systems of ITPs and ATPs}\label{sublogsys}
 
@@ -67,7 +67,7 @@
       to take function as arguments, and quantifiers can quantify over functions.
     \item Many-sorted HOL with a countable number of universe levels, denoted as $\text{HOL}^*$. This is an
       intermediate logical system used in Lean-auto's monomorphization. Its term calculus $\lambda_\to^*$
-      will be discussed in sect. \ref{sectpts}.
+      will be discussed in Sect. \ref{sectpts}.
     \item HOL with rank-1 polymorphism, or polymorphic HOL, whose term calculus is identical
       to $\lambda 2$ in the $\lambda$-cube \cite{LambdaWithType}. In polymorphic HOL, function are
       allowed to take type arguments, and quantifiers can quantify over types. However, type
@@ -134,8 +134,15 @@
   structures. For example, a group is just a wrapper for its identity element, multiplication
   operator, inverse operator, and a proof that these operators follow the group axioms.
 
+  Lean4 supports definitional equality. Two terms are definitionally equal
+  iff they can be converted to each other via Lean4's builtin conversion rules.
+  To test definitional equality of two terms $s$ and $t$, we can either reduce $s$ and
+  $t$ to their normal forms and check syntactical equality, or use the optimized definitional
+  equality testing function $\mathsf{Lean.isDefEq}$.
+
   Other important Lean4 features relevant to Lean-auto include inductive types, pattern matching and definitions.
-  These features and how Lean-auto handles them will be discussed in sect. \ref{sectprep}.
+  These features are handled by Lean-auto's preprocessing stage.
+  % TODO: These features and how Lean-auto handles them will be discussed in Sect. \ref{sectprep}.
 
 \subsection{Pure Type Systems}\label{sectpts}
 
@@ -153,7 +160,7 @@
   \noindent The derivation rules of PTS are given in Appendix \ref{apppts}.
 
   Three type systems, $\lambda C$, $\lambda_\to$ and $\lambda_\to^*$, will be formulated
-  using PTS. As mentioned in sect. \ref{sublogsys}, $\lambda_\to$
+  using PTS. As mentioned in Sect. \ref{sublogsys}, $\lambda_\to$
   is the term calculus of monomorphic HOL, and $\lambda_\to^*$ is the term
   calculus of $\text{HOL}^*$. Note that $\mathsf{U}_0$ is not present in $\lambda_\to$ and $\lambda_\to^*$
   because it is a special sort for propositions in $\lambda C$.

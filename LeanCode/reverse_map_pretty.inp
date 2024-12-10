@@ -1,5 +1,5 @@
-|!map!| : {α β : Type} → (α → β) → List α → List β
-|!reverse!| : {α : Type} → List α → List α
+|!map!| : ∀ {α β : Type}, (α → β) → List α → List β
+|!reverse!| : ∀ {α : Type}, List α → List α
 |!map_reverse!| : ∀ {α β : Type} (f : α → β) (l : List α),
   map f (reverse l) = reverse (map f l)
 |!reverse_reverse!| : ∀ {α : Type} (as : List α),

@@ -21,31 +21,31 @@ Unless otherwise stated, when discussing instances of functions, we will always 
 referring to \textit{constant instances}; when discussing instances of hypotheses, we will
 always be referring to \textit{hypothesis instances}.
 
-As mentioned in sect. \ref{motex}, the quantifier instantiation procedure
-is based on a saturation loop which matches monomorphic instances of polymorphic functions
-with subterms of hypothesis instances. An instance of a polymorphic function is called
-\textit{monomorphic} iff all of the function's dependent arguments are instantiated with terms
-that do not contain bound variables. Formally, the set of monomorphic instances of polymorphic
-functions in a $\lambda C$ term is defined as follows:
+As mentioned in Sect. \ref{motex}, the quantifier instantiation procedure
+is based on a saturation loop which matches $\text{HOL}^*$ instances of functions
+with subterms of hypothesis instances. An instance of a function is called
+an $\text{HOL}^*$ instance iff all of the function's dependent arguments are instantiated with terms
+that do not contain bound variables. Formally, the set of all $\text{HOL}^*$ instances
+in a $\lambda C$ term is defined as follows:
 
 \begin{definition}
   Let $\Gamma$ be a $\lambda C$ context and $V$ be a set of variables, then
   \begin{enumerate}
     \item For variable $x$ and terms $t_1, \dots, t_n$,
-      $$\mathsf{monoInsts}(\Gamma; V, x \ t_1 \ \dots \ t_n) := \left\{
+      $$\mathsf{mholInsts}(\Gamma; V, x \ t_1 \ \dots \ t_n) := \left\{
         \begin{aligned}
           S \cup \{l\}, & & FV(l) \cap V = \emptyset \\
           S, & & \text{otherwise}
         \end{aligned}
       \right.$$
       where
-      $$l := \mathsf{LFun}(\Gamma; x, (t_1 \ \dots \ t_n)) \ \ \ \ \ \ S := \bigcup_{t \in \mathsf{LArgs}(\Gamma; x, (t_1, \dots, t_n))} \mathsf{monoInsts}(\Gamma; V, t)$$
+      $$l := \mathsf{LFun}(\Gamma; x, (t_1 \ \dots \ t_n)) \ \ \ \ \ \ S := \bigcup_{t \in \mathsf{LArgs}(\Gamma; x, (t_1, \dots, t_n))} \mathsf{mholInsts}(\Gamma; V, t)$$
     \item For variable $x$ and terms $a, b$,
       \begin{align*}
-        \mathsf{monoInsts}(\Gamma; V, \forall (x : a). b) = \mathsf{monoInsts}(\Gamma; V, \lambda (x : a). b) 
-        \\ := \mathsf{monoInsts}(\Gamma; V, a) \cup \mathsf{monoInsts}(\Gamma, x : a; V \cup \{x\}, b)
+        \mathsf{mholInsts}(\Gamma; V, \forall (x : a). b) = \mathsf{mholInsts}(\Gamma; V, \lambda (x : a). b) 
+        \\ := \mathsf{mholInsts}(\Gamma; V, a) \cup \mathsf{mholInsts}(\Gamma, x : a; V \cup \{x\}, b)
       \end{align*}
-    \item Otherwise, $\mathsf{monoInsts}(\Gamma; V, t) := \emptyset$
+    \item Otherwise, $\mathsf{mholInsts}(\Gamma; V, t) := \emptyset$
   \end{enumerate}
 \end{definition}
 
@@ -107,7 +107,7 @@ The matching procedure in the saturation loop is handled by $\mathsf{matchInst}$
     $\vhi := H$ \tcc*[h]{List of hypothesis instances} \;
     $\vci := \mathsf{Queue.empty}()$ \tcc*[h]{A queue of constant instances} \;
     \For{h : H}{
-      \For{$m : \mathsf{monoInsts}(\Gamma; \emptyset, h)$}{$\vci.\mathsf{push}(m)$}
+      \For{$m : \mathsf{mholInsts}(\Gamma; \emptyset, h)$}{$\vci.\mathsf{push}(m)$}
     }
     $\vactiveci := \vci.\mathsf{copy}()$ \;
     \While{$! \ \vactiveci.\mathsf{empty}()$}{
@@ -119,7 +119,7 @@ The matching procedure in the saturation loop is handled by $\mathsf{matchInst}$
         \For{$\vnh : \vnewhi$}{
           \lIf{$\vnh \in \vhi$}{\Continue}
           $\vhi.\mathsf{push}(\vnh)$ \;
-          $\vnewci := \mathsf{monoInsts}(\Gamma; \emptyset, \vnh)$ \;
+          $\vnewci := \mathsf{mholInsts}(\Gamma; \emptyset, \vnh)$ \;
           \For{$\vnc : \vnewci$}{
             \lIf{$\vnc \in \vci$}{\Continue}
             $\vci.\mathsf{push}(\vnc)$ \;

@@ -1,11 +1,11 @@
 \section{$\lambda_\to^*$ abstraction}\label{sectabst}
 
 This section gives a formal presentation of the $\lambda_\to^*$ abstraction technique.
-In sect. \ref{fmehop}, we define the notion of \textit{essentially higher-order problem}.
+In Sect. \ref{fmehop}, we define the notion of \textit{essentially higher-order problem}.
 Intuitively, a $\lambda C$ problem $p$ is essentially higher-order iff there exists
 a provable $\text{HOL}^*$ problem $\varphi$ and a ``substitution'' $\sigma$ such that $p$ is the
-image of $\varphi$ under $\sigma$. In sect. \ref{labstalgo}, we first define the notion of
-\textit{quasi-monomorphic problems}, then we present the $\lambda_\to^*$ abstraction algorithm.
+image of $\varphi$ under $\sigma$. In Sect. \ref{labstalgo}, we first define the notion of
+\textit{quasi-monomorphic problems}, which is followed by the $\lambda_\to^*$ abstraction algorithm.
 
 \subsection{Essentially higher-order problem}\label{fmehop}
 
@@ -152,7 +152,7 @@ Given
   p' := \ & (\forall' (u \ v : \alpha). f \ u \ v =_\alpha' f \ v \ u) \to' \\
   & \ \ \ \forall' (u \ v \ w : \alpha). f \ (f \ u \ v) \ w =_\alpha' f \ w \ (f \ v \ u)
 \end{align*}
-The higher-order problem $\Gamma' \vdash? p'$ is provable. Moreover, given
+The $\text{HOL}^*$ problem $\Gamma' \vdash? p'$ is provable. Moreover, given
 $$\sigma(\alpha) := \mathsf{Fin} \ n, \sigma(f) := \mathsf{add} \ n$$
 The triple $(\pi(\Gamma'), \Gamma, \sigma)$ forms a substitution, and $p \cong \overline{\sigma}(\pi(p'))$.
 Therefore, $\Gamma \vdash? p$ is EHOP.
@@ -368,7 +368,7 @@ free variables associated with abstracted $\lambda C$ terms. A few auxiliary fun
   \item For a context $\Gamma$ and a term $t$, $\mathsf{inferType}(\Gamma, t)$ computes the
     $\beta$-normal form of the type of $t$ under $\Gamma$
 \end{enumerate}
-Note that $\mathsf{lamAbst}$ only returns the higher-order problem (as a $\lambda_\to^*$ term). The
+Note that $\mathsf{lamAbst}$ only returns the $\text{HOL}^*$ problem (as a $\lambda_\to^*$ term). The
 substitution from $\lambda_\to^*$ to $\lambda C$ needs to be obtained by computing the inverse of $H$ after
 the execution of the algorithm. Also, note that the implementation of this algorithm in Lean-auto checks
 whether $t$ is quasi-monomorphic and fails if it's not. For simplicity, these checks have been omitted in $\mathsf{lamAbst}$.

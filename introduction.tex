@@ -2,7 +2,7 @@
 
   Interactive Theorem Provers (ITPs) \cite{Harrison2014HistoryOI}
   are widely used in formal mathematics and software/hardware verification. Hammers
-  \cite{Blanchette2016HammeringTQ}\cite{Czajka2018HammerFC} are type of proof automation tool for
+  \cite{Blanchette2016HammeringTQ,Czajka2018HammerFC} are proof automation tools for
   ITPs which utilize Automated Theorem Provers (ATPs, including SMT solvers).
   When using ITPs, a significant amount of straightforward but tedious proof tasks
   tasks arise from the proof development process, which requires huge amounts of human
@@ -11,8 +11,8 @@
   A hammer has three main components: premise selection, translation from ITP to
   ATP, and proof reconstruction from ATP to ITP. Premise selection collects
   the necessary information needed to solve a proof task, translation exports
-  the collected information from the ITP to the ATP, and proof reconstruction imports the
-  proof returned by the ATP to the ITP. The discrepancies between logical systems of ATPs and ITPs pose
+  the collected information from the ITP to the ATP, and proof reconstruction generates
+  a proof in the ITP based on the output of the ATP. The discrepancies between logical systems of ATPs and ITPs pose
   significant challenges to translation procedures between them.
   Several popular ITPs are based on highly expressive logical systems.
   For example, Isabelle \cite{Isabelle} is based on polymorphic higher-order logic, while
@@ -20,37 +20,41 @@
   are based an even more expressive logical system called dependent type
   theory\footnote{Or \textit{calculus of inductive constructions (CIC)}, depending
   on whether inductive type is considered as an extension.}
-  \cite{LambdaWithType}\cite{Coquand1988}.
+  \cite{LambdaWithType,Coquand1988}.
   Moreover, features such as typeclasses \cite{TypeClassHaskell}, universe polymorphism \cite{UPolyCoq} and inductive types \cite{CICIndDef}
   are commonly used as extensions to the base logical system to enhance usability of the ITP.
   On the other hand, ATPs are usually based on less expressive logical systems such
-  as first-order logic (FOL) \cite{CVC5}\cite{Vampire}\cite{Z3Paper}\cite{EProver} and
-  higher-order logic (HOL) \cite{HOVampire}\cite{ZipperpositionMakeWork}\cite{HOEProver}.
-  An overview of the logical systems relevant to our work will be given in sect. \ref{sublogsys}.
+  as first-order logic (FOL) \cite{CVC5,Vampire,Z3Paper,EProver} and (in recent years)
+  higher-order logic (HOL) \cite{HOVampire,ZipperpositionMakeWork,HOEProver}.
+  An overview of the logical systems relevant to our work will be given in Sect. \ref{sublogsys}.
 
   The focus of our paper is the Lean to ATP translation procedure in Lean-auto.
-  However, Lean-auto does have a proof reconstruction procedure which fully supports proof
-  reconstruction of one of the three types of ATPs we use to evaluate Lean-auto.
+  We note that Lean-auto does have a proof reconstruction procedure which fully supports
+  one of the three types of ATPs we use to evaluate Lean-auto.
   Ongoing projects are expected to implement premise selection and more proof reconstruction support.
-  See sect. \ref{sectexpr} for more discussions.
+  See Sect. \ref{sectexpr} for more discussions.
 
   There are two existing approaches for translation from more expressive
   logical systems to less expressive ones: encoding-based translation and monomorphization.
   Encoding-based translation is used in CoqHammer \cite{Czajka2018HammerFC}
   to translate Coq into untyped FOL. Monomorphization is used to
-  eliminate polymorphism in Isabelle Sledgehammer \cite{Blanchette2016HammeringTQ}\cite{Paulson2012ThreeYO}.
-  We found that encoding-based translation tends to produce large translation outputs
+  eliminate polymorphism in Isabelle Sledgehammer \cite{Blanchette2016HammeringTQ,MonoPaper,Paulson2012ThreeYO}.
+  We found that encoding-based translation tends to produce large outputs
   on complex problems arising from real ITP use cases, which negatively affects the performance of ATPs.
   Therefore, we decided to use monomorphization in Lean-auto. An overview of these two
-  translation methods and related discussions will be given in sect. \ref{subencmon}.
+  translation methods and related discussions will be given in Sect. \ref{subencmon}.
 
-  Since ATPs have started supporting HOL in recent years \cite{HOVampire}\cite{ZipperpositionMakeWork}\cite{HOEProver},
+  Since ATPs have started supporting HOL in recent years \cite{HOVampire,ZipperpositionMakeWork,HOEProver},
   we decided that Lean-auto should translate Lean4 to HOL. The overall translation has
-  two stages: preprocessing % TODO: (sect. \ref{sectprep})
+  two stages: preprocessing % TODO: (Sect. \ref{sectprep})
   and monomorphization.
-  Monomorphization itself has three stages: quantifier instantiation (sect. \ref{sectinst}),
-  $\lambda_\to^*$ abstraction (sect. \ref{sectabst}) and universe lifting. Preprocessing translates Lean4
-  into dependent type theory, and monomorphization translates dependent type theory
-  into HOL. The monomorphization procedure is inspired by Isabelle Sledgehammer.
-  However, since Isabelle is based on HOL, which is considerably different from
-  dependent type theory, the algorithm is thoroughly redesigned.
+  Monomorphization itself has three stages: quantifier instantiation (Sect. \ref{sectinst}),
+  $\lambda_\to^*$ abstraction (Sect. \ref{sectabst}) and universe lifting. Preprocessing translates Lean4
+  into dependent type theory\footnote{As mentioned before, Lean4 is different from
+  dependent type theory because it also has various language features},
+  and monomorphization translates dependent type theory into HOL.
+  The monomorphization procedure is inspired by Isabelle Sledgehammer.
+  However, since dependent type theory is considerably different from
+  Isabelle's HOL, the monomorphization procedure is thoroughly redesigned,
+  and presented in a different way in our paper. New challanges related to
+  Lean4 will be discussed in Sect. \ref{exqdet}.
