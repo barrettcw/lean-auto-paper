@@ -27,7 +27,8 @@
   $\to$ can be used instead of $\forall$. Importantly, $\to$ binds stronger than $\forall$, i.e.,
   $\forall (x : \alpha). \beta \to \gamma$ is interpreted as $\forall (x : \alpha). (\beta \to \gamma)$
   instead of $(\forall (x : \alpha). \beta) \to \gamma$, the latter being the convention commonly used
-  when presenting FOL and HOL.
+  when presenting FOL and HOL. The abbreviations $\bot, \neg, \land, \lor, \leftrightarrow, =_\ell, \exists_\ell$
+  are defined in the usual way, see Appendix \ref{applsc}.
 
   Type judgements will be written as $\Gamma \vdash t : \alpha$, which stands for ``$\lambda C$ term $t$
   has type $\alpha$ under context $\Gamma$''. Derivation rules for type judgements of
@@ -65,9 +66,10 @@
     \item Many-sorted FOL
     \item Many-sorted HOL (monomorphic HOL, or just HOL), where functions are allowed
       to take function as arguments, and quantifiers can quantify over functions.
-    \item Many-sorted HOL with a countable number of universe levels, denoted as $\text{HOL}^*$. This is an
-      intermediate logical system used in Lean-auto's monomorphization. Its term calculus $\lambda_\to^*$
-      will be discussed in Sect. \ref{sectpts}.
+    \item Many-sorted HOL with a countable number of universe levels, denoted as $\text{HOL}^*$,
+      which will be discussed in Sect \ref{sectpts}. This is an
+      intermediate logical system used in Lean-auto's monomorphization. In Appendix \ref{appulift}, we
+      will show that $\text{HOL}^*$ is essentially equivalent to HOL.
     \item HOL with rank-1 polymorphism, or polymorphic HOL, whose term calculus is identical
       to $\lambda 2$ in the $\lambda$-cube \cite{LambdaWithType}. In polymorphic HOL, function are
       allowed to take type arguments, and quantifiers can quantify over types. However, type
@@ -85,7 +87,50 @@
   CoqHammer translates between Coq and untyped FOL. Lean-auto translates
   between Lean4 and monomorphic HOL. As mentioned before, Lean-auto's
   preprocessing translates Lean4 into $\lambda C$, and monomorphization
-  translates $\lambda C$ into HOL.
+  translates $\lambda C$ into HOL. Specifically, quantifier instantiation
+  and $\lambda_\to^*$ abstraction translates $\lambda C$ into $\text{HOL}^*$,
+  and universe lifting translates $\text{HOL}^*$ into HOL.
+
+\subsection{Pure Type Systems $\lambda C, \lambda_\to, \lambda_\to^*$ and Related Logical Systems}\label{sectpts}
+
+  Pure type system (PTS) \cite{LambdaWithType} is a mechanism which enables concise specification
+  for a certain class of type systems. We use PTS to formally specify the underlying type systems
+  of the logical systems used in Lean-auto's translation.
+
+  The specification of a PTS consists of a triple $(\mathcal{S}, \mathcal{A}, \mathcal{R})$,
+  where $\mathcal{S}$ is the set of \textit{sorts}, $\mathcal{A} \subseteq \mathcal{S} \times \mathcal{S}$ is
+  the set of \textit{axioms}, and $\mathcal{R} \subseteq \mathcal{S} \times \mathcal{S} \times \mathcal{S}$
+  is the set of \textit{rules}. An axiom $(s_1, s_2) \in \mathcal{A}$ is intended to represent
+  the typing relation $s_1 : s_2$. The term syntax of a PTS is defined as
+  $$\mathcal{T} ::= V \ | \ \mathcal{S} \ | \ \mathcal{T} \ \mathcal{T} \ |
+    \ \lambda (V : \mathcal{T}). \mathcal{T} \ | \ \forall (V : \mathcal{T}). \mathcal{T}$$
+  \noindent The derivation rules of PTS are given in Appendix \ref{apppts}.
+
+  Three type systems, $\lambda C$, $\lambda_\to$ and $\lambda_\to^*$, will be formulated
+  using PTS. As mentioned in Sect. \ref{sublogsys}, $\lambda_\to$
+  is the term calculus of monomorphic HOL, and $\lambda_\to^*$ is the term
+  calculus of $\text{HOL}^*$. Note that $\mathsf{U}_0$ is not present in $\lambda_\to$ and $\lambda_\to^*$
+  because it is a special sort for propositions in $\lambda C$.
+  Propositions in $\text{HOL}$ and $\text{HOL}^*$ will be represented by
+  a special type $\mathsf{Bool} : \mathsf{U}_1$.
+  
+  $\lambda_\to^*$ and $\lambda_\to$ are similar, except that $\lambda_\to^*$ allows a
+  countable number of universe levels $\ell \in \mathbb{N}^*$. For example,
+  for the type $(\alpha \to \beta) \to \gamma$, if in $\lambda_\to$,
+  then $\alpha \ \beta \ \gamma$ must be of type $\mathsf{U}_1$; if in
+  $\lambda_\to^*$, then it's possible that $\alpha : \mathsf{U}_{\ell_1},
+  \beta : \mathsf{U}_{\ell_2}, \gamma : \mathsf{U}_{\ell_3}$ where $\ell_1, \ell_2, \ell_3$
+  may be different. A technicality related to PTS requires the presence of
+  the sorts $\mathsf{U}_\ell'$ in $\lambda_\to^*$, with axioms $\mathsf{U}_\ell : \mathsf{U}_\ell'$.
+
+  The logical systems HOL and $\text{HOL}^*$ are $\lambda_\to$ and $\lambda_\to^*$ augmented
+  with the symbols $\mathsf{Bool}, \bot', \to', \forall'_s(\text{for each type }s)$, their
+  corresponding typing rules, and logical rules. The abbreviations $\land', \lor', \neg', \leftrightarrow, ='_s, \exists'_s$
+  are defined in a way consistent with their $\lambda C$ counterparts.
+  The set of HOL and $\text{HOL}^*$ terms are denoted as $\mathcal{T}_\to$ and $\mathcal{T}_\to^*$, respectively.
+
+  The specifications of $\lambda C, \lambda_\to$ and $\lambda_\to^*$ using PTS are given in Appendix \ref{applll}.
+  The formal definitions of $\text{HOL}$ and $\text{HOL}^*$ are given in Appendix \ref{apphol}.
 
 \subsection{Lean and Mathlib}\label{sectlean}
 
@@ -97,8 +142,10 @@
   Liquid Tensor Experiment \cite{LiquidTensor}, which successfully
   formalized cutting-edge results in mathematics. 
 
-  We will follow Lean4 conventions when presenting Lean4 examples. Sorts $\mathsf{U}_{\ell + 1}$
-  are printed as \texttt{Type $\ell$} (\texttt{Type $0$} can be abbreviated as \texttt{Type}), and $\mathsf{U}_0$ is printed as \texttt{Prop}.
+  We will follow Lean4 conventions when presenting Lean4 examples. Sorts $\mathsf{U}_\ell$
+  can be represented as \texttt{Sort $\ell$}, or \texttt{Type $\ell'$} if $\ell = \ell' + 1$.
+  \texttt{Sort $1$} (or \texttt{Type $0$}) can be abbreviated as \texttt{Type},
+  and \texttt{Sort $0$} can be abbreviated as \texttt{Prop}.
   Functions and constants can have universe level parameters, but for simplicity,
   they are not shown in many of our Lean4 examples. 
   Functions are allowed to have implicit arguments, which are represented by
@@ -143,39 +190,3 @@
   Other important Lean4 features relevant to Lean-auto include inductive types, pattern matching and definitions.
   These features are handled by Lean-auto's preprocessing stage.
   % TODO: These features and how Lean-auto handles them will be discussed in Sect. \ref{sectprep}.
-
-\subsection{Pure Type Systems}\label{sectpts}
-
-  Pure type system (PTS) \cite{LambdaWithType} is a mechanism which enables concise specification
-  for a certain class of type systems. We use PTS to formally specify the underlying type systems
-  of the logical systems used in Lean-auto's translation.
-
-  The specification of a PTS consists of a triple $(\mathcal{S}, \mathcal{A}, \mathcal{R})$,
-  where $\mathcal{S}$ is the set of \textit{sorts}, $\mathcal{A} \subseteq \mathcal{S} \times \mathcal{S}$ is
-  the set of \textit{axioms}, and $\mathcal{R} \subseteq \mathcal{S} \times \mathcal{S} \times \mathcal{S}$
-  is the set of \textit{rules}. An axiom $(s_1, s_2) \in \mathcal{A}$ is intended to represent
-  the typing relation $s_1 : s_2$. The term syntax of a PTS is defined as
-  $$\mathcal{T} ::= V \ | \ \mathcal{S} \ | \ \mathcal{T} \ \mathcal{T} \ |
-    \ \lambda (V : \mathcal{T}). \mathcal{T} \ | \ \forall (V : \mathcal{T}). \mathcal{T}$$
-  \noindent The derivation rules of PTS are given in Appendix \ref{apppts}.
-
-  Three type systems, $\lambda C$, $\lambda_\to$ and $\lambda_\to^*$, will be formulated
-  using PTS. As mentioned in Sect. \ref{sublogsys}, $\lambda_\to$
-  is the term calculus of monomorphic HOL, and $\lambda_\to^*$ is the term
-  calculus of $\text{HOL}^*$. Note that $\mathsf{U}_0$ is not present in $\lambda_\to$ and $\lambda_\to^*$
-  because it is a special sort for propositions in $\lambda C$.
-  Propositions in $\text{HOL}$ and $\text{HOL}^*$ will be represented by
-  a special type $\mathsf{Bool} : \mathsf{U}_1$.
-  
-  $\lambda_\to^*$ and $\lambda_\to$ are similar, except that $\lambda_\to^*$ allows a
-  countable number of universe levels $\ell \in \mathbb{N}^*$. For example,
-  for the type $(\alpha \to \beta) \to \gamma$, if in $\lambda_\to$,
-  then $\alpha \ \beta \ \gamma$ must be of type $\mathsf{U}_1$; if in
-  $\lambda_\to^*$, then it's possible that $\alpha : \mathsf{U}_{\ell_1},
-  \beta : \mathsf{U}_{\ell_2}, \gamma : \mathsf{U}_{\ell_3}$ where $\ell_1, \ell_2, \ell_3$
-  may be different. A technicality related to PTS requires the presence of
-  the sorts $\mathsf{U}_\ell'$ in $\lambda_\to^*$, with axioms $\mathsf{U}_\ell : \mathsf{U}_\ell'$.
-
-  The specifications of $\lambda C, \lambda_\to$ and $\lambda_\to^*$ using PTS are given in
-  Appendix \ref{applll}. The set of $\lambda_C, \lambda_\to$ and $\lambda_\to^*$ terms will be
-  denoted as $\mathcal{T}_C, \mathcal{T}_\to$ and $\mathcal{T}_\to^*$, respectively.

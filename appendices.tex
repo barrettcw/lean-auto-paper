@@ -1,19 +1,30 @@
 \appendix
+\section{Logical Symbols in $\lambda C$}\label{applsc}
+
+  \begin{align*}
+  \bot &:= \forall p : \mathsf{U}_0. p \ \ \ (\neg) := \lambda p : \mathsf{U}_0. p \to \bot \\
+  (\land) &:= \lambda p \ q : \mathsf{U}_0. \forall r : \mathsf{U}_0. (p \to q \to r) \to r \\
+  (\lor) &:= \lambda p \ q : \mathsf{U}_0. \forall r : \mathsf{U}_0. (p \to r) \to (q \to r) \to r \\
+  (\leftrightarrow) &:= \lambda p \ q. (p \to q) \land (q \to p) \\
+  (=_\ell) &:= \lambda \alpha : \mathsf{U}_\ell. \lambda x \ y : \alpha. \forall p : \alpha \to \mathsf{U}_0. (p \ x \leftrightarrow p \ y) \\
+  (\exists_\ell) &:= \lambda \alpha : \mathsf{U}_\ell. \lambda p : \alpha \to \mathsf{U}_0. \forall q : \mathsf{U}_0. ((\forall x : \alpha. p \ x \to q) \to q)
+  \end{align*}
+
 \section{Derivation rules of PTS}\label{apppts}
 
   The type judgement $\Gamma \vdash t : \alpha$ in a PTS specified
   by $(\mathcal{S}, \mathcal{A}, \mathcal{R})$ is defined by the following
   axioms and rules:
 
-  $$\begin{aligned}
-    & \text{(axioms)}      & & \frac{}{\emptyset \vdash s_1 : s_2} & & \text{if } (s_1, s_2) \in \mathcal{A} \\
-    & \text{(start)}       & & \frac{\Gamma \vdash A : s}{\Gamma, x : A \vdash x : A} & & \text{if } x \notin \Gamma \\
-    & \text{(weakening)}   & & \frac{\Gamma \vdash A : B \ \ \ \Gamma \vdash C : s}{\Gamma, x : C \vdash A : B} & & \text{if } x \notin \Gamma \\
-    & \text{(product)}     & & \frac{\Gamma \vdash A : s_1 \ \ \ \Gamma, x : A \vdash B : s_2}{\Gamma \vdash (\Pi x : A. B) : s_3} & & \text{if } (s_1, s_2, s_3) \in \mathcal{R} \\
-    & \text{(application)} & & \frac{\Gamma \vdash f : (\Pi x : A. B) \ \ \ \Gamma \vdash a : A}{\Gamma \vdash f \ a : B[x := a]} & & \\
-    & \text{(abstraction)} & & \frac{\Gamma, x : A \vdash b : B \ \ \ \Gamma \vdash (\Pi x : A. B) : s}{\Gamma \vdash (\lambda x : A.b) : (\Pi x : A. B)} & & \\
-    & \text{(conversion)}  & & \frac{\Gamma \vdash A : B \ \ \ \Gamma \vdash B' : s \ \ \ B \cong B'}{\Gamma \vdash A : B'} & &
-  \end{aligned}$$
+  \begin{align*}
+  & \text{(axioms)}      & & \frac{}{\emptyset \vdash s_1 : s_2} & & \text{if } (s_1, s_2) \in \mathcal{A} \\
+  & \text{(start)}       & & \frac{\Gamma \vdash A : s}{\Gamma, x : A \vdash x : A} & & \text{if } x \notin \Gamma \\
+  & \text{(weakening)}   & & \frac{\Gamma \vdash A : B \ \ \ \Gamma \vdash C : s}{\Gamma, x : C \vdash A : B} & & \text{if } x \notin \Gamma \\
+  & \text{(product)}     & & \frac{\Gamma \vdash A : s_1 \ \ \ \Gamma, x : A \vdash B : s_2}{\Gamma \vdash (\forall x : A. B) : s_3} & & \text{if } (s_1, s_2, s_3) \in \mathcal{R} \\
+  & \text{(application)} & & \frac{\Gamma \vdash f : (\forall x : A. B) \ \ \ \Gamma \vdash a : A}{\Gamma \vdash f \ a : B[x := a]} & & \\
+  & \text{(abstraction)} & & \frac{\Gamma, x : A \vdash b : B \ \ \ \Gamma \vdash (\forall x : A. B) : s}{\Gamma \vdash (\lambda x : A.b) : (\forall x : A. B)} & & \\
+  & \text{(conversion)}  & & \frac{\Gamma \vdash A : B \ \ \ \Gamma \vdash B' : s \ \ \ B \cong B'}{\Gamma \vdash A : B'} & &
+  \end{align*}
 
 \section{$\lambda C, \lambda_\to$ and $\lambda_\to^*$}\label{applll}
 
@@ -38,3 +49,157 @@
       \mathcal{A} := \{(\mathsf{U}_\ell, \mathsf{U}_\ell') | \ell \in \mathbb{N}^*\}$$
     $$\mathcal{R} := \{(\mathsf{U}_\ell, \mathsf{U}_m, \mathsf{U}_{\mathsf{max} \{l, m\}}) | \ell \in \mathbb{N}^*, m \in \mathbb{N}^*\}$$
   \end{definition}
+
+\section{HOL and $\text{HOL}^*$}\label{apphol}
+
+  \begin{definition} $\text{HOL}$ ($\text{HOL}^*$) is defined as $\lambda_\to$ ($\lambda_\to^*$) augmented with the following symbols:
+    \begin{enumerate}
+      \item $\mathsf{Bool}$
+      \item $\bot'$ and $\to'$
+      \item $\forall'_s$, for each $s \in \mathcal{T}_\to^*$. Note that we are not requiring $s$ to be a type here
+        because the typing rules below will ensure that $s$ must be a type in a well-formed $\forall_s'$.
+    \end{enumerate}
+    
+    \noindent the following typing rules:
+    $$\frac{}{\vdash \mathsf{Bool} : \mathsf{U}_1} \ \ \ \ \frac{}{\Gamma \vdash \bot' : \mathsf{Bool}}$$
+    $$\frac{}{\Gamma \vdash \to' : \mathsf{Bool} \to \mathsf{Bool} \to \mathsf{Bool}} \ \ \ \
+    \frac{\Gamma \vdash s : \mathsf{U}_\ell}{\Gamma \vdash \forall'_s : (s \to \mathsf{Bool}) \to \mathsf{Bool}}$$
+    
+    \noindent and the logical axioms and deduction rules of higher-order logic.
+
+  \end{definition}
+  
+  \noindent \textbf{Note:} The logical symbols $\neg', \land', \lor', \leftrightarrow, ='_s, \exists'_s$ are defined in a way consistent
+  with their definition in $\lambda C$:
+  \begin{align*}
+  (\neg') &:= \lambda (p : \mathsf{Bool}). (p \to' \bot') \\
+  (\land') &:= \lambda (p \ q : \mathsf{Bool}). \forall (r : \mathsf{Bool}). ((p \to' q \to' r) \to' r) \\
+  (\lor') &:= \lambda (p \ q : \mathsf{Bool}). \forall (r : \mathsf{Bool}). ((p \to' r) \to' (q \to' r) \to' r) \\
+  (\leftrightarrow') &:= \lambda (p \ q : \mathsf{Bool}). ((p \to' q) \land' (q \to' p)) \\
+  (='_s) &:= \lambda (x \ y : s). \forall (p : s \to \mathsf{Bool}). (p \ x \leftrightarrow' p \ y) \\
+  (\exists'_s) &:= \lambda (p : s \to \mathsf{Bool}). \forall (q : \mathsf{Bool}). ((\forall (x : s). p \ x \to' q) \to' q)
+  \end{align*}
+
+  \noindent We use $\forall' (x : s). t$ as a shorthand for $\forall'_s \ (\lambda (x : s). t)$, and $\exists'(x : \alpha). t$
+  as a shorthand for $\exists_s' \ (\lambda (x : s). t)$.
+
+\section{Universe Lifting}\label{appulift}
+
+  In this appendix, we discuss the translation procedure from $\text{HOL}^*$ to HOL
+  in Lean-auto. First, we show that $\text{HOL}^*$ and HOL are, in a sense, equivalent to each other.
+
+  \begin{definition}
+    Let $\rho^* : \mathcal{T}_\to^* \to \mathcal{T}_\to$ be the mapping that forgets the universe levels, i.e.
+    $$\begin{aligned}
+    & \rho^*(\mathsf{Bool}) := \mathsf{Bool} \ \ \ \ \ \ \rho^*(\mathsf{U}_\ell) := \mathsf{U}_1 \ \ \ \ \ \
+      \rho^*(\mathsf{U}_\ell') := \mathsf{U}_1' \ \ \ \ \ \ \rho^*(x) := x, \text{ for }x \in V \\
+    & \rho^*(M \ N) := \rho^*(M) \ \rho^*(N) \ \ \ \ \ \ \rho^*(\lambda (x : s). M) := \lambda (x : \rho^*(s)). \rho^*(M) \\
+    & \rho^*(\bot') := \bot' \ \ \ \ \ \ \rho^*(\to') := \to' \ \ \ \ \ \ \rho^*(\forall_s') := \forall_{\rho^*(s)}'
+    \end{aligned}$$
+
+    \noindent $\rho^*$ is extended to contexts as follows: $\rho^*(\emptyset) := \emptyset; \ \rho^*(\Gamma, x : \sigma) := \rho(\Gamma), x : \rho(\sigma)$
+  \end{definition}
+
+  \begin{definition}
+    Let $\rho_\ell : \mathcal{T}_\to \to \mathcal{T}_\to^*(\ell \in \mathbb{N}^*)$ be the mapping that turns $\mathsf{U}_1$ into $\mathsf{U}_\ell$, i.e.
+    $$\begin{aligned}
+    & \rho(\mathsf{Bool}) := \mathsf{Bool} \ \ \ \ \ \ \rho(\mathsf{U}_1) := \mathsf{U}_\ell \ \ \ \ \ \
+      \rho(\mathsf{U}_1') := \mathsf{U}_\ell' \ \ \ \ \ \ \rho(x) := x, \text{ for }x \in V \\
+    & \rho(M \ N) := \rho(M) \ \rho(N) \ \ \ \ \ \ \rho(\lambda (x : s). M) := \lambda (x : \rho(s)). \rho(M) \\
+    & \rho(\bot') := \bot' \ \ \ \ \ \ \rho(\to') := \to' \ \ \ \ \ \ \rho(\forall_s') := \forall_{\rho(s)}'
+    \end{aligned}$$
+
+    \noindent $\rho$ is extended to contexts as follows: $\rho(\emptyset) := \emptyset; \ \rho(\Gamma, x : \sigma) := \rho(\Gamma), x : \rho(\sigma)$
+  \end{definition}
+
+  \begin{theorem}
+    For all $t \in \mathcal{T}_\to$, $\rho_\ell^*(\rho_\ell(t)) = t$.
+    \begin{proof} Induction on the construction rules of $\mathcal{T}_\to$. \end{proof}
+  \end{theorem}
+
+  \begin{theorem}
+    Forgetting universe levels preserves judgement, i.e., if $\Gamma \vdash t : s$ in $\text{HOL}^*$,
+    then $\rho^*(\Gamma) \vdash \rho^*(t) : \rho^*(s)$ in $\lambda_\to$.
+    \begin{proof} Induction on the derivation rules of $\text{HOL}^*$. \end{proof}
+  \end{theorem}
+
+  \begin{theorem}
+    $\rho_\ell$ preserves judgement, i.e., if $\Gamma \vdash t : s$ in HOL, then
+    $\rho_\ell(\Gamma) \vdash \rho_\ell(t) : \rho_\ell(s)$ in $\lambda_\to$.
+    \begin{proof} Induction on the derivation rules of HOL. \end{proof}
+  \end{theorem}
+
+  \begin{theorem}
+    $\text{HOL}^*$ and HOL are equivalent, i.e., if $\Gamma \vdash p : \mathsf{Bool}$ in $\text{HOL}^*$
+    and $p$ is provable in $\text{HOL}^*$, then $\rho^*(p)$ is provable in HOL; if $\Gamma \vdash p : \mathsf{Bool}$
+    in HOL and $p$ is provable in HOL, then $\rho_1(p)$ is provable in $\text{HOL}^*$.
+    \begin{proof}
+      Let $\mathcal{D}$ be a proof of $p$ in $\text{HOL}^*$, the a proof of
+      $\rho^*(p)$ in HOL can be obtained by forgetting universe levels in $\mathcal{D}$.
+      The converse can be proved in a similar way.
+    \end{proof}
+  \end{theorem}
+
+  \noindent The universe lifting procedure in Lean-auto is the translation of $\text{HOL}^*$
+  to HOL in the context of $\lambda C$. In a sense, it is the translation of \textit{the}
+  embedding of HOL in $\lambda C$ into \textit{an} embedding of $\text{HOL}^*$ in $\lambda C$.
+
+  \begin{definition}
+    The $\ell$-embedding $\pi_\ell : \mathcal{T}_\to \to \mathcal{T}_C$ of HOL into
+    $\lambda C$ is defined as $\pi_\ell := \pi^* \circ \rho_\ell$, where $\pi^*$ is the
+    canonical embedding of $\text{HOL}^*$ into $\lambda C$.
+  \end{definition}
+
+  \begin{definition}
+    A universe lifting facility consists of three families of functions
+    \begin{enumerate}
+      \item $\mathsf{GLift}_{u, v} : \mathsf{U}_u \to \mathsf{U}_{\max\{u, v + 1\}}$
+      \item $\mathsf{GLift.up}_{u, v} : \forall (\alpha : \mathsf{U}_u). \ \alpha \to \mathsf{GLift}_{u, v} \ \alpha$
+      \item $\mathsf{GLift.down}_{u, v} : \forall (\alpha : \mathsf{U}_u). \ \mathsf{GLift}_{u, v} \ \alpha \to \alpha$
+    \end{enumerate}
+    where $u, v \in \mathbb{N}$, such that they satisfy the following bijectivity condition:
+    $$\forall (\alpha : \mathsf{U}_u). \mathsf{GLift.up}_{u, v} \ \alpha \circ \mathsf{GLift.down}_{u, v} \ \alpha = \lambda (x : \mathsf{GLift}_{u, v} \ \alpha). x$$
+    $$\forall (\alpha : \mathsf{U}_u). \mathsf{GLift.down}_{u, v} \ \alpha \circ \mathsf{GLift.up}_{u, v} \ \alpha = \lambda (x : \alpha). x$$
+  \end{definition}
+
+  \noindent In Lean4, universe lifting facility can be realized by the following inductive type:
+  
+  \begin{lstlisting}[style=leanHH]
+structure GLift.{u, v} (α : Sort u) : Sort (max u (v + 1)) where
+  /-- Lift a value into `GLift α` -/    up ::
+  /-- Extract a value from `GLift α` -/ down : α
+  \end{lstlisting}
+
+  \begin{theorem} Assume the existence of a universe lifting facility in $\lambda C$. Then,
+    for all $\ell \in \mathbb{N}$, there exists two families of $\lambda C$ functions
+    $$\mathsf{Up}_s : s \to \mathsf{UpType} \ s \ \ \ \mathsf{Down}_s : \mathsf{UpType} \ s \to s$$
+    for sorts $s : \mathsf{U}_{\ell'}, \ell' \leq \ell + 1$, satisfying the bijectivity conditions
+    $$\mathsf{Up}_s \circ \mathsf{Down}_s = \lambda (x : \mathsf{UpType} \ s). x \ \ \
+      \mathsf{Down}_s \circ \mathsf{Up}_s = \lambda (x : s). s$$
+    and the congruence condition
+    $$\forall (f : \alpha \to \beta). \ \mathsf{Up}_\beta \ (f \ x) = (\mathsf{Up}_{\alpha \to \beta} \ f) \ (\mathsf{Up}_\alpha \ x)$$
+    where $\mathsf{UpType}$ is recursively defined as follows:
+    $$\begin{aligned}
+    \mathsf{UpType} \ x & := \mathsf{GLift}_{\ell', \ell} \ x, \text{ for } x \in V \\
+    \mathsf{UpType} \ (\alpha \to \beta) & := \mathsf{UpType} \ \alpha \to \mathsf{UpType} \ \beta
+    \end{aligned}$$
+    \begin{proof}
+      Structural induction on $s$
+      \begin{enumerate}
+        \item If $s = x$, where $x \in V$ is a variable, then we can define
+          $$\mathsf{Up}_x := \mathsf{GLift.up}_{\ell', \ell} \ x \ \ \ \mathsf{Down}_x := \mathsf{Glift.down}_{\ell', \ell} \ x$$
+        \item If $s = (\alpha \to \beta)$ and the induction hypothesis holds for $\alpha$ and $\beta$, then we can define
+          $$\begin{aligned}
+          \mathsf{Up}_{\alpha \to \beta} &:= \lambda (f : \alpha \to \beta) \ (x : \mathsf{UpType} \ \alpha). \ \mathsf{Up}_\beta \ (f \ (\mathsf{Down}_\alpha \ x)) \\
+          \mathsf{Down}_{\alpha \to \beta} &:= \lambda (f : \mathsf{UpType} \ \alpha \to \mathsf{UpType} \ \beta) \ (x : \alpha). \ \mathsf{Down}_\beta \ (f \ (\mathsf{Up}_\alpha \ x))
+          \end{aligned}$$
+      \end{enumerate}
+    \end{proof}
+  \end{theorem}
+
+  \noindent Note that $\mathsf{Up}_s$ maps anything of type $s$ into the image of $\mathcal{T}_\to$ under
+  the $\ell$-embedding $\rho_\ell$, and it satisfies the congruence condition. Therefore, $\mathsf{Up}$
+  is a translation of the canonical embedding of $\text{HOL}^*$ into the $\ell$-embedding of HOL. The rationale of
+  $\mathsf{UpType} \ (\alpha \to \beta) := \mathsf{UpType} \ \alpha \to \mathsf{UpType} \ \beta$
+  is that, given $f \ x$ in the canonical embedding of $\text{HOL}^*$ into $\lambda C$, where $f : \alpha \to \beta$ and
+  $x : \alpha$, we would like $(\mathsf{Up}_{\alpha \to \beta} \ f) \ (\mathsf{Up}_\alpha \ x)$ to be type correct.

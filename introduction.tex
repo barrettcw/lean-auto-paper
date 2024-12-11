@@ -3,10 +3,11 @@
   Interactive Theorem Provers (ITPs) \cite{Harrison2014HistoryOI}
   are widely used in formal mathematics and software/hardware verification. Hammers
   \cite{Blanchette2016HammeringTQ,Czajka2018HammerFC} are proof automation tools for
-  ITPs which utilize Automated Theorem Provers (ATPs, including SMT solvers).
+  ITPs which utilize Automated Theorem Provers (ATPs, including Satisfiability Modulo Theories (SMT) solvers).
   When using ITPs, a significant amount of straightforward but tedious proof tasks
   tasks arise from the proof development process, which requires huge amounts of human
-  effort to complete. Hammers have proved useful in solving these proof tasks automatically \cite{Paulson2012ThreeYO}.
+  effort to complete using the limited builtin automation of ITPs. Hammers have proved useful
+  because they can solve many of these proof tasks automatically \cite{Paulson2012ThreeYO}.
   
   A hammer has three main components: premise selection, translation from ITP to
   ATP, and proof reconstruction from ATP to ITP. Premise selection collects
@@ -49,8 +50,9 @@
   two stages: preprocessing % TODO: (Sect. \ref{sectprep})
   and monomorphization.
   Monomorphization itself has three stages: quantifier instantiation (Sect. \ref{sectinst}),
-  $\lambda_\to^*$ abstraction (Sect. \ref{sectabst}) and universe lifting. Preprocessing translates Lean4
-  into dependent type theory\footnote{As mentioned before, Lean4 is different from
+  $\lambda_\to^*$ abstraction (Sect. \ref{sectabst}) and universe lifting (Appendix \ref{appulift}).
+  Preprocessing translates Lean4 into dependent type
+  theory\footnote{As mentioned before, Lean4 is different from
   dependent type theory because it also has various language features},
   and monomorphization translates dependent type theory into HOL.
   The monomorphization procedure is inspired by Isabelle Sledgehammer.

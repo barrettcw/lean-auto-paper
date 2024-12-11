@@ -145,7 +145,7 @@ are instantiated. Consider the example shown in Figure \ref{dfun}. The return
 type \texttt{$\beta$ a} depends on the last argument \texttt{a : $\alpha$} in the signature of
 \texttt{DFunLike.coe}. However, when $\beta$ is instantiated with \texttt{fun x => B$_0$}, as in the
 expression at the bottom of Figure \ref{dfun}, the return type \texttt{$\beta$ a} reduces to \texttt{B$_0$},
-which no longer depends on the last argument. Lean-auto takes preceding arguments into
+which no longer depends on the last argument. Our monomorphization procedure takes preceding arguments into
 consideration when determining whether an argument is dependent, and is able to detect
 that the last argument is non-dependent in the above case.
 
@@ -164,7 +164,7 @@ $$\begin{aligned}
 where $f : \alpha$. Then, \texttt{@reverse = @reverse} is the image of the $\text{HOL}^*$ formula $\varphi$
 under $\sigma$. Intuitively, the dependent arguments of \texttt{reverse} can be ``absorbed''
 into the higher variable $\alpha$ because both dependent arguments of \texttt{reverse} are unapplied.
-Lean-auto is able to detect such context-dependent $\text{HOL}^*$ instances.
+Our monomorphization procedure is able to detect such context-dependent $\text{HOL}^*$ instances.
 
 \noindent \textbf{Definitional Equality}
 
@@ -194,7 +194,7 @@ be abstracted to the same $\text{HOL}^*$ type variable during $\lambda_\to^*$ ab
 Here, we choose to reduce all $\text{HOL}^*$ type instances to their normal forms, because they
 are usually very simple expressions.
 
-\noindent \textbf{Typeclass Instances must be Absorbed}
+\noindent \textbf{Typeclass Instance Arguments must be Absorbed}
 
   In Lean4, many function's instance argument(s) are not dependent arguments,
 for example the fourth argument of \texttt{HAdd.hAdd} mentioned in Sect. \ref{sectlean}.
