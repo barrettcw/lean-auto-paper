@@ -1,6 +1,6 @@
 \section{Encoding-based translation and Monomorphization}\label{subencmon}
 
-  As mentioned in the introduction, encoding-based translation and monomorphization
+  Encoding-based translation and monomorphization
   are two approaches of translating from more expressive logical systems to
   less expressive logical systems.
 
@@ -11,11 +11,11 @@
   we have the type judgement relation $\Gamma \vdash x : w$, which means ``$x$ is of
   type $w$ under context $\Gamma$''. There is no direct equivalent of this
   typing relation in untyped FOL. To express the Coq type judgement in untyped FOL, 
-  CoqHammer first introduces the uninterpreted FOL predicate $T(u^*, a^*)$ for
-  first-order terms $u^*$ and $a^*$ translated from Coq term $u$ and atomic Coq type $a$
+  CoqHammer first introduces the uninterpreted FOL predicate $T(u^*, a^*)$, where
+  $u^*$ and $a^*$ are FOL terms translated from Coq term $u$ and \textit{atomic} Coq type $a$
   (here \textit{atomic} roughly means that $a$ cannot be
   further decomposed by the translation procedure of CoqHammer). Then, a recursive function
-  $\mathcal{G}_\Gamma(u, w)$ on Coq context $\Gamma$ and Coq terms $u, w$ is defined.
+  $\mathcal{G}_\Gamma(u, w)$ is defined on Coq context $\Gamma$ and Coq terms $u, w$.
   The function $\mathcal{G}_\Gamma(u, w)$ translates the typing relation $\Gamma \vdash u : w$ into an untyped FOL formula,
   in which the $T$ predicate is used to express type judgements involving atomic types.
   
@@ -25,8 +25,8 @@
   which sacrifices soundness \cite{Czajka2018HammerFC}. Moreover, even with this tradeoff,
   the translation result is usually much larger than the original term.
 
-  The idea of monomorphization is that, the proof of many propositions in the more expressive logical
-  system can \textit{essentially} be conducted in the less expressive logical system. For example,
+  The idea of monomorphization is that, the proof of many propositions in the more expressive
+  system can \textit{essentially} be conducted in the less expressive system. For example,
   in polymorphic HOL, given
   \begin{enumerate}
     \item The list map function $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{U}_1). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$
@@ -50,15 +50,16 @@
   Monomorphization is sound, produces small translation results, and preserves
   term structures during translation. However, monomorphization is incomplete,
   since it is not always possible to find an appropriate formula in the less
-  expressive logical system that is equivalent to the original formula
-  in the more expressive logical system.
+  expressive logical system that reflects the original formula in the more expressive logical system.
 
   %TODO: A more concrete example
 
-  As mentioned in Sect. \ref{sectlean}, an user-facing Lean syntax as simple as $x + y$ corresponds to
+  The difference in the size of translation results of encoding-based translation
+  and monomorphization is particularly pronounced in the context of Lean4. As mentioned in Sect. \ref{sectlean},
+  a user-facing Lean4 syntax as simple as $x + y$ corresponds to
   the complicated expression \texttt{HAdd.hAdd $\alpha \ \beta \ \gamma$ inst x y}, where \texttt{inst}
-  is a potentially large expression synthesized by typeclass inference. Therefore,
-  encoding-based translation may produce overly large results on common Lean expressions.
+  itself is a potentially large expression synthesized by typeclass inference. The result
+  of encoding-based translation on the above expression is larger than the expression itself.
   On the other hand, our monomorphization procedure will translate the above expression
-  into $h \ x^* \ y^*$, where \texttt{HAdd.hAdd $\alpha \ \beta \ \gamma$ inst}
-  is ``absorbed'' into $h$ through the inter-logical-system ``substitution''.
+  into a much smaller one: $h \ x^* \ y^*$, where \texttt{HAdd.hAdd $\alpha \ \beta \ \gamma$ inst}
+  is ``absorbed'' into $h$ via the inter-logical-system ``substitution''.

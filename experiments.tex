@@ -8,6 +8,7 @@
       This is because Duper's core algorithm, which is based on the algorithm used
       in the higher-order prover Zipperposition \cite{ZipperpositionMakeWork}, has limited support for dependent
       type theory, and has difficulty handling Lean4 features like typeclasses.
+      %TODO: Rewrite the above paragraph; Test raw duper in experiments
     \item TPTP solvers. We chose Zipperposition because it supports HOL.
     \item SMT solvers. For this category, we chose Z3 and CVC5. Since SMT solvers
       still don't fully support HOL, we implemented a simple procedure
@@ -45,13 +46,13 @@
   \caption{Evaluation result} \label{figevalresult}
   \end{figure}
 
-  The result of evaluation is shown in Fig. \ref{figevalresult}. \texttt{UNSAT} means
-  that ATP successfully solved the translated problem, \texttt{SAT} means that
+  The result of our evaluation is shown in Fig. \ref{figevalresult}. \texttt{UNSAT} means
+  that ATP successfully proved the translated problem, \texttt{SAT} means that
   the translated problem is not provable, and \texttt{UNKNOWN} means that the prover
   either returned unknown or timed out. Out of all the ATPs, zipperposition solved the
   most problems, with a success rate of 14.8\%, while Duper returned the least \texttt{UNKNOWN}.
   
   According to the result, when combined with ATPs, Lean-auto is already able to
-  solve a small percentage of Mathlib4 problems. We expect that a much higher percentage
+  prove a small percentage of Mathlib4 theorems. We expect that a much higher percentage
   of theorems in Mathlib4 can be partially automated by Lean-auto, because solving
   subgoals in the proof is much easier than proving the entire theorem automatically.

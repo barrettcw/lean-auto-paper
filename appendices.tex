@@ -141,7 +141,7 @@
   \end{theorem}
 
   \noindent The universe lifting procedure in Lean-auto is the translation of $\text{HOL}^*$
-  to HOL in the context of $\lambda C$. In a sense, it is the translation of \textit{the}
+  to HOL in the context of $\lambda C$. In other words, it is the translation of \textit{the}
   embedding of HOL in $\lambda C$ into \textit{an} embedding of $\text{HOL}^*$ in $\lambda C$.
 
   \begin{definition}
@@ -201,5 +201,5 @@ structure GLift.{u, v} (α : Sort u) : Sort (max u (v + 1)) where
   the $\ell$-embedding $\rho_\ell$, and it satisfies the congruence condition. Therefore, $\mathsf{Up}$
   is a translation of the canonical embedding of $\text{HOL}^*$ into the $\ell$-embedding of HOL. The rationale of
   $\mathsf{UpType} \ (\alpha \to \beta) := \mathsf{UpType} \ \alpha \to \mathsf{UpType} \ \beta$
-  is that, given $f \ x$ in the canonical embedding of $\text{HOL}^*$ into $\lambda C$, where $f : \alpha \to \beta$ and
+  is that, given $f \ x$ in the canonical embedding of $\text{HOL}^*$, where $f : \alpha \to \beta$ and
   $x : \alpha$, we would like $(\mathsf{Up}_{\alpha \to \beta} \ f) \ (\mathsf{Up}_\alpha \ x)$ to be type correct.

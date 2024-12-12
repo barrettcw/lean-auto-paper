@@ -4,8 +4,8 @@ This section gives a formal presentation of the $\lambda_\to^*$ abstraction tech
 In Sect. \ref{fmehop}, we define the notion of \textit{essentially higher-order problem}.
 Intuitively, a $\lambda C$ problem $p$ is essentially higher-order iff there exists
 a provable $\text{HOL}^*$ problem $\varphi$ and a ``substitution'' $\sigma$ such that $p$ is the
-image of $\varphi$ under $\sigma$. In Sect. \ref{labstalgo}, we first define the notion of
-\textit{quasi-monomorphic problems}, which is followed by the $\lambda_\to^*$ abstraction algorithm.
+image of $\varphi$ under $\sigma$. In Sect. \ref{labstalgo}, we present the
+$\lambda_\to^*$ abstraction algorithm.
 
 \subsection{Essentially higher-order problem}\label{fmehop}
 
@@ -91,23 +91,10 @@ image of $\varphi$ under $\sigma$. In Sect. \ref{labstalgo}, we first define the
   is provable.
 \end{proof}
 
-\begin{theorem} An $\text{HOL}^*$ problem is provable iff it is HOL provable after forgetting
-  universe levels, assuming the existence of lifting functions in $\lambda C$.
-\end{theorem}
-\begin{proof}
-  % TODO: Put this after the definition of provability
-  %       Maybe a direct induction would be more elegant?
-  If a $\lambda_\to^*$ problem is provable, obviously it is $\lambda_\to$ provable
-  after forgetting the universe levels. If a $\lambda_\to^*$ problem is $\lambda_\to$ provable
-  after forgetting the universe levels, note that the lifting of a $\lambda_\to^*$ problem is sort of
-  an instance of the problem after forgetting universe levels, hence provable. Moreover,
-  a $\lambda_\to^*$ problem is provable iff its lifting is provable.  
-\end{proof}
-
-We assume that excluded middle, i.e. $\mathsf{em} : \forall (p : \mathsf{U}_0), p \lor \neg p$,
-is implicitly contained in the hypotheses of all $\lambda C$ problems. Similarly,
-$\mathsf{em}' : \forall (p : \mathsf{Bool}). p \lor \neg p$
-is assumed to be implicitly contained in the hypotheses of all $\text{HOL}^*$ problems.
+We assume that excluded middle is implicitly contained in the hypotheses of all
+$\text{HOL}^*$ and $\lambda C$ problems. In $\lambda C$, excluded middle is
+$\mathsf{em} : \forall (p : \mathsf{U}_0), p \lor \neg p$; in $\text{HOL}^*$, it is
+$\mathsf{em}' : \forall (p : \mathsf{Bool}). p \lor' \neg' p$.
 
 \begin{example} Consider the $\lambda C$ problem $\Gamma \vdash? p$ where
 \begin{align*}
@@ -151,11 +138,10 @@ is EHOP. However, if we introduce $p \ x$ into the hypotheses, the problem is no
 
 \subsection{$\lambda_\to^*$ abstraction algorithm}\label{labstalgo}
 
-In this subsection, we will present the $\lambda_\to^*$ abstraction algorithm of Lean-auto. When given a
+In this subsection, we present the $\lambda_\to^*$ abstraction algorithm of Lean-auto. When given a
 $\lambda C$ problem $\Gamma \vdash? p$, the algorithm attempts to find a $\lambda_\to^*$
 problem $\Gamma' \vdash? p'$ and a substitution $(\pi^*(\Gamma'), \Gamma, \sigma)$ such that
-$p \cong \overline{\sigma}(\pi^*(p'))$, and that $p'$ retains as much information of $p$ as
-possible.
+$p \cong \overline{\sigma}(\pi^*(p'))$, and that $p'$ retains as much information in $p$ as possible.
 
 First, we give a formal definition of \textit{dependent arguments}.
 
@@ -215,51 +201,51 @@ First, we give a formal definition of \textit{dependent arguments}.
   \mathsf{LArgs}(\Gamma; \mathsf{func}, (\lambda \beta. A, B)) = B$$
 \end{example}
 
-Now, we define the concept of quasi-monomorphic terms, the set of $\lambda C$ terms
-  that Lean-auto can successfully abstract to $\lambda_\to^*$. Intuitively, quasi-monomorphic
-  terms are $\lambda C$ terms that are structurally similar to HOL terms.
+  Now, we define the concept of quasi-monomorphic terms, the set of $\lambda C$ terms
+  that Lean-auto can successfully translate to $\text{HOL}^*$. Intuitively, quasi-monomorphic
+  terms are $\lambda C$ terms that are structurally similar to $\text{HOL}^*$ terms.
 
-\begin{definition} We define the predicate $\mathsf{QMono}(\Gamma; V, t)$ inductively,
-  where $\Gamma$ is a $\lambda C$ context, $V$ is a set of variables, and $t$ is a $\lambda C$ term
+\begin{definition} We define the predicate $\mathsf{QMono}(\Gamma; B, t)$ inductively,
+  where $\Gamma$ is a $\lambda C$ context, $B$ is a set of variables, and $t$ is a $\lambda C$ term
   \begin{enumerate}
-    \item For variable $x \in V$ and terms $t_1, \dots, t_n$,
+    \item For variable $x \in B$ and terms $t_1, \dots, t_n$,
       \begin{align*}
-        \mathsf{QMono}(\Gamma; V, x \ t_1 \dots \ t_n) := \ &
+        \mathsf{QMono}(\Gamma; B, x \ t_1 \dots \ t_n) := \ &
         \mathsf{DArgs}(\Gamma; x, (t_1 \ \dots \ t_n)) = \emptyset \land \\
-        & \forall i \in \{1, \dots, n\}. \mathsf{QMono}(\Gamma; V, t_i)
+        & \forall i \in \{1, \dots, n\}. \mathsf{QMono}(\Gamma; B, t_i)
       \end{align*}
-    \item For variable $x \notin V$ and terms $t_1, \dots, t_n$,
+    \item For variable $x \notin B$ and terms $t_1, \dots, t_n$,
       \begin{align*}
-        \mathsf{QMono}(\Gamma; V, x \ t_1 \dots \ t_n) := \ & (\forall t \in \mathsf{DArgs}(\Gamma; x, (t_1, \dots, t_n)). FV(t) \cap V = \emptyset) \land \\
-        & (\forall t \in \mathsf{LArgs}(\Gamma; x, (t_1, \dots, t_n)). \mathsf{QMono}(\Gamma; V, t))
+        \mathsf{QMono}(\Gamma; B, x \ t_1 \dots \ t_n) := \ & (\forall t \in \mathsf{DArgs}(\Gamma; x, (t_1, \dots, t_n)). FV(t) \cap B = \emptyset) \land \\
+        & (\forall t \in \mathsf{LArgs}(\Gamma; x, (t_1, \dots, t_n)). \mathsf{QMono}(\Gamma; B, t))
       \end{align*}
     \item For variable $x$ and terms $s, t$
       \begin{align*}
-        \mathsf{QMono}(\Gamma; V, \lambda (x : s). t) := \
-        & FV(s) \cap V = \emptyset \land (\Gamma \not\vdash s : \mathsf{U}_0) \\
-        & \land \mathsf{QMono}(\Gamma, x : s; V \cup \{x\}, t)
+        \mathsf{QMono}(\Gamma; B, \lambda (x : s). t) := \
+        & FV(s) \cap B = \emptyset \land (\Gamma \not\vdash s : \mathsf{U}_0) \\
+        & \land \mathsf{QMono}(\Gamma, x : s; B \cup \{x\}, t)
       \end{align*}
     \item For variable $x$ and terms $s, t$ such that $x \in FV(t)$,
       \begin{align*}
-        \mathsf{QMono}(\Gamma; V, \forall (x : s). t) := \
-        & \neg FV(s) \cap V = \emptyset \land (\Gamma \not \vdash s : \mathsf{U}_0) \land  (\Gamma \vdash t : \mathsf{U}_0) \land \\
-        & \mathsf{QMono}(\Gamma, x : s; V \cup \{x\}, t)
+        \mathsf{QMono}(\Gamma; B, \forall (x : s). t) := \
+        & \neg FV(s) \cap B = \emptyset \land (\Gamma \not \vdash s : \mathsf{U}_0) \land  (\Gamma \vdash t : \mathsf{U}_0) \land \\
+        & \mathsf{QMono}(\Gamma, x : s; B \cup \{x\}, t)
       \end{align*}
     \item For terms $s, t$,
       \begin{align*}
-        \mathsf{QMono}(\Gamma; V, s \to t) := \ & (\Gamma \vdash s : \mathsf{U}_0) \land (\Gamma \vdash t : \mathsf{U}_0) \land \\
-        & \mathsf{QMono}(\Gamma; V, s) \land \mathsf{QMono}(\Gamma; V, t)
+        \mathsf{QMono}(\Gamma; B, s \to t) := \ & (\Gamma \vdash s : \mathsf{U}_0) \land (\Gamma \vdash t : \mathsf{U}_0) \land \\
+        & \mathsf{QMono}(\Gamma; B, s) \land \mathsf{QMono}(\Gamma; B, t)
       \end{align*}
   \end{enumerate}
 \end{definition}
 
-According to the definition of $\mathsf{QMono}$, terms coming from canonical embedding of $\lambda_\to^*$
+According to the definition of $\mathsf{QMono}$, terms coming from canonical embedding of $\text{HOL}^*$
 terms are automatically quasi-monomorphic, e.g.
 $$\mathsf{QMono}(\alpha : \mathsf{U}_1, p : (\alpha \to \alpha) \to \mathsf{U}_0; \emptyset, \forall (p : \alpha \to \alpha). f \ p)$$
 Proofs are not allowed to be quantified by $\lambda$ or dependent $\forall$ binders:
 $$\neg \mathsf{QMono}(p : \mathsf{U}_0, q : p \to \mathsf{U}_0; \emptyset, \forall (x : p). q \ x)$$
 Occurrence of a dependently typed free variable does not break the quasi-monomorphic property iff
-its dependent arguments do not contain bound variables (assuming $V = \emptyset$):
+its dependent arguments do not contain bound variables (assuming $B = \emptyset$):
 \begin{align*}
   \mathsf{QMono}(
   & \mathbb{N} : \mathsf{U}_1, \mathsf{Fin} : \mathbb{N} \to \mathsf{U}_1,
@@ -270,7 +256,7 @@ Occurrence of a dependently typed bound variable does not break the quasi-monomo
 its dependent arguments are not instantiated:
 $$\mathsf{QMono}(\emptyset; \emptyset, \lambda (f : (\forall (\alpha : \mathsf{U}_0). \alpha) \to (\forall (\alpha : \mathsf{U}_0). \alpha)) \
   (x : \forall (\alpha : \mathsf{U}_0). \alpha). f \ x)$$
-Except for within type declarations of bound variables, bodies of $\forall$ binders must be propositions:
+Except for within type declarations of bound variables, bodies of $\forall$ abstractions must be propositions:
 $$\neg \mathsf{QMono}(\alpha : \mathsf{U}_1, \beta : \alpha \to \mathsf{U}_1; \emptyset, \forall (x : \alpha). \beta \ x)$$
 
 \begin{algorithm}\label{lamabst}
@@ -290,16 +276,16 @@ $$\neg \mathsf{QMono}(\alpha : \mathsf{U}_1, \beta : \alpha \to \mathsf{U}_1; \e
     \Return $\vnewname$ 
   }
   \;
-  \Fn{\lamAbstraction{$\Gamma; V, t$}}{
-    \Input{$\lambda C$ context $\Gamma$, variable set $V$,
-      and $\lambda C$ term $t$ satisfying $\mathsf{QMono}(\Gamma; V, t)$}
+  \Fn{\lamAbstraction{$\Gamma; B, t$}}{
+    \Input{$\lambda C$ context $\Gamma$, variable set $B$,
+      and $\lambda C$ term $t$ satisfying $\mathsf{QMono}(\Gamma; B, t)$}
     \Output{a $\lambda_\to^*$ term}
     \Switch(\textbf{with}){t}{
       \Case(\tcc*[h]{Function application}){$a \ b$}{
         $f := \mathsf{getAppFn}(t)$ \;
         $\vargs := \mathsf{getAppArgs}(t)$ \;
-        \uIf{$f \in V$}{
-          \For{$a : \vargs$}{$a := \mathsf{lamAbst}(\Gamma; V, a)$}
+        \uIf{$f \in B$}{
+          \For{$a : \vargs$}{$a := \mathsf{lamAbst}(\Gamma; B, a)$}
           \Return $\mathsf{mkAppN}(f, \vargs)$
         }
         $\vlf := \mathsf{LFun}(\Gamma; f, \vargs)$ \;
@@ -309,15 +295,15 @@ $$\neg \mathsf{QMono}(\alpha : \mathsf{U}_1, \beta : \alpha \to \mathsf{U}_1; \e
       }
       \Case{$\forall (v : a). b$}{
         $\vatype := \mathsf{inferType}(\Gamma; a)$ \;
-        $\vbabst := \mathsf{lamAbst}(\Gamma, v : a; V \cup \{v\}, b)$ \;
+        $\vbabst := \mathsf{lamAbst}(\Gamma, v : a; B \cup \{v\}, b)$ \;
         \uIf{$\vatype = \mathsf{U}_0$}{
-          $\vaabst := \mathsf{lamAbst}(\Gamma; V, a)$ \;
+          $\vaabst := \mathsf{lamAbst}(\Gamma; B, a)$ \;
           \Return $\vaabst \to \vbabst$
         }
         \Return $\forall (v : a). \vbabst$
       }
       \Case{$\lambda (v : a). b$}{
-        $\vbabst := \mathsf{lamAbst}(\Gamma, v : a; V \cup \{v\}, b)$ \;
+        $\vbabst := \mathsf{lamAbst}(\Gamma, v : a; B \cup \{v\}, b)$ \;
         \Return $\lambda (v : a). \vbabst$
       }
       \Other{\Return $\mathsf{getLVarName}(t)$}
@@ -326,21 +312,22 @@ $$\neg \mathsf{QMono}(\alpha : \mathsf{U}_1, \beta : \alpha \to \mathsf{U}_1; \e
 \end{algorithm}
 
 Now, we describe the $\lambda_\to^*$ abstraction procedure $\mathsf{lamAbst}$ of Lean-auto. The algorithm
-is shown in \textbf{Algorithm \ref{lamabst}}. A global hash map $H$ is used to record the $\lambda_\to^*$
-free variables associated with abstracted $\lambda C$ terms. A few auxiliary functions are used in the algorithm:
+is shown in \textbf{Algorithm \ref{lamabst}}. A global hash map $H$ is used to record the $\text{HOL}^*$
+variables associated with abstracted $\lambda C$ terms. A few auxiliary functions are used in the algorithm:
 \begin{enumerate}
-  \item For a term $t$, if $t$ is in $H$, then the $\mathsf{getLVarName}(t)$ returns
-    the $\lambda_\to^*$ free variable corresponding to $t$, otherwise it creates a new $\lambda_\to^*$ free variable for $t$.
+  \item For a term $t$, if $t$ is in $H$, then $\mathsf{getLVarName}(t)$ returns
+    the $\text{HOL}^*$ free variable corresponding to $t$, otherwise it creates a new $\text{HOL}^*$ free variable for $t$.
   \item For a term $t = w \ t_1 \ \dots \ t_n$ where $w$ is not an application,
     $\mathsf{getAppFn}(t) = w, \mathsf{getAppArgs}(t) = (t_1, \dots, t_n)$.
   \item For terms $w, t_1, \dots, t_n$, $\mathsf{mkAppN}(w, (t_1, \dots, t_n)) = w \ t_1 \ \dots \ t_n$.
   \item For a context $\Gamma$ and a term $t$, $\mathsf{inferType}(\Gamma, t)$ computes the
     $\beta$-normal form of the type of $t$ under $\Gamma$
 \end{enumerate}
-Note that $\mathsf{lamAbst}$ only returns the $\text{HOL}^*$ problem (as a $\lambda_\to^*$ term). The
-substitution from $\lambda_\to^*$ to $\lambda C$ needs to be obtained by computing the inverse of $H$ after
+Note that $\mathsf{lamAbst}$ only returns the $\text{HOL}^*$ problem (as a $\text{HOL}^*$ term). The
+``substitution'' from $\text{HOL}^*$ to $\lambda C$ needs to be obtained by computing the inverse of $H$ after
 the execution of the algorithm. Also, note that the implementation of this algorithm in Lean-auto checks
-whether $t$ is quasi-monomorphic and fails if it's not. For simplicity, these checks have been omitted in $\mathsf{lamAbst}$.
+whether $t$ breaks the requirements of quasi-monomorphic-ness and fails if it
+does. For simplicity, these checks have been omitted in $\mathsf{lamAbst}$.
 
 % TODO: Use a better algorithm to deal with cases like identifying that
 % the dependent arguments of $\mathsf{func}$ w.r.t $(B, \lambda \beta. A)$ is $2$ instead of $1,2$ under context

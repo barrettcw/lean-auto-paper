@@ -12,10 +12,10 @@
   $$\mathcal{T}_C ::= V \ | \ \mathsf{U}_\ell \ | \ \mathcal{T}_C \ \mathcal{T}_C \ |
     \ \lambda (V : \mathcal{T}_C). \mathcal{T}_C \ | \ \forall (V : \mathcal{T}_C). \mathcal{T}_C$$
   where $V$ is the set of variables, $\mathsf{U}_\ell (\ell \in \mathbb{N})$ are
-  the sorts (i.e. types of type) and $\ell$ is called the universe level
-  of $\mathsf{U}_\ell$, $\mathcal{T}_C \ \mathcal{T}_C$ is function application,
+  the sorts (i.e. types of type), $\mathcal{T}_C \ \mathcal{T}_C$ is function application,
   $\lambda (V : \mathcal{T}_C). \mathcal{T}_C$ is $\lambda$ abstraction, and
   $\forall (V : \mathcal{T}_C). \mathcal{T}_C$ is product type.
+  $\ell$ is called the universe level of $\mathsf{U}_\ell$.
   We use $\forall$ instead of $\mathrm{\Pi}$ to align with the syntax of Lean, Coq and Agda.
   Syntactical equality of terms will be denoted as $=$, and the $\beta\eta$-equivalence of terms will be
   denoted as $\cong$.
@@ -26,10 +26,11 @@
   binder type can be further merged into the same parenthesis; when the product type is non-dependent,
   $\to$ can be used instead of $\forall$. Importantly, $\to$ binds stronger than $\forall$, i.e.,
   $\forall (x : \alpha). \beta \to \gamma$ is interpreted as $\forall (x : \alpha). (\beta \to \gamma)$
-  instead of $(\forall (x : \alpha). \beta) \to \gamma$, the latter being the convention commonly used
-  when presenting FOL and HOL. The abbreviations $\bot, \neg, \land, \lor, \leftrightarrow, =_\ell, \exists_\ell$
+  instead of $(\forall (x : \alpha). \beta) \to \gamma$, the latter being the convention in
+  FOL and HOL. The abbreviations $\bot, \neg, \land, \lor, \leftrightarrow, =_\ell, \exists_\ell$
   are defined in the usual way, see Appendix \ref{applsc}.
 
+  A context $\Gamma$ is a list of variable declarations $x_1 : \alpha_1, \dots, x_n : \alpha_n$.
   Type judgements will be written as $\Gamma \vdash t : \alpha$, which stands for ``$\lambda C$ term $t$
   has type $\alpha$ under context $\Gamma$''. Derivation rules for type judgements of
   $\lambda C$ will be given in Sect. \ref{sectpts}. If $\Gamma \vdash t : \alpha$, then $t$ is
@@ -43,10 +44,10 @@
 
   For a function $f : \forall (x_1 : \alpha_1) \ \dots \ (x_n : \alpha_n). \beta$ (here $\beta$ may begin with $\forall$),
   the $n$-th argument of $f$ is called a \textit{static dependent argument} iff $x_n$ occurs in $\beta$.
-  In many cases, dependent arguments are also type arguments, for example the first and second argument
+  In many cases, static dependent arguments are also type arguments, for example the first and second argument
   of $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{U}_1). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$.
-  We also use the terminology \textit{dependent argument}, which will be formally defined in
-  Sect. \ref{labstalgo}. In practical scenarios, ``Dependent argument'' and ``static dependent argument'' usually
+  Another concept called \textit{dependent argument} will be formally defined in
+  Sect. \ref{labstalgo}. In practical scenarios, ``dependent argument'' and ``static dependent argument'' usually
   have the same meaning. Their intricate difference will be explained in Sect. \ref{exqdet}.
 
   We use $\lambda C$ notation for all logical systems that can be embedded in $\lambda C$.
@@ -55,8 +56,8 @@
 
 \subsection{Logical Systems of ITPs and ATPs}\label{sublogsys}
 
-  In this section, we give overviews of the various logical systems
-  that are relevant to our paper. In the following list, the logical systems
+  In this section, we give an overview of the various logical systems
+  that are relevant to our work. In the following list, the logical systems
   are ordered from the least expressive to the most expressive. Note that, except
   for $\lambda C$ and more expressive systems, all other logical systems have
   two components: term calculus (which specifies the construction and computation
@@ -66,12 +67,13 @@
     \item Many-sorted FOL
     \item Many-sorted HOL (monomorphic HOL, or just HOL), where functions are allowed
       to take function as arguments, and quantifiers can quantify over functions.
+      Its term calculus is simply typed lambda calculus $\lambda_\to$ \cite{LambdaWithType}.
     \item Many-sorted HOL with a countable number of universe levels, denoted as $\text{HOL}^*$,
       which will be discussed in Sect \ref{sectpts}. This is an
       intermediate logical system used in Lean-auto's monomorphization. In Appendix \ref{appulift}, we
       will show that $\text{HOL}^*$ is essentially equivalent to HOL.
-    \item HOL with rank-1 polymorphism, or polymorphic HOL, whose term calculus is identical
-      to $\lambda 2$ in the $\lambda$-cube \cite{LambdaWithType}. In polymorphic HOL, function are
+    \item HOL with rank-1 polymorphism, or polymorphic HOL. Its term calculus is
+      $\lambda 2$ in the $\lambda$-cube \cite{LambdaWithType}. In polymorphic HOL, function are
       allowed to take type arguments, and quantifiers can quantify over types. However, type
       constructors, or types dependent on types, are not allowed.
     \item Isabelle: Based on polymorphic HOL. Supports (co)inductive datatypes and recursive functions.
@@ -94,21 +96,22 @@
 \subsection{Pure Type Systems $\lambda C, \lambda_\to, \lambda_\to^*$ and Related Logical Systems}\label{sectpts}
 
   Pure type system (PTS) \cite{LambdaWithType} is a mechanism which enables concise specification
-  for a certain class of type systems. We use PTS to formally specify the underlying type systems
+  of`' a certain class of type systems. We use PTS to formally specify the underlying type systems
   of the logical systems used in Lean-auto's translation.
 
   The specification of a PTS consists of a triple $(\mathcal{S}, \mathcal{A}, \mathcal{R})$,
   where $\mathcal{S}$ is the set of \textit{sorts}, $\mathcal{A} \subseteq \mathcal{S} \times \mathcal{S}$ is
   the set of \textit{axioms}, and $\mathcal{R} \subseteq \mathcal{S} \times \mathcal{S} \times \mathcal{S}$
   is the set of \textit{rules}. An axiom $(s_1, s_2) \in \mathcal{A}$ is intended to represent
-  the typing relation $s_1 : s_2$. The term syntax of a PTS is defined as
+  the typing axiom $s_1 : s_2$. The syntax of PTS terms is given by
   $$\mathcal{T} ::= V \ | \ \mathcal{S} \ | \ \mathcal{T} \ \mathcal{T} \ |
     \ \lambda (V : \mathcal{T}). \mathcal{T} \ | \ \forall (V : \mathcal{T}). \mathcal{T}$$
-  \noindent The derivation rules of PTS are given in Appendix \ref{apppts}.
+  
+  The derivation rules of PTS are given in Appendix \ref{apppts}.
 
   Three type systems, $\lambda C$, $\lambda_\to$ and $\lambda_\to^*$, will be formulated
   using PTS. As mentioned in Sect. \ref{sublogsys}, $\lambda_\to$
-  is the term calculus of monomorphic HOL, and $\lambda_\to^*$ is the term
+  is the term calculus of HOL, and $\lambda_\to^*$ is the term
   calculus of $\text{HOL}^*$. Note that $\mathsf{U}_0$ is not present in $\lambda_\to$ and $\lambda_\to^*$
   because it is a special sort for propositions in $\lambda C$.
   Propositions in $\text{HOL}$ and $\text{HOL}^*$ will be represented by
@@ -117,7 +120,7 @@
   $\lambda_\to^*$ and $\lambda_\to$ are similar, except that $\lambda_\to^*$ allows a
   countable number of universe levels $\ell \in \mathbb{N}^*$. For example,
   for the type $(\alpha \to \beta) \to \gamma$, if in $\lambda_\to$,
-  then $\alpha \ \beta \ \gamma$ must be of type $\mathsf{U}_1$; if in
+  then $\alpha, \beta, \gamma$ must be of type $\mathsf{U}_1$; if in
   $\lambda_\to^*$, then it's possible that $\alpha : \mathsf{U}_{\ell_1},
   \beta : \mathsf{U}_{\ell_2}, \gamma : \mathsf{U}_{\ell_3}$ where $\ell_1, \ell_2, \ell_3$
   may be different. A technicality related to PTS requires the presence of
@@ -142,8 +145,8 @@
   Liquid Tensor Experiment \cite{LiquidTensor}, which successfully
   formalized cutting-edge results in mathematics. 
 
-  We will follow Lean4 conventions when presenting Lean4 examples. Sorts $\mathsf{U}_\ell$
-  can be represented as \texttt{Sort $\ell$}, or \texttt{Type $\ell'$} if $\ell = \ell' + 1$.
+  We will follow Lean4 conventions when presenting Lean4 examples. \texttt{Sort $\ell$}
+  represents $\mathsf{U}_\ell$, and \texttt{Type $\ell$} represents $\mathsf{U}_{\ell + 1}$.
   \texttt{Sort $1$} (or \texttt{Type $0$}) can be abbreviated as \texttt{Type},
   and \texttt{Sort $0$} can be abbreviated as \texttt{Prop}.
   Functions and constants can have universe level parameters, but for simplicity,
@@ -168,24 +171,24 @@
 
   \noindent An inhabitant of \texttt{HAdd $\alpha \ \beta \ \gamma$}, called a
   typeclass instance, is a wrapper of a ``heterogeneous'' addition operator (with $\alpha$ and $\beta$ as its input types and
-  $\beta$ as its output type). The square bracket in the type of \texttt{HAdd.hAdd}
+  $\gamma$ as its output type). The square bracket in the type of \texttt{HAdd.hAdd}
   indicates that the enclosed argument is an instance argument, which is a special type
   of implicit argument intended to be filled by Lean4's typeclass inference algorithm.
   Given the syntax \texttt{x + y} where \texttt{x : $\alpha$} and \texttt{y : $\beta$},
-  the typeclass inference algorithm will attempt to find a type $\gamma$ and a previously
-  defined instance \texttt{inst : HAdd $\alpha \ \beta \ \gamma$}, and elaborate the
+  the typeclass inference algorithm will attempt to find a type $\gamma$ and
+  an instance \texttt{inst : HAdd $\alpha \ \beta \ \gamma$}, and elaborate the
   syntax \texttt{x + y} into the expression \texttt{@HAdd.hAdd $\alpha \ \beta \ \gamma$ inst}.
   In \texttt{@HAdd.hAdd $\alpha \ \beta \ \gamma$ inst}, the \texttt{HAdd.hAdd} function
   unwraps \texttt{inst} and returns the addition operator. This provides a mechanism
-  for overloading the addition operator. The same mechanism is used to represent mathematical
-  structures. For example, a group is just a wrapper for its identity element, multiplication
-  operator, inverse operator, and a proof that these operators follow the group axioms.
+  for overloading operators. The same mechanism is used to represent mathematical
+  structures in Mathlib4.
 
   Lean4 supports definitional equality. Two terms are definitionally equal
   iff they can be converted to each other via Lean4's builtin conversion rules.
   To test definitional equality of two terms $s$ and $t$, we can either reduce $s$ and
-  $t$ to their normal forms and check syntactical equality, or use the optimized definitional
-  equality testing function $\mathsf{Lean.isDefEq}$.
+  $t$ to their normal forms and check syntactical equality, or use the optimized
+  builtin function \texttt{isDefEq}\footnote{Its full Lean4 name is \texttt{Lean.Meta.isDefEq}}
+  which checks definitional equality of a pair of terms.
 
   Other important Lean4 features relevant to Lean-auto include inductive types, pattern matching and definitions.
   These features are handled by Lean-auto's preprocessing stage.

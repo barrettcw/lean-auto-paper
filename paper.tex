@@ -32,11 +32,7 @@
   moredelim=**[is][\color{hypcolor}]{|!}{!|},
 }
 \usepackage{amssymb}
-\newsavebox\vEq
-\newsavebox\vmap
-\newsavebox\vrev
-\newsavebox\vmaprev
-\newsavebox\vrevrev
+
 %\definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red
 \definecolor{keywordcolor}{rgb}{0.0, 0.0, 0.0}   % black
 \definecolor{tacticcolor}{rgb}{0.0, 0.3, 0.8}    % blue
@@ -65,6 +61,13 @@
 \SetKw{Break}{break}
 
 \allowdisplaybreaks
+
+\newcommand{\vEq}{\textcolor{hypcolor}{\ttfamily Eq}\xspace}
+\newcommand{\vmap}{\textcolor{hypcolor}{\ttfamily map}\xspace}
+\newcommand{\vrev}{\textcolor{hypcolor}{\ttfamily reverse}\xspace}
+\newcommand{\vmaprev}{\textcolor{hypcolor}{\ttfamily map\_reverse}\xspace}
+\newcommand{\vrevrev}{\textcolor{hypcolor}{\ttfamily reverse\_reverse}\xspace}
+\newcommand{\vneggoal}{\textcolor{hypcolor}{\ttfamily neg\_goal}\xspace}
 
 \newcommand{\vnewname}{\ensuremath{\mathit{newname}}\xspace}
 \newcommand{\vlf}{\ensuremath{\mathit{lf}}\xspace}

@@ -23,11 +23,11 @@
   on whether inductive type is considered as an extension.}
   \cite{LambdaWithType,Coquand1988}.
   Moreover, features such as typeclasses \cite{TypeClassHaskell}, universe polymorphism \cite{UPolyCoq} and inductive types \cite{CICIndDef}
-  are commonly used as extensions to the base logical system to enhance usability of the ITP.
+  are commonly used as extensions to the base logical system to enhance usability of the ITPs.
   On the other hand, ATPs are usually based on less expressive logical systems such
   as first-order logic (FOL) \cite{CVC5,Vampire,Z3Paper,EProver} and (in recent years)
   higher-order logic (HOL) \cite{HOVampire,ZipperpositionMakeWork,HOEProver}.
-  An overview of the logical systems relevant to our work will be given in Sect. \ref{sublogsys}.
+  An overview of the various logical systems relevant to our work will be given in Sect. \ref{sublogsys}.
 
   The focus of our paper is the Lean to ATP translation procedure in Lean-auto.
   We note that Lean-auto does have a proof reconstruction procedure which fully supports
@@ -40,6 +40,7 @@
   Encoding-based translation is used in CoqHammer \cite{Czajka2018HammerFC}
   to translate Coq into untyped FOL. Monomorphization is used to
   eliminate polymorphism in Isabelle Sledgehammer \cite{Blanchette2016HammeringTQ,MonoPaper,Paulson2012ThreeYO}.
+  % TODO: Our experiments suggest
   We found that encoding-based translation tends to produce large outputs
   on complex problems arising from real ITP use cases, which negatively affects the performance of ATPs.
   Therefore, we decided to use monomorphization in Lean-auto. An overview of these two
@@ -58,5 +59,5 @@
   The monomorphization procedure is inspired by Isabelle Sledgehammer.
   However, since dependent type theory is considerably different from
   Isabelle's HOL, the monomorphization procedure is thoroughly redesigned,
-  and presented in a different way in our paper. New challanges related to
-  Lean4 will be discussed in Sect. \ref{exqdet}.
+  and presented in a different way in our paper. Challanges related to
+  dependent type theory and Lean4 will be discussed in Sect. \ref{exqdet}.
