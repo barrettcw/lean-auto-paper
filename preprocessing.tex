@@ -1,1 +1,56 @@
 \section{Preprocessing}\label{sectprep}
+
+  Preprocessing translates Lean4 into dependent type theory, which involves
+  handling various language features of Lean4. In this section, we list the major steps
+  in Lean-auto's preprocessing.
+
+% TODO: Collecting Inhabitation Facts
+
+\noindent \textbf{Definitional Equality}
+
+  To handle definitional equality in Lean4, Lean-auto performs reduction on the input
+  expressions, using Lean4's builtin \texttt{Meta.transform} and \texttt{Meta.whnf}.
+  This includes $\beta \zeta \eta \iota$ reduction and part of $\delta$
+  reduction\footnote{$\delta$ reduction is constant unfolding, i.e. replacing a constant with its definition}.
+  In Lean4, $\delta$ reduction is controlled by a reducibility setting,
+  and Lean-auto allows users to specify the reducibility setting of preprocessing.
+  For finer-grained control over which constants should be unfolded, Lean-auto allows
+  users to supply an \textit{unfolding instruction} $u[f_1, \dots, f_n]$ and a
+  \textit{definitional equality instruction} $d[g_1, \dots, g_n]$, where $f_i, g_i$
+  are constants.
+
+  For the definitional equality instruction, Lean-auto automatically collects all the definitional
+  equalities associated with $g_1, \dots, g_n$ and combines them with the hypotheses
+  supplied by the user. If the definition of $g_i$ involves pattern matching,
+  there will be multiple definitional equalities associated with $g_i$, and Lean-auto
+  will collect all of them.
+
+  For the unfolding instruction, Lean-auto recursively unfolds $f_1, \dots, f_n$.
+  To ensure termination, Lean-auto performs topological sort on $f_1, \dots, f_n$,
+  where $f_i$ is sorted before $f_j$ if $f_j$ occurs in the definition of $f_i$. If
+  $f_1, \dots, f_n$ cannot be topologically sorted, then there is cyclic dependency
+  between them, and Lean-auto will fail in these cases.
+
+\noindent \textbf{Inductive Types}
+
+  Currently, Lean-auto supports polymorphic, nested and mutual inductive types
+  when SMT solvers are used as the backend ATP. For other ATPs or unsupported
+  inductive types, users can always manually supply the properties related
+  to the inductive types as a workaround.
+
+  The translation procedure for inductive types resembles monomorphization. For a polymorphic inductive type
+  $T : \forall (\alpha_1 : \mathsf{U}_{\ell_1}) \ \dots \ (\alpha_n : \mathsf{U}_{\ell_n}). \mathsf{U}_\ell$,
+  the translation attempts to find all relevant instances $T \ \alpha_1 \ \dots \ \alpha_n$,
+  and translates each instance to a monomorphic inductive type in the SMT solver.
+  For mutual and nested inductive types, the type of their constructors might contain
+  other inductive types not occurring in the input expressions. These inductive
+  types will be recursively collected and monomorphized by the translation procedure.
+
+\noindent \textbf{Quantifier Introduction and Proof by Contradiction}
+
+  To prepare for monomorphization, Lean-auto performs quantifier introduction on the goal and
+  applies proof by contradiction. Suppose the goal is $\forall (x_1 : \alpha_1) \ \dots \ (x_n : \alpha_n). \beta$, 
+  then quantifier introduction will introduce $x_1 : \alpha_1, \dots, x_n : \alpha_n$ to the context and replace
+  the goal with $\beta$. Then, by applying proof by contradiction, the negation of
+  the goal $h : \neg \beta$ is introduced into the context, and the goal is replaced
+  with $\bot$.

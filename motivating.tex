@@ -19,8 +19,6 @@ The Lean4 proof state of the problem we will consider is shown in Figure \ref{le
 The hypotheses are displayed before $\vdash$, while the goal comes after $\vdash$.
 \vmaprev states that \vmap commutes with \vrev, and
 \vrevrev states that \vrev is the inverse function of itself.
-Note that the problem is already in the $\lambda C$ fragment of Lean,
-therefore preprocessing is not required.
 
 \begin{figure}
   \begin{CenteredBox}
@@ -32,8 +30,9 @@ therefore preprocessing is not required.
   \label{leanlistexplicit}
 \end{figure}
 
-As a standard first step, we introduce all the $\forall$ quantifiers
-of the goal into the context, and apply proof by contradiction. The resulting proof state
+Since the problem is already in the $\lambda C$ fragment of Lean, the only
+preprocessing step involved here is introducing all the $\forall$ quantifiers
+of the goal into the context, and applying proof by contradiction. The resulting proof state
 is shown in Figure \ref{leanlistexplicit}.
 For clarity, we have displayed the implicit arguments of all the functions.
 
@@ -165,10 +164,8 @@ equality has to be addressed.
 
   First, when a symbol is defined in Lean4, (potentially multiple) \textit{equational theorems} that
 reflect the definitional equalities related to the symbol are automatically generated.
-In the preprocessing stage, Lean-auto will automatically collect all the definitional
-equalities associated with the list of symbols in the \textit{definitional equality instruction}
-supplied by the user. An extra list of symbols can be supplied in the \textit{unfolding instruction},
-and Lean-auto will recursively unfold symbols in this list.
+Lean-auto can be configured to collect definitional equalities, perform reduction and
+unfold constants, see Sect. \ref{sectprep}.
 
   Second, during $\lambda_\to^*$ abstraction, we would like $\text{HOL}^*$ instances
 that are syntactically different but definitionally equal to be abstracted to the

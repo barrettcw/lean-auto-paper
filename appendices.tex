@@ -83,6 +83,62 @@
   \noindent We use $\forall' (x : s). t$ as a shorthand for $\forall'_s \ (\lambda (x : s). t)$, and $\exists'(x : \alpha). t$
   as a shorthand for $\exists_s' \ (\lambda (x : s). t)$.
 
+\section{The $\mathsf{QMono}$ predicate}\label{appqmono}
+
+  \begin{definition} We define the predicate $\mathsf{QMono}(\Gamma; B, t)$ inductively,
+    where $\Gamma$ is a $\lambda C$ context, $B$ is a set of variables, and $t$ is a $\lambda C$ term
+    \begin{enumerate}
+      \item For variable $x \in B$ and terms $t_1, \dots, t_n$,
+        \begin{align*}
+          \mathsf{QMono}(\Gamma; B, x \ t_1 \dots \ t_n) := \ &
+          \mathsf{DArgs}(\Gamma; x, (t_1 \ \dots \ t_n)) = \emptyset \land \\
+          & \forall i \in \{1, \dots, n\}. \mathsf{QMono}(\Gamma; B, t_i)
+        \end{align*}
+      \item For variable $x \notin B$ and terms $t_1, \dots, t_n$,
+        \begin{align*}
+          \mathsf{QMono}(\Gamma; B, x \ t_1 \dots \ t_n) := \ & (\forall t \in \mathsf{DArgs}(\Gamma; x, (t_1, \dots, t_n)). FV(t) \cap B = \emptyset) \land \\
+          & (\forall t \in \mathsf{LArgs}(\Gamma; x, (t_1, \dots, t_n)). \mathsf{QMono}(\Gamma; B, t))
+        \end{align*}
+      \item For variable $x$ and terms $s, t$
+        \begin{align*}
+          \mathsf{QMono}(\Gamma; B, \lambda (x : s). t) := \
+          & FV(s) \cap B = \emptyset \land (\Gamma \not\vdash s : \mathsf{U}_0) \\
+          & \land \mathsf{QMono}(\Gamma, x : s; B \cup \{x\}, t)
+        \end{align*}
+      \item For variable $x$ and terms $s, t$ such that $x \in FV(t)$,
+        \begin{align*}
+          \mathsf{QMono}(\Gamma; B, \forall (x : s). t) := \
+          & \neg FV(s) \cap B = \emptyset \land (\Gamma \not \vdash s : \mathsf{U}_0) \land  (\Gamma \vdash t : \mathsf{U}_0) \land \\
+          & \mathsf{QMono}(\Gamma, x : s; B \cup \{x\}, t)
+        \end{align*}
+      \item For terms $s, t$,
+        \begin{align*}
+          \mathsf{QMono}(\Gamma; B, s \to t) := \ & (\Gamma \vdash s : \mathsf{U}_0) \land (\Gamma \vdash t : \mathsf{U}_0) \land \\
+          & \mathsf{QMono}(\Gamma; B, s) \land \mathsf{QMono}(\Gamma; B, t)
+        \end{align*}
+    \end{enumerate}
+  \end{definition}
+
+  \noindent According to the definition of $\mathsf{QMono}$, terms coming from canonical embedding of $\text{HOL}^*$
+  terms are automatically quasi-monomorphic, e.g.
+  $$\mathsf{QMono}(\alpha : \mathsf{U}_1, p : (\alpha \to \alpha) \to \mathsf{U}_0; \emptyset, \forall (p : \alpha \to \alpha). f \ p)$$
+  Proofs are not allowed to be quantified by $\lambda$ or dependent $\forall$ binders:
+  $$\neg \mathsf{QMono}(p : \mathsf{U}_0, q : p \to \mathsf{U}_0; \emptyset, \forall (x : p). q \ x)$$
+  Occurrence of a dependently typed free variable does not break the quasi-monomorphic property iff
+  its dependent arguments do not contain bound variables (assuming $B = \emptyset$):
+  \begin{align*}
+    \mathsf{QMono}(
+    & \mathbb{N} : \mathsf{U}_1, \mathsf{Fin} : \mathbb{N} \to \mathsf{U}_1,
+      \mathsf{add} : \forall (n : \mathbb{N}). \mathsf{Fin} \ n \to \mathsf{Fin} \ n \to \mathsf{Fin} \ n, k : \mathbb{N}; \\
+    & \emptyset, \forall (x \ y : \mathsf{Fin} \ k). \mathsf{add} \ k \ x \ y = \mathsf{add} \ k \ y \ x)
+  \end{align*}
+  Occurrence of a dependently typed bound variable does not break the quasi-monomorphic property iff
+  its dependent arguments are not instantiated:
+  $$\mathsf{QMono}(\emptyset; \emptyset, \lambda (f : (\forall (\alpha : \mathsf{U}_0). \alpha) \to (\forall (\alpha : \mathsf{U}_0). \alpha)) \
+    (x : \forall (\alpha : \mathsf{U}_0). \alpha). f \ x)$$
+  Except for within type declarations of bound variables, bodies of $\forall$ abstractions must be propositions:
+  $$\neg \mathsf{QMono}(\alpha : \mathsf{U}_1, \beta : \alpha \to \mathsf{U}_1; \emptyset, \forall (x : \alpha). \beta \ x)$$
+
 \section{Universe Lifting}\label{appulift}
 
   In this appendix, we discuss the translation procedure from $\text{HOL}^*$ to HOL

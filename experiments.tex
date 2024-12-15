@@ -1,6 +1,13 @@
 \section{Experiments}\label{sectexpr}
 
-  We evaluate Lean-auto on three types of ATPs:
+  We evaluated Lean-auto on 128 human theorems randomly drawn from the entire
+  Mathlib4\footnote{Commit d5ab93e3a3afadaf265a583a92f7e7c47203b540}. A
+  Lean4 constant is considered a human theorem iff it is a constant and
+  is declared somewhere in a \texttt{.lean} file\footnote{We use
+  \texttt{Lean.findDeclarationRanges?} to test whether a theorem is
+  declared in a \texttt{.lean} file}. Evaluation is conducted on a laptop
+  with \texttt{AMD Ryzen 9 7945HX} 16-Core CPU and \texttt{32GB} memory.
+  Three types of ATPs are used together with Lean-auto:
   \begin{enumerate}
     \item Native provers, or ATPs implemented in Lean4 itself. At present, the only general-purpose
       native prover in Lean4 is Duper \cite{DuperPaper}. Note that Lean-auto is
@@ -26,14 +33,6 @@
   Lean-auto, we collect all the theorems used in its human proof. The set of collected theorems
   roughly equals the set of necessary premises needed to prove $T$. Therefore, it could
   be used as a replacement for the output of premise selection.
-
-  The evaluation dataset consists of 128 human theorems randomly drawn from the entire
-  Mathlib4\footnote{Commit d5ab93e3a3afadaf265a583a92f7e7c47203b540}. A
-  Lean4 constant is considered a human theorem iff it is a constant and
-  is declared somewhere in a \texttt{.lean} file\footnote{We use
-  \texttt{Lean.findDeclarationRanges?} to test whether a theorem is
-  declared in a \texttt{.lean} file}. Evaluation is conducted on a laptop
-  with \texttt{AMD Ryzen 9 7945HX} 16-Core CPU and \texttt{32GB} memory.
 
   \begin{figure}
   \begin{center}\begin{tabular}{| c K{6em} K{6em} K{6em} K{6em} |}

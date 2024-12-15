@@ -1,7 +1,7 @@
 \section{Quantifier Instantiation}\label{sectinst}
 Given a context $\Gamma$ and a list of hypotheses $h_1 : t_1, \dots, h_n : t_n$, the quantifier
 instantiation procedure of Lean-auto attempts to instantiate quantifiers in
-$t_1, \dots, t_n$ to obtain terms suitable for $\lambda_\to^*$ abstraction.
+$t_1, \dots, t_n$ to obtain terms suitable for $\lambda_\to^*$ abstraction (i.e. satisfy the $\mathsf{QMono}$ predicate).
 
 First, we give a formal definition of \textit{instance}:
 
@@ -9,7 +9,7 @@ First, we give a formal definition of \textit{instance}:
   Let $\Gamma$ be a $\lambda C$ context, and $t$ be a $\lambda C$ term which is type correct under $\Gamma$.
   \begin{enumerate}
     \item A constant instance of $t$ is a $\lambda C$ term of the
-      form $\lambda (y_1 : s_1) \dots (y_m : s_m). t \ t_1 \ \dots \ t_k$ that is
+      form $\lambda (x_1 : s_1) \dots (x_m : s_m). t \ t_1 \ \dots \ t_k$ that is
       type correct under $\Gamma$, where $s_1, \dots, s_m, t_1, \dots t_k$ are $\lambda C$ terms.
     \item For $t = \forall (x_1 : r_1) \dots (x_n : r_n). b$, a hypothesis instance of
       $t$ is a $\lambda C$ term of the form $\forall (y_1 : s_1) \dots (y_m : s_m). b[t_1/x_1]\dots[t_n/x_n]$,
@@ -85,7 +85,7 @@ The matching procedure in the saturation loop is handled by $\mathsf{matchInst}$
     The pseudocode for $\mathsf{match}$ is given in \textbf{Algorithm \ref{matching}}. An auxiliary function
     $\mathsf{unify}$ is used in the pseudocode. Given $\lambda C$ context $\Gamma$, variable set $M$
     and two $\lambda C$ terms $t_1, t_2$, $\mathsf{unify}(\Gamma; M, t_1, t_2)$ returns a complete set of
-    $M$-unifiers of $t_1$ and $t_2$ under $\Gamma$. In Lean, the \texttt{isDefEq} function can be used perform
+    $M$-unifiers of $t_1$ and $t_2$ under $\Gamma$. In Lean4, the \texttt{isDefEq} function can be used perform
     unification, but it is incomplete and returns at most one unifier.
   \item Given context $\Gamma$ and terms $m, h$,
     $\mathsf{matchInst}(\Gamma; m, h)$ computes all instances of the hypothesis $h$ which has some subterm whose
