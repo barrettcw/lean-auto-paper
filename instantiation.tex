@@ -100,42 +100,55 @@ The matching procedure in the saturation loop is handled by $\mathsf{matchInst}$
 \begin{algorithm}\label{saturate}
   \DontPrintSemicolon
   \SetNoFillComment
+  \SetKwFunction{matchOnePairFun}{\textsf{matchOnePair}}
   \SetKwFunction{saturateFun}{\textsf{saturate}}
   \caption{Main saturation loop of quantifier instantiation}
   \Fn{\saturateFun{$\Gamma; H, \vmaxInsts$}}{
     \Input{$\lambda C$ context $\Gamma$, list of $\lambda C$ terms $H$, and threshold $\vmaxInsts$}
     \Output{A list of $\lambda C$ terms}
-    $\vhi := H$ \tcc*[h]{List of hypothesis instances} \;
-    $\vci := \mathsf{Queue.empty}()$ \tcc*[h]{A queue of constant instances} \;
+    $\vhi := H$ \tcc*[h]{A list of hypothesis instances} \;
+    $\vci := \mathsf{List.empty}()$ \tcc*[h]{A list of constant instances} \;
+    \tcc*[h]{A queue of active constant and hypothesis instances} \;
+    $\vactive := \mathsf{Queue.empty}()$\;
     \For{h : H}{
-      \For{$m : \mathsf{mholInsts}(\Gamma; \emptyset, h)$}{$\vci.\mathsf{push}(m)$}
+      $\vhi.\mathsf{push}((0, h))$ \;
+      \For{$c : \mathsf{mholInsts}(\Gamma; \emptyset, h)$}
+        {$\vci.\mathsf{push}(c)$; $\vactive.\mathsf{push}((1, c))$}
     }
-    $\vactiveci := \vci.\mathsf{copy}()$ \;
-    \While{$! \ \vactiveci.\mathsf{empty}()$}{
-      $m := \vactiveci.\mathsf{front}()$ \;
-      $\vactiveci.\mathsf{popFront}()$ \;
-      $\vprevhi = \vhi.\mathsf{copy}()$ \;
-      \For{$h : \vprevhi$}{
-        $\vnewhi := \mathsf{matchInst}(\Gamma; m, h)$ \;
-        \For{$\vnh : \vnewhi$}{
-          \lIf{$\vnh \in \vhi$}{\Continue}
-          $\vhi.\mathsf{push}(\vnh)$ \;
-          $\vnewci := \mathsf{mholInsts}(\Gamma; \emptyset, \vnh)$ \;
-          \For{$\vnc : \vnewci$}{
-            \lIf{$\vnc \in \vci$}{\Continue}
-            $\vci.\mathsf{push}(\vnc)$ \;
-            $\vactiveci.\mathsf{push}(\vnc)$
-          }
-        }
-        \lIf{$\vhi.\mathsf{size}() + \vci.\mathsf{size}() > \vmaxInsts$}{\Break}
-      }
+    \While{$! \ \vactive.\mathsf{empty}()$}{
       \lIf{$\vhi.\mathsf{size}() + \vci.\mathsf{size}() > \vmaxInsts$}{\Break}
+      $(\vtype, \vfront) := \vactive.\mathsf{front}()$ \;
+      $\vactive.\mathsf{popFront}()$ \;
+      \eIf{$\vtype = 0$}{
+        $\vprevci := \vci.\mathsf{copy}()$ \;
+        \For{$c : \vprevci$}{
+          $\mathsf{matchOnePair}(c, \vfront, \vci, \vhi, \vactive)$
+        }
+      }{
+        $\vprevhi := \vhi.\mathsf{copy}()$ \;
+        \For{$h : \vprevhi$}{
+          $\mathsf{matchOnePair}(\vfront, h, \vci, \vhi, \vactive)$
+        }
+      }
     }
     $\vmonohi := \mathsf{List.empty}()$ \;
     \For{$h : \vhi$}{
       \lIf{$\mathsf{QMono}(\Gamma; \emptyset, h)$}{$\vmonohi.\mathsf{push}(h)$}
     }
     \Return $\vmonohi$
+  }
+  \;
+  \Fn{\matchOnePairFun{$c, h, \vci, \vhi, \vactive$}}{
+    $\vnewhi := \mathsf{matchInst}(\Gamma; c, h)$ \;
+    \For{$\vnh : \vnewhi$}{
+      \lIf{$\vnh \in \vhi$}{\Continue}
+      $\vhi.\mathsf{push}(\vnh); \vactive.\mathsf{push}((0, \vnh))$ \;
+      $\vnewci := \mathsf{mholInsts}(\Gamma; \emptyset, \vnh)$ \;
+      \For{$\vnc : \vnewci$}{
+        \lIf{$\vnc \in \vci$}{\Continue}
+        $\vci.\mathsf{push}(\vnc); \vactive.\mathsf{push}((1, \vnc))$ \;
+      }
+    }
   }
 \end{algorithm}
 

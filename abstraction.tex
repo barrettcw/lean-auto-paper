@@ -229,17 +229,6 @@ the fact that dependent arguments are dynamic.
   \SetKwFunction{lamAbstraction}{\textsf{lamAbst}}
   \SetKwFunction{gvn}{\textsf{getLVarName}}
   \caption{$\lambda_\to^*$ abstraction algorithm of Lean-auto}
-  \Fn{\gvn{t}} {
-    \Input{$\lambda C$ term $t$}
-    \Output{$\lambda_\to^*$ variable name corresponding to $t$}
-    \uIf{$H.\mathsf{contains}(t)$}{
-      \Return $H.\mathsf{find}(t)$
-    }
-    $\vnewname := \mathsf{freshVarName}()$ \;
-    $H.\mathsf{add}(t, \vnewname)$ \;
-    \Return $\vnewname$ 
-  }
-  \;
   \Fn{\lamAbstraction{$\Gamma; B, t$}}{
     \Input{$\lambda C$ context $\Gamma$, variable set $B$,
       and $\lambda C$ term $t$ satisfying $\mathsf{QMono}(\Gamma; B, t)$}
@@ -272,6 +261,17 @@ the fact that dependent arguments are dynamic.
       }
       \Other{\Return $\mathsf{getLVarName}(t)$}
     }
+  }
+  \;
+  \Fn{\gvn{t}} {
+    \Input{$\lambda C$ term $t$}
+    \Output{$\lambda_\to^*$ variable name corresponding to $t$}
+    \uIf{$H.\mathsf{contains}(t)$}{
+      \Return $H.\mathsf{find}(t)$
+    }
+    $\vnewname := \mathsf{freshVarName}()$ \;
+    $H.\mathsf{add}(t, \vnewname)$ \;
+    \Return $\vnewname$ 
   }
 \end{algorithm}
 

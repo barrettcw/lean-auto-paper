@@ -183,11 +183,11 @@ be abstracted to the same $\text{HOL}^*$ type variable during $\lambda_\to^*$ ab
 Here, we choose to reduce all $\text{HOL}^*$ type instances to their normal forms, because they
 are usually very simple expressions.
 
-\noindent \textbf{Typeclass Instance Arguments must be Absorbed}
+\noindent \textbf{Typeclass Instance Arguments Should be Absorbed}
 
   In Lean4, many function's instance argument(s) are not dependent arguments,
 for example the fourth argument of \texttt{HAdd.hAdd} mentioned in Sect. \ref{sectlean}.
-Lean-auto's actual implementation ensures that typeclass arguments are absorbed into
-$\text{HOL}^*$ variables by requiring that all instance quantifiers be instantiated
-and that all $\text{HOL}^*$ instances take typeclass arguments with them. For
+Lean-auto's actual implementation attempts to absorbed typeclass arguments into
+$\text{HOL}^*$ variables by instantiating typeclass instance quantifiers
+and requiring $\text{HOL}^*$ instances to take typeclass arguments with them. For
 simplicity, this detail is not included in Sect \ref{sectabst} and Sect \ref{sectinst}.
