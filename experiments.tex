@@ -1,11 +1,11 @@
 \section{Experiments}\label{sectexpr}
 
   We evaluated Lean-auto on 128 human theorems randomly drawn from the entire
-  Mathlib4\footnote{Commit d5ab93e3a3afadaf265a583a92f7e7c47203b540}. A
+  Mathlib4.\footnote{Commit d5ab93e3a3afadaf265a583a92f7e7c47203b540} A
   Lean4 constant is considered a human theorem iff it is a constant,
   is declared somewhere in a \texttt{.lean} file\footnote{We use
   \texttt{Lean.findDeclarationRanges?} to test whether a theorem is
-  declared in a \texttt{.lean} file}, and is not a projection function.
+  declared in a \texttt{.lean} file.}, and is not a projection function.
   Evaluation is conducted on a laptop
   with \texttt{AMD Ryzen 9 7945HX} 16-Core CPU and \texttt{32GB} memory.
   Three types of ATPs are used together with Lean-auto:
@@ -39,9 +39,9 @@
   \begin{center}\begin{tabular}{| c K{6em} K{6em} K{6em} K{6em} |}
     \hline
             & Duper & Zipperposition & Z3 & CVC5 \\ \hline
-    UNSAT   & 23    & 22             & 22 & 22   \\
-    SAT     & 56    & 0              & 22 & 9    \\
-    UNKNOWN & 49    & 106            & 84 & 97   \\ \hline
+    UNSAT   & 37    & 27             & 27 & 27   \\
+    SAT     & 38    & 0              & 14 & 7    \\
+    UNKNOWN & 53    & 101            & 87 & 94   \\ \hline
   \end{tabular}\end{center}
   \caption{Evaluation result} \label{figevalresult}
   \end{figure}

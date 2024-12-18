@@ -159,34 +159,47 @@ Our monomorphization procedure is able to detect such context-dependent $\text{H
 
 \noindent \textbf{Definitional Equality}
 
-  There are three separate occasions in Lean-auto where definitional
-equality has to be addressed.
+  As mentioned before, two syntactically different expressions can be definitionally
+equal in Lean4. Theoretically speaking, reducing all expressions to their normal forms will solve
+the definitional equality problem to a large extent. However, reduction is prohibitively
+expensive on complex expressions in real-life Lean4 projects. Moreover, the reduced expression
+could be much larger than the original expression, and might contain complex dependent types
+that Lean-auto cannot handle. %TODO: Experiments
+
+  Therefore, we have to find other methods to address definitional equality.
+In Lean-auto, there are three separate occasions where definitional equality
+has to be addressed.
 
   First, when a symbol is defined in Lean4, (potentially multiple) \textit{equational theorems} that
 reflect the definitional equalities related to the symbol are automatically generated.
-Lean-auto can be configured to collect definitional equalities, perform reduction and
+Lean-auto can be configured to collect equational theorems, perform reduction and
 unfold constants, see Sect. \ref{sectprep}.
 
   Second, during $\lambda_\to^*$ abstraction, we would like $\text{HOL}^*$ instances
 that are syntactically different but definitionally equal to be abstracted to the
-same $\text{HOL}^*$ variable. Reducing all $\text{HOL}^*$ instances to their normal forms is
-not an option because reduction is prohibitively expensive on complex
-expression in real-life Lean4 projects. To address this issue, our $\lambda_\to^*$ abstraction algorithm keeps a
+same $\text{HOL}^*$ variable. Our $\lambda_\to^*$ abstraction algorithm keeps a
 set $H$ of mutually definitionally unequal $\text{HOL}^*$ instances. Whenever a new $\text{HOL}^*$
 instance $t$ is found, we test definitional equality of $t$ with elements of $H$
 using \texttt{isDefEq}. Since \texttt{isDefEq} is still expensive,
 a \textit{fingerprint} is computed for each $\text{HOL}^*$ instance, and fingerprint equality
 is tested before calling \texttt{isDefEq}.
 
-  Finally, we would also like definitionally equal $\text{HOL}^*$ type instances to
-be abstracted to the same $\text{HOL}^*$ type variable during $\lambda_\to^*$ abstraction.
-Here, we choose to reduce all $\text{HOL}^*$ type instances to their normal forms, because they
-are usually very simple expressions.
+  Finally, even if two $\text{HOL}^*$ instances are definitionally unequal, there could still be nontrivial
+relations between them. For example, suppose $f : \mathbb{N} \to \mathbb{N}$ is defined as
+$f := \lambda (x : \mathbb{N}). g \ x \ x$, then $f$ is not definitionally equal to $g$. However, we do
+have the nontrivial equation $\forall (x : \mathbb{N}). f \ x = g \ x \ x$. Lean-auto will attempt to generate such equations
+after quantifier instantiation completes. For each pair of $\text{HOL}^*$ instances $c_1, c_2$,
+Lean-auto tries to find terms $t_1, \dots, t_n$ such that $\forall x_1 \dots x_m. \ c_1 \ y_1 \ \dots \ y_l = c_2 \ t_1 \ \dots \ t_n$,
+where $x_1, \dots, x_m$ are variables occurring in $t_1, \dots, t_n$, and
+$\{y_1, \dots, y_l\}$ is a subset of $\{x_1, \dots, x_m\}$. For simplicity, this
+definitional equality generation procedure is not included in Sect \ref{sectabst} and Sect \ref{sectinst}.
 
-\noindent \textbf{Typeclass Instance Arguments Should be Absorbed}
+\noindent \textbf{Absorbing Typeclass Instance Arguments}
 
   In Lean4, many function's instance argument(s) are not dependent arguments,
 for example the fourth argument of \texttt{HAdd.hAdd} mentioned in Sect. \ref{sectlean}.
+Since instance arguments are usually large expressions synthesized by Lean4's typeclass
+inference algorithm, their presence can result in large translation results.
 Lean-auto's actual implementation attempts to absorbed typeclass arguments into
 $\text{HOL}^*$ variables by instantiating typeclass instance quantifiers
 and requiring $\text{HOL}^*$ instances to take typeclass arguments with them. For

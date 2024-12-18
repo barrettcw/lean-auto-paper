@@ -8,10 +8,10 @@
 
 \noindent \textbf{Definitional Equality}
 
-  To handle definitional equality in Lean4, Lean-auto performs reduction on the input
+  To handle definitional equality in Lean4, Lean-auto partially reduces the input
   expressions, using Lean4's builtin \texttt{Meta.transform} and \texttt{Meta.whnf}.
   This includes $\beta \zeta \eta \iota$ reduction and part of $\delta$
-  reduction\footnote{$\delta$ reduction is constant unfolding, i.e. replacing a constant with its definition}.
+  reduction.\footnote{$\delta$ reduction is constant unfolding, i.e., replacing a constant with its definition.}
   In Lean4, $\delta$ reduction is controlled by a reducibility setting,
   and Lean-auto allows users to specify the reducibility setting of preprocessing.
   For finer-grained control over which constants should be unfolded, Lean-auto allows

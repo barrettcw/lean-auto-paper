@@ -1,7 +1,7 @@
 \section{Encoding-based translation and Monomorphization}\label{subencmon}
 
   Encoding-based translation and monomorphization
-  are two approaches of translating from more expressive logical systems to
+  are two approaches to translating from more expressive logical systems to
   less expressive logical systems.
 
   The idea of encoding-based translation is to encode
@@ -23,15 +23,15 @@
   and straightforward to compute. However, certain features of the more expressive
   logical system must be omitted to produce translation results of reasonable size,
   which sacrifices soundness \cite{Czajka2018HammerFC}. Moreover, even with this tradeoff,
-  the translation result is usually much larger than the original term.
+  the translated expression is usually much larger than the original expression.
 
   The idea of monomorphization is that, the proof of many propositions in the more expressive
   system can \textit{essentially} be conducted in the less expressive system. For example,
   in polymorphic HOL, given
   \begin{enumerate}
-    \item The list map function $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{U}_1). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$
-    \item Two lists of natural numbers $xs \ ys : \mathsf{List} \ \mathbb{N}$ and two functions $f \ g : \mathbb{N} \to \mathbb{N}$
-    \item The premise $xs = ys \land f = g$
+    \item the list map function $\mathsf{List.map} : \forall (\alpha \ \beta : \mathsf{U}_1). (\alpha \to \beta) \to \mathsf{List} \ \alpha \to \mathsf{List} \ \beta$
+    \item two lists of natural numbers $xs \ ys : \mathsf{List} \ \mathbb{N}$ and two functions $f \ g : \mathbb{N} \to \mathbb{N}$
+    \item the premise $xs = ys \land f = g$
   \end{enumerate}
   The equality
   \begin{equation}\label{lmapphol}
@@ -39,7 +39,7 @@
   \end{equation}
   is provable using two rewrites $xs \Rightarrow ys, f \Rightarrow g$. The crucial observation is that, although $\textsf{List.map}$ is polymorphic, the term
   $\mathsf{List.map} \ \mathbb{N} \ \mathbb{N}$ as a whole behaves just like a monomorphic function,
-  therefore the rewrites can essentially be performed in monomorphic HOL. More formally,
+  and therefore the rewrites can essentially be performed in monomorphic HOL. More formally,
   the formula \eqref{lmapphol} is the image of the monomorphic HOL formula $h \ f^* \ xs^* = h \ g^* \ ys^*$
   under the inter-logical-system ``substitution''
   $$\sigma := \{h \mapsto \mathsf{List.map} \ \mathbb{N} \ \mathbb{N},

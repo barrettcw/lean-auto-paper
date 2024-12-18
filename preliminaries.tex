@@ -35,7 +35,7 @@
   has type $\alpha$ under context $\Gamma$''. Derivation rules for type judgements of
   $\lambda C$ will be given in Sect. \ref{sectpts}. If $\Gamma \vdash t : \alpha$, then $t$ is
   called a \textit{well-formed term}, and $\alpha$ is called a (well-formed)
-  \textit{type}\footnote{In $\lambda C$, all well-formed types are also well-formed terms}.
+  \textit{type}.\footnote{In $\lambda C$, all well-formed types are also well-formed terms.}
   Under context $\Gamma$, a type $\alpha$ is called \textit{inhabited} iff there exists $t$ such
   that $\Gamma \vdash t : \alpha$, in which case $t$ is called an \textit{inhabitant} of $\alpha$.
   Propositions are types of type $\mathsf{U}_0$. A \textit{proof} of a proposition
@@ -63,8 +63,8 @@
   two components: term calculus (which specifies the construction and computation
   rules of terms), and logical axioms/rules.
   \begin{enumerate}
-    \item Untyped FOL, or predicate logic
-    \item Many-sorted FOL
+    \item Untyped FOL, or predicate logic.
+    \item Many-sorted FOL.
     \item Many-sorted HOL (monomorphic HOL, or just HOL), where functions are allowed
       to take function as arguments, and quantifiers can quantify over functions.
       Its term calculus is simply typed lambda calculus $\lambda_\to$ \cite{LambdaWithType}.
@@ -85,7 +85,7 @@
   
   \noindent All previously mentioned hammers translate between these logical systems. Isabelle
   Sledgehammer translates between Isabelle and
-  HOL/FOL\footnote{The exact logical system depends on the mode being used}.
+  HOL/FOL.\footnote{The exact logical system depends on the mode being used.}
   CoqHammer translates between Coq and untyped FOL. Lean-auto translates
   between Lean4 and monomorphic HOL. As mentioned before, Lean-auto's
   preprocessing translates Lean4 into $\lambda C$, and monomorphization
@@ -95,8 +95,8 @@
 
 \subsection{Pure Type Systems $\lambda C, \lambda_\to, \lambda_\to^*$ and Related Logical Systems}\label{sectpts}
 
-  Pure type system (PTS) \cite{LambdaWithType} is a mechanism which enables concise specification
-  of`' a certain class of type systems. We use PTS to formally specify the underlying type systems
+  The Pure Type System (PTS) \cite{LambdaWithType} formalism enables concise specification
+  of a class of type systems. We use PTS to formally specify the underlying type systems
   of the logical systems used in Lean-auto's translation.
 
   The specification of a PTS consists of a triple $(\mathcal{S}, \mathcal{A}, \mathcal{R})$,
@@ -119,9 +119,8 @@
   
   $\lambda_\to^*$ and $\lambda_\to$ are similar, except that $\lambda_\to^*$ allows a
   countable number of universe levels $\ell \in \mathbb{N}^*$. For example,
-  for the type $(\alpha \to \beta) \to \gamma$, if in $\lambda_\to$,
-  then $\alpha, \beta, \gamma$ must be of type $\mathsf{U}_1$; if in
-  $\lambda_\to^*$, then it's possible that $\alpha : \mathsf{U}_{\ell_1},
+  in the type $(\alpha \to \beta) \to \gamma$, $\alpha, \beta, \gamma$ must be of type $\mathsf{U}_1$
+  in the system $\lambda_\to$; however, in $\lambda_\to^*$, it is possible that $\alpha : \mathsf{U}_{\ell_1},
   \beta : \mathsf{U}_{\ell_2}, \gamma : \mathsf{U}_{\ell_3}$ where $\ell_1, \ell_2, \ell_3$
   may be different. A technicality related to PTS requires the presence of
   the sorts $\mathsf{U}_\ell'$ in $\lambda_\to^*$, with axioms $\mathsf{U}_\ell : \mathsf{U}_\ell'$.
@@ -187,7 +186,7 @@
   iff they can be converted to each other via Lean4's builtin conversion rules.
   To test definitional equality of two terms $s$ and $t$, we can either reduce $s$ and
   $t$ to their normal forms and check syntactical equality, or use the optimized
-  builtin function \texttt{isDefEq}\footnote{Its full Lean4 name is \texttt{Lean.Meta.isDefEq}}
+  builtin function \texttt{isDefEq}\footnote{Its full Lean4 name is \texttt{Lean.Meta.isDefEq}.}
   which checks definitional equality of a pair of terms.
 
   Other important Lean4 features relevant to Lean-auto include inductive types, pattern matching and definitions.
