@@ -39,9 +39,9 @@
   \begin{center}\begin{tabular}{| c K{6em} K{6em} K{6em} K{6em} |}
     \hline
             & Duper & Zipperposition & Z3 & CVC5 \\ \hline
-    UNSAT   & 37    & 27             & 27 & 27   \\
-    SAT     & 38    & 0              & 14 & 7    \\
-    UNKNOWN & 53    & 101            & 87 & 94   \\ \hline
+    UNSAT   & 49    & 40             & 39 & 40   \\
+    SAT     & 31    & 0              & 13 & 5    \\
+    UNKNOWN & 48    & 88             & 76 & 83   \\ \hline
   \end{tabular}\end{center}
   \caption{Evaluation result} \label{figevalresult}
   \end{figure}
@@ -53,6 +53,6 @@
   most problems, with a success rate of 14.8\%, while Duper returned the least \texttt{UNKNOWN}.
   
   According to the result, when combined with ATPs, Lean-auto is already able to
-  prove a small percentage of Mathlib4 theorems. We expect that a much higher percentage
+  prove a significant percentage of Mathlib4 theorems. We expect that an even higher percentage
   of theorems in Mathlib4 can be partially automated by Lean-auto, because solving
-  subgoals in the proof is much easier than proving the entire theorem automatically.
+  subgoals in the proof is easier than proving the entire theorem automatically.

@@ -180,7 +180,7 @@ that are syntactically different but definitionally equal to be abstracted to th
 same $\text{HOL}^*$ variable. Our $\lambda_\to^*$ abstraction algorithm keeps a
 set $H$ of mutually definitionally unequal $\text{HOL}^*$ instances. Whenever a new $\text{HOL}^*$
 instance $t$ is found, we test definitional equality of $t$ with elements of $H$
-using \texttt{isDefEq}. Since \texttt{isDefEq} is still expensive,
+using \texttt{isDefEq}. Since \texttt{isDefEq} is expensive,
 a \textit{fingerprint} is computed for each $\text{HOL}^*$ instance, and fingerprint equality
 is tested before calling \texttt{isDefEq}.
 
