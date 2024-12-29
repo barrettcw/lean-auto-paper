@@ -28,7 +28,7 @@
   $\forall (x : \alpha). \beta \to \gamma$ is interpreted as $\forall (x : \alpha). (\beta \to \gamma)$
   instead of $(\forall (x : \alpha). \beta) \to \gamma$, the latter being the convention in
   FOL and HOL. The abbreviations $\bot, \neg, \land, \lor, \leftrightarrow, =_\ell, \exists_\ell$
-  are defined in the usual way, see Appendix \ref{applsc}.
+  are defined in the usual way; see Appendix \ref{applsc}.
 
   A context $\Gamma$ is a list of variable declarations $x_1 : \alpha_1, \dots, x_n : \alpha_n$.
   Type judgements will be written as $\Gamma \vdash t : \alpha$, which stands for ``$\lambda C$ term $t$
@@ -169,8 +169,8 @@
   \centerline{\texttt{HAdd.hAdd : $\forall$ \{$\alpha \ \beta \ \gamma$ : Type\} [self : HAdd $\alpha \ \beta \ \gamma$], $\alpha$ → $\beta$ → $\gamma$}}
 
   \noindent An inhabitant of \texttt{HAdd $\alpha \ \beta \ \gamma$}, called a
-  typeclass instance, is a wrapper of a ``heterogeneous'' addition operator (with $\alpha$ and $\beta$ as its input types and
-  $\gamma$ as its output type). The square bracket in the type of \texttt{HAdd.hAdd}
+  typeclass instance, is a wrapper of a ``heterogeneous'' addition operator, with $\alpha$ and $\beta$ as its input types and
+  $\gamma$ as its output type. The square bracket in the type of \texttt{HAdd.hAdd}
   indicates that the enclosed argument is an instance argument, which is a special type
   of implicit argument intended to be filled by Lean4's typeclass inference algorithm.
   Given the syntax \texttt{x + y} where \texttt{x : $\alpha$} and \texttt{y : $\beta$},

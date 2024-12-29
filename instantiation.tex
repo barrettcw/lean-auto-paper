@@ -1,5 +1,5 @@
 \section{Quantifier Instantiation}\label{sectinst}
-In this section, we present third and last step of Lean-auto's monomorphization : quantifier instantiation,
+In this section, we present the third and last step of Lean-auto's monomorphization : quantifier instantiation,
 Given a context $\Gamma$ and a list of hypotheses $h_1 : t_1, \dots, h_n : t_n$, the quantifier
 instantiation procedure of Lean-auto attempts to instantiate quantifiers in
 $t_1, \dots, t_n$ to obtain terms suitable for $\lambda_\to^*$ abstraction (i.e. satisfy the $\mathsf{QMono}$ predicate).
@@ -14,7 +14,7 @@ First, we give a formal definition of \textit{instance}:
       type correct under $\Gamma$, where $s_1, \dots, s_m, t_1, \dots t_k$ are $\lambda C$ terms.
     \item For $t = \forall (x_1 : r_1) \dots (x_n : r_n). b$, a hypothesis instance of
       $t$ is a $\lambda C$ term of the form $\forall (y_1 : s_1) \dots (y_m : s_m). b[t_1/x_1]\dots[t_n/x_n]$,
-      where $s_1, \dots, s_m, t_1, \dots, t_n$ are $\lambda C$ terms, and the notion $t_1[t_2/x]$ stands
+      where $s_1, \dots, s_m, t_1, \dots, t_n$ are $\lambda C$ terms, and $t_1[t_2/x]$ stands
       for the term obtained by replacing all the $x$ in $t_1$ with $t_2$.
   \end{enumerate}
 \end{definition}
@@ -34,20 +34,20 @@ in a $\lambda C$ term is defined as follows:
   Let $\Gamma$ be a $\lambda C$ context and $B$ be a set of variables, then
   \begin{enumerate}
     \item For variable $x$ and terms $t_1, \dots, t_n$,
-      $$\mathsf{mholInsts}(\Gamma; B, x \ t_1 \ \dots \ t_n) := \left\{
+      $$\mathsf{holInsts}(\Gamma; B, x \ t_1 \ \dots \ t_n) := \left\{
         \begin{aligned}
           S \cup \{l\}, & & FV(l) \cap B = \emptyset \\
           S, & & \text{otherwise}
         \end{aligned}
       \right.$$
       where
-      $$l := \mathsf{LFun}(\Gamma; x, (t_1 \ \dots \ t_n)) \ \ \ \ \ \ S := \bigcup_{t \in \mathsf{LArgs}(\Gamma; x, (t_1, \dots, t_n))} \mathsf{mholInsts}(\Gamma; V, t)$$
+      $$l := \mathsf{LFun}(\Gamma; x, (t_1 \ \dots \ t_n)) \ \ \ \ \ \ S := \bigcup_{t \in \mathsf{LArgs}(\Gamma; x, (t_1, \dots, t_n))} \mathsf{holInsts}(\Gamma; V, t)$$
     \item For variable $x$ and terms $a, b$,
       \begin{align*}
-        \mathsf{mholInsts}(\Gamma; B, \forall (x : a). b) = \mathsf{mholInsts}(\Gamma; B, \lambda (x : a). b) 
-        \\ := \mathsf{mholInsts}(\Gamma; B, a) \cup \mathsf{mholInsts}(\Gamma, x : a; B \cup \{x\}, b)
+        \mathsf{holInsts}(\Gamma; B, \forall (x : a). b) = \mathsf{holInsts}(\Gamma; B, \lambda (x : a). b) 
+        \\ := \mathsf{holInsts}(\Gamma; B, a) \cup \mathsf{holInsts}(\Gamma, x : a; B \cup \{x\}, b)
       \end{align*}
-    \item Otherwise, $\mathsf{mholInsts}(\Gamma; B, t) := \emptyset$.
+    \item Otherwise, $\mathsf{holInsts}(\Gamma; B, t) := \emptyset$.
   \end{enumerate}
 \end{definition}
 
@@ -113,7 +113,7 @@ The matching procedure in the saturation loop is handled by $\mathsf{matchInst}$
     $\vactive := \mathsf{Queue.empty}()$\;
     \For{h : H}{
       $\vhi.\mathsf{push}((0, h))$ \;
-      \For{$c : \mathsf{mholInsts}(\Gamma; \emptyset, h)$}
+      \For{$c : \mathsf{holInsts}(\Gamma; \emptyset, h)$}
         {$\vci.\mathsf{push}(c)$; $\vactive.\mathsf{push}((1, c))$}
     }
     \While{$! \ \vactive.\mathsf{empty}()$}{
@@ -144,7 +144,7 @@ The matching procedure in the saturation loop is handled by $\mathsf{matchInst}$
     \For{$\vnh : \vnewhi$}{
       \lIf{$\vnh \in \vhi$}{\Continue}
       $\vhi.\mathsf{push}(\vnh); \vactive.\mathsf{push}((0, \vnh))$ \;
-      $\vnewci := \mathsf{mholInsts}(\Gamma; \emptyset, \vnh)$ \;
+      $\vnewci := \mathsf{holInsts}(\Gamma; \emptyset, \vnh)$ \;
       \For{$\vnc : \vnewci$}{
         \lIf{$\vnc \in \vci$}{\Continue}
         $\vci.\mathsf{push}(\vnc); \vactive.\mathsf{push}((1, \vnc))$ \;
@@ -163,7 +163,8 @@ we test equality only up to \textit{hypothesis equivalence}.
 
 \begin{definition}
 For two $\lambda C$ terms $t_1, t_2$, $t_1$ and $t_2$ are equivalent as hypotheses
-iff $t_1$ is a hypothesis instance of $t_2$ and $t_2$ is a hypothesis instance of $t_1$.
+iff $t_1$ is a hypothesis instance of $t_2$ and $t_2$ is a hypothesis instance of $t_1$.\footnote{In
+higher-order logic and beyond, there exists terms that are instances of each other but not definitionally equal.}
 \end{definition}
 
 Checking membership up to equivalence ensures that collections of hypothesis

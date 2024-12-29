@@ -45,7 +45,8 @@ higher-order problems into $\text{HOL}^*$.
   If variable set $M$ and substitution $(\Gamma, \Gamma', \sigma)$ satisfies
   \begin{enumerate}
     \item There exists a $\lambda C$ term $s$ such that $\Gamma' \vdash \overline{\sigma}(t_1) : s$ and $\Gamma' \vdash \overline{\sigma}(t_2) : s$.
-    \item $\overline{\sigma}(t_1) \cong \overline{\sigma}(t_2)$
+    \item $\overline{\sigma}(t_1) \cong \overline{\sigma}(t_2)$ (i.e., $\overline{\sigma}(t_1)$ and
+      $\overline{\sigma}(t_2)$ are $\beta\eta$-equivalent)
     \item For all variables $v \in \Gamma \backslash M$, $\sigma(v) = v$.
   \end{enumerate}
   Then $(\Gamma, \Gamma', \sigma)$ is called a $M$-unifier of $t_1$ and $t_2$. In the context of Lean,
@@ -188,7 +189,7 @@ the fact that dependent arguments are dynamic.
   $$\mathsf{compose}, \mathsf{compose} \ B, \mathsf{compose} \ B \ C \ f$$
   are $\Gamma$-lad, while
   $$\mathsf{compose} \ B \ C, \mathsf{compose} \ B \ C \ f \ A, \mathsf{compose} \ B \ C \ f \ A \ g$$
-  are not. Therefore, the dependent arguments of $\mathsf{compose}$ w.r.t $(A, B, C, f, g, x)$
+  are not. Therefore, the dependent arguments of $\mathsf{compose}$ w.r.t $(B, C, f, A, g, x)$
   are $1, 2$ and $4$, and we have
   $$\mathsf{LFun}(\Gamma; \mathsf{compose}, (A, B, C, f, g, x)) = \lambda (f : B \to C). \mathsf{compose} \ A \ B \ f \ C$$
   $$\mathsf{LArgs}(\Gamma; \mathsf{compose}, (A, B, C, f, g, x)) = (f, g, x)$$
@@ -200,7 +201,7 @@ the fact that dependent arguments are dynamic.
       A : \mathsf{U}_1, B : \mathsf{U}_1 
   \end{align*}
   Then $\mathsf{func}$ is $\Gamma$-lad, while
-  $$\mathsf{func} \ (\lambda \beta. A) : \forall (\beta : \mathsf{U}_1). A \ \ \ \ \ \
+  $$\mathsf{func} \ (\lambda \beta. A) : \mathsf{U}_1 \to A \ \ \ \ \ \
   \mathsf{func} \ (\lambda \beta. A) \ B : A$$
   are not. Therefore, the dependent argument of $\mathsf{func}$ w.r.t $(\lambda \beta. A, B)$ is $1$, and
   we have
