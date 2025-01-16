@@ -175,8 +175,8 @@
   \centerline{\texttt{HAdd.hAdd : $\forall$ \{$\alpha \ \beta \ \gamma$ : Type\} [self : HAdd $\alpha \ \beta \ \gamma$], $\alpha$ → $\beta$ → $\gamma$}}
 
   \noindent An inhabitant of \texttt{HAdd $\alpha \ \beta \ \gamma$}, called a
-  typeclass instance, is a wrapper of a ``heterogeneous'' addition operator (with $\alpha$ and $\beta$ as its input types and
-  $\gamma$ as its output type). The square bracket in the type of \texttt{HAdd.hAdd}
+  typeclass instance, is a wrapper of a ``heterogeneous'' addition operator, with $\alpha$ and $\beta$ as its input types and
+  $\gamma$ as its output type. The square bracket in the type of \texttt{HAdd.hAdd}
   indicates that the enclosed argument is an instance argument, which is a special type
   of implicit argument intended to be filled by Lean4's typeclass inference algorithm.
   Given the syntax \texttt{x + y} where \texttt{x : $\alpha$} and \texttt{y : $\beta$},
@@ -196,5 +196,4 @@
   which checks definitional equality of a pair of terms.
 
   Other important Lean4 features relevant to Lean-auto include inductive types, pattern matching and definitions.
-  These features are handled by Lean-auto's preprocessing stage.
-  % TODO: These features and how Lean-auto handles them will be discussed in Sect. \ref{sectprep}.
+  These features are handled by Lean-auto's preprocessing stage, which will be discussed in Sect. \ref{sectprep}.

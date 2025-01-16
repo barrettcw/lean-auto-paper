@@ -26,7 +26,7 @@ The hypotheses are displayed before $\vdash$, while the goal comes after $\vdash
   \end{CenteredBox}
   \caption{Lean4 proof state after quantifier introduction and proof by contradiction, with implicit arguments displayed.
     Note that the equality sign in Figure \ref{leanlistpretty} is a syntactic sugar of
-    the polymorphic function \vEq seen here}
+    the polymorphic function \vEq seen here.}
   \label{leanlistexplicit}
 \end{figure}
 
@@ -113,7 +113,7 @@ Hence, the monomorphization procedure in Lean-auto uses a saturation loop which
 repeats the matching procedure until either no new instances can be produced or a prescribed
 threshold is reached.
 
-\subsection{Challenges related to Lean4} \label{exqdet}
+\subsection{Challenges related to Dependent Type Theory and Lean4} \label{exqdet}
 
 \noindent \textbf{Dependent Arguments are Dynamic}
 
@@ -185,14 +185,14 @@ a \textit{fingerprint} is computed for each $\text{HOL}^*$ instance, and fingerp
 is tested before calling \texttt{isDefEq}.
 
   Finally, even if two $\text{HOL}^*$ instances are definitionally unequal, there could still be nontrivial
-relations between them. For example, suppose $f : \mathbb{N} \to \mathbb{N}$ is defined as
-$f := \lambda (x : \mathbb{N}). g \ x \ x$, then $f$ is not definitionally equal to $g$. However, we do
-have the nontrivial equation $\forall (x : \mathbb{N}). f \ x = g \ x \ x$. Lean-auto will attempt to generate such equations
-after quantifier instantiation completes. For each pair of $\text{HOL}^*$ instances $c_1, c_2$,
-Lean-auto tries to find terms $t_1, \dots, t_n$ such that $\forall x_1 \dots x_m. \ c_1 \ y_1 \ \dots \ y_l = c_2 \ t_1 \ \dots \ t_n$,
+relations between them. For example, if $f : \mathbb{N} \to \mathbb{N}$ is defined as
+$f := \lambda (x : \mathbb{N}). g \ x \ x$, the equation $\forall (x : \mathbb{N}). f \ x = g \ x \ x$
+would be a nontrivial relationship between $f$ and $g$. Lean-auto will attempt
+to generate such equations during quantifier instantiation. For each pair of $\text{HOL}^*$ instances $c_1, c_2$,
+Lean-auto attempts to find terms $t_1, \dots, t_n$ such that $\forall x_1 \dots x_m. \ c_1 \ y_1 \ \dots \ y_l = c_2 \ t_1 \ \dots \ t_n$,
 where $x_1, \dots, x_m$ are variables occurring in $t_1, \dots, t_n$, and
 $\{y_1, \dots, y_l\}$ is a subset of $\{x_1, \dots, x_m\}$. For simplicity, this
-definitional equality generation procedure is not included in Sect \ref{sectabst} and Sect \ref{sectinst}.
+definitional equality generation procedure is not discussed in Sect \ref{sectabst} and Sect \ref{sectinst}.
 
 \noindent \textbf{Absorbing Typeclass Instance Arguments}
 
@@ -200,7 +200,7 @@ definitional equality generation procedure is not included in Sect \ref{sectabst
 for example the fourth argument of \texttt{HAdd.hAdd} mentioned in Sect. \ref{sectlean}.
 Since instance arguments are usually large expressions synthesized by Lean4's typeclass
 inference algorithm, their presence can result in large translation results.
-Lean-auto's actual implementation attempts to absorbed typeclass arguments into
+Lean-auto's implementation attempts to absorb typeclass arguments into
 $\text{HOL}^*$ variables by instantiating typeclass instance quantifiers
 and requiring $\text{HOL}^*$ instances to take typeclass arguments with them. For
-simplicity, this detail is not included in Sect \ref{sectabst} and Sect \ref{sectinst}.
+simplicity, this detail is not discussed in Sect \ref{sectabst} and Sect \ref{sectinst}.
